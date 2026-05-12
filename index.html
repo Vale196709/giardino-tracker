@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giardino Tracker</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.4.0/dist/tabler-icons.min.css">
+<style>
+  :root {
+    --green-900: #14532d;
+    --green-800: #166534;
+    --green-700: #15803d;
+    --green-600: #16a34a;
+    --green-500: #22c55e;
+    --green-100: #dcfce7;
+    --green-50:  #f0fdf4;
+    --amber-600: #d97706;
+    --amber-100: #fef3c7;
+    --amber-50:  #fffbeb;
+    --red-600:   #dc2626;
+    --red-100:   #fee2e2;
+    --red-50:    #fef2f2;
+    --blue-600:  #2563eb;
+    --blue-100:  #dbeafe;
+    --teal-600:  #0d9488;
+    --teal-100:  #ccfbf1;
+    --bg:        #f8faf7;
+    --surface:   #ffffff;
+    --border:    #e2e8d9;
+    --text:      #1a2e1a;
+    --text-muted:#5a7060;
+    --radius:    12px;
+    --radius-sm: 8px;
+    --shadow:    0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Georgia', 'Times New Roman', serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  h1,h2,h3 { font-family: Georgia, serif; }
+
+  /* LOGIN */
+  #screenLogin { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; background: linear-gradient(145deg, #f0fdf4 0%, #ecfdf5 50%, #f0fdf4 100%); }
+  .login-card { background: var(--surface); border-radius: 20px; box-shadow: 0 8px 32px rgba(22,101,52,0.12); padding: 2.5rem 2rem; width: 100%; max-width: 380px; }
+  .login-brand { text-align: center; margin-bottom: 2rem; }
+  .login-brand-icon { font-size: 56px; margin-bottom: 0.5rem; display: block; }
+  .login-brand h1 { font-size: 22px; color: var(--green-800); font-weight: normal; letter-spacing: -0.3px; }
+  .login-brand p { font-size: 13px; color: var(--text-muted); margin-top: 4px; font-family: sans-serif; }
+  .form-group { margin-bottom: 1rem; }
+  .form-label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; font-family: sans-serif; }
+  .form-control { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; background: var(--bg); color: var(--text); font-family: sans-serif; transition: border-color 0.2s; outline: none; }
+  .form-control:focus { border-color: var(--green-500); background: var(--surface); }
+  select.form-control { cursor: pointer; }
+  textarea.form-control { resize: vertical; min-height: 80px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 18px; border-radius: var(--radius-sm); font-size: 14px; font-family: sans-serif; cursor: pointer; border: none; font-weight: 500; transition: all 0.15s; }
+  .btn-primary { background: var(--green-700); color: #fff; width: 100%; padding: 12px; font-size: 15px; }
+  .btn-primary:hover { background: var(--green-800); }
+  .btn-secondary { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border); }
+  .btn-secondary:hover { background: var(--bg); }
+  .btn-sm { padding: 6px 12px; font-size: 13px; }
+  .login-footer { text-align: center; margin-top: 1.25rem; }
+  .link-btn { background: none; border: none; color: var(--green-700); font-size: 13px; cursor: pointer; font-family: sans-serif; text-decoration: underline; }
+  .notice-box { border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12px; font-family: sans-serif; margin-top: 1rem; line-height: 1.5; }
+  .notice-green { background: var(--green-50); color: var(--green-800); border: 1px solid var(--green-100); }
+  .notice-amber { background: var(--amber-50); color: var(--amber-600); border: 1px solid var(--amber-100); }
+
+  /* CONFIG */
+  #screenConfig { min-height: 100vh; padding: 2rem 1rem; background: var(--bg); }
+  .config-inner { max-width: 520px; margin: 0 auto; }
+  .config-header { margin-bottom: 1.5rem; }
+  .config-header h2 { font-size: 20px; color: var(--green-800); font-weight: normal; }
+  .config-header p { font-size: 13px; color: var(--text-muted); font-family: sans-serif; margin-top: 4px; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; box-shadow: var(--shadow); }
+  .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 0.75rem; font-family: sans-serif; }
+  .steps-list { padding-left: 1.25rem; font-size: 13px; color: var(--text-muted); font-family: sans-serif; line-height: 2; }
+  code { background: #f1f5f9; padding: 1px 6px; border-radius: 4px; font-family: monospace; font-size: 12px; color: var(--green-800); }
+  .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
+
+  /* MAIN APP */
+  #screenMain { display: none; flex-direction: column; min-height: 100vh; }
+  #screenMain.active { display: flex; }
+  .top-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  .top-brand { display: flex; align-items: center; gap: 10px; }
+  .top-brand-icon { font-size: 26px; }
+  .top-brand-name { font-size: 17px; color: var(--green-800); }
+  .top-brand-sub { font-size: 11px; color: var(--text-muted); font-family: sans-serif; }
+  .user-chip { display: flex; align-items: center; gap: 6px; background: var(--green-50); border: 1px solid var(--green-100); border-radius: 20px; padding: 5px 12px; cursor: pointer; font-size: 13px; color: var(--green-800); font-family: sans-serif; transition: background 0.15s; }
+  .user-chip:hover { background: var(--green-100); }
+  .content { flex: 1; padding: 1rem; padding-bottom: 80px; max-width: 760px; margin: 0 auto; width: 100%; }
+
+  /* TABS NAV */
+  .nav-tabs { display: flex; background: var(--surface); border-top: 1px solid var(--border); position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; }
+  .nav-tab { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 0 8px; cursor: pointer; font-size: 10px; font-family: sans-serif; color: var(--text-muted); border: none; background: transparent; gap: 3px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; transition: color 0.15s; }
+  .nav-tab i { font-size: 22px; }
+  .nav-tab.active { color: var(--green-700); }
+  .nav-tab.active i { color: var(--green-700); }
+
+  /* TAB PANELS */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* FILTER PILLS */
+  .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
+  .pill { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-family: sans-serif; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-muted); transition: all 0.15s; }
+  .pill.active { background: var(--green-700); color: #fff; border-color: var(--green-700); }
+
+  /* SCADENZA ITEMS */
+  .scad-list { display: flex; flex-direction: column; gap: 8px; }
+  .scad-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); }
+  .scad-item.urgente { border-left: 3px solid var(--red-600); }
+  .scad-item.presto { border-left: 3px solid var(--amber-600); }
+  .scad-item.ok { border-left: 3px solid var(--green-500); }
+  .scad-icon { font-size: 24px; flex-shrink: 0; }
+  .scad-body { flex: 1; min-width: 0; }
+  .scad-plant { font-size: 15px; font-weight: 600; color: var(--text); font-family: sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .scad-meta { font-size: 12px; color: var(--text-muted); font-family: sans-serif; margin-top: 2px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .tipo-pill { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; font-family: sans-serif; }
+  .tp-potatura    { background: var(--blue-100); color: var(--blue-600); }
+  .tp-concimatura { background: var(--green-100); color: var(--green-700); }
+  .tp-irrigazione { background: var(--teal-100); color: var(--teal-600); }
+  .tp-trattamento { background: var(--amber-100); color: var(--amber-600); }
+  .tp-raccolta    { background: #ffe4e6; color: #e11d48; }
+  .tp-altro       { background: #f1f5f9; color: #64748b; }
+  .scad-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-family: sans-serif; white-space: nowrap; }
+  .badge-red    { background: var(--red-100); color: var(--red-600); }
+  .badge-amber  { background: var(--amber-100); color: var(--amber-600); }
+  .badge-green  { background: var(--green-100); color: var(--green-700); }
+  .badge-gray   { background: #f1f5f9; color: #64748b; }
+
+  /* STATS */
+  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1rem; }
+  .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; text-align: center; box-shadow: var(--shadow); }
+  .stat-num { font-size: 28px; color: var(--green-800); font-weight: normal; }
+  .stat-label { font-size: 11px; color: var(--text-muted); font-family: sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+
+  /* PLANT GRID */
+  .plant-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .plant-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; cursor: pointer; box-shadow: var(--shadow); transition: box-shadow 0.15s; }
+  .plant-card:hover { box-shadow: var(--shadow-md); }
+  .plant-card.add-card { border-style: dashed; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--text-muted); font-size: 13px; font-family: sans-serif; min-height: 110px; }
+  .plant-card.add-card:hover { background: var(--green-50); color: var(--green-700); border-color: var(--green-500); }
+  .plant-emoji { font-size: 28px; margin-bottom: 6px; }
+  .plant-name { font-size: 14px; font-weight: 600; color: var(--text); font-family: sans-serif; }
+  .plant-type { font-size: 11px; color: var(--text-muted); font-family: sans-serif; margin-top: 2px; }
+  .plant-scad-tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; font-family: sans-serif; margin-top: 8px; display: inline-block; }
+
+  /* STORICO */
+  .storico-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .storico-item:last-child { border-bottom: none; }
+  .storico-left { flex: 1; }
+  .storico-plant { font-size: 14px; font-weight: 600; color: var(--text); font-family: sans-serif; }
+  .storico-meta { font-size: 12px; color: var(--text-muted); font-family: sans-serif; margin-top: 3px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+  .storico-date { font-size: 12px; color: var(--text-muted); font-family: sans-serif; white-space: nowrap; margin-left: 8px; }
+
+  /* FAB */
+  .fab { position: fixed; bottom: 72px; right: 1.25rem; width: 54px; height: 54px; border-radius: 50%; background: var(--green-700); color: #fff; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(22,101,52,0.35); z-index: 60; transition: background 0.15s, transform 0.15s; }
+  .fab:hover { background: var(--green-800); transform: scale(1.05); }
+  .fab:active { transform: scale(0.95); }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: flex; align-items: flex-end; justify-content: center; }
+  @media (min-width: 600px) { .modal-overlay { align-items: center; } }
+  .modal-box { background: var(--surface); border-radius: 20px 20px 0 0; padding: 1.5rem; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
+  @media (min-width: 600px) { .modal-box { border-radius: 20px; } }
+  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 1.25rem; }
+  .modal-title { font-size: 18px; color: var(--green-800); margin-bottom: 1.25rem; font-weight: normal; }
+
+  /* SECTION HEADER */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
+  .section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); font-family: sans-serif; }
+
+  /* EMPTY STATE */
+  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); font-family: sans-serif; }
+  .empty-state i { font-size: 48px; display: block; margin-bottom: 10px; color: var(--border); }
+  .empty-state p { font-size: 14px; }
+
+  /* LOADING */
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { display: inline-block; animation: spin 0.8s linear infinite; }
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN ===== -->
+<div id="screenLogin">
+  <div class="login-card">
+    <div class="login-brand">
+      <span class="login-brand-icon">🌿</span>
+      <h1>Giardino Tracker</h1>
+      <p>Tieni sotto controllo il tuo verde</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Chi sei?</label>
+      <select class="form-control" id="loginUtente">
+        <option value="">— seleziona —</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">PIN</label>
+      <input type="password" class="form-control" id="loginPin" maxlength="6" placeholder="••••" inputmode="numeric">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()">Accedi</button>
+    <div class="notice-box notice-green" style="margin-top:1rem; font-family:sans-serif; font-size:12px;">
+      <i class="ti ti-info-circle" style="vertical-align:-2px"></i>
+      Prima di accedere, configura il collegamento al tuo Google Sheet.
+    </div>
+    <div class="login-footer">
+      <button class="link-btn" onclick="showScreen('screenConfig')">⚙ Configura collegamento Google Sheet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONFIG ===== -->
+<div id="screenConfig" style="display:none">
+  <div class="config-inner">
+    <div class="config-header">
+      <h2>🌿 Configurazione</h2>
+      <p>Collega l'app al tuo Google Sheet</p>
+    </div>
+    <div class="card">
+      <div class="card-title">URL Google Apps Script</div>
+      <div class="notice-box notice-amber" style="margin-bottom:1rem; font-size:12px;">
+        Incolla qui l'URL ottenuto dopo aver pubblicato lo script come App web su Google Apps Script.
+      </div>
+      <div class="form-group">
+        <label class="form-label">URL API</label>
+        <input type="text" class="form-control" id="apiUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" style="width:auto; padding:10px 20px;" onclick="saveApiUrl()">Salva e continua</button>
+        <button class="btn btn-secondary" onclick="showScreen('screenLogin')">Annulla</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Come ottenere l'URL</div>
+      <ol class="steps-list">
+        <li>Apri il Google Sheet <strong>GiardinoTracker</strong></li>
+        <li>Vai su <strong>Estensioni → Apps Script</strong></li>
+        <li>Incolla il codice fornito nel tutorial</li>
+        <li>Clicca <strong>Distribuisci → Nuova distribuzione</strong></li>
+        <li>Tipo: <code>App web</code> — Accesso: <code>Chiunque</code></li>
+        <li>Copia l'URL e incollalo qui sopra</li>
+      </ol>
+    </div>
+  </div>
+</div>
+
+<!-- ===== MAIN APP ===== -->
+<div id="screenMain">
+  <div class="top-bar">
+    <div class="top-brand">
+      <span class="top-brand-icon">🌿</span>
+      <div>
+        <div class="top-brand-name">Giardino Tracker</div>
+        <div class="top-brand-sub" id="headerSub">Caricamento...</div>
+      </div>
+    </div>
+    <div class="user-chip" onclick="doLogout()">
+      <i class="ti ti-user" style="font-size:14px"></i>
+      <span id="headerUser">—</span>
+      <i class="ti ti-logout" style="font-size:13px"></i>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- SCADENZE -->
+    <div id="panelScadenze" class="tab-panel active">
+      <div class="filter-pills" style="margin-bottom:1rem;">
+        <button class="pill active" onclick="filterScad('tutte',this)">Tutte</button>
+        <button class="pill" onclick="filterScad('scadute',this)">🔴 Scadute</button>
+        <button class="pill" onclick="filterScad('prossime',this)">🟡 Prossime 30gg</button>
+        <button class="pill" onclick="filterScad('ok',this)">🟢 In regola</button>
+      </div>
+      <div id="scadList" class="scad-list">
+        <div class="empty-state"><i class="ti ti-loader spinner"></i><p>Caricamento dati...</p></div>
+      </div>
+    </div>
+
+    <!-- PIANTE -->
+    <div id="panelPiante" class="tab-panel">
+      <div class="stats-row" id="statsRow">
+        <div class="stat-box"><div class="stat-num" id="sTot">—</div><div class="stat-label">Totale</div></div>
+        <div class="stat-box"><div class="stat-num" id="sAlb">—</div><div class="stat-label">Alberi</div></div>
+        <div class="stat-box"><div class="stat-num" id="sVeg">—</div><div class="stat-label">Verdure</div></div>
+      </div>
+      <div id="plantGrid" class="plant-grid"></div>
+    </div>
+
+    <!-- STORICO -->
+    <div id="panelStorico" class="tab-panel">
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">Ultime 30 attività</div>
+        </div>
+        <div id="storicoList"></div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="nav-tabs">
+    <button class="nav-tab active" id="navScadenze" onclick="switchTab('Scadenze')">
+      <i class="ti ti-calendar-due"></i>Scadenze
+    </button>
+    <button class="nav-tab" id="navPiante" onclick="switchTab('Piante')">
+      <i class="ti ti-trees"></i>Piante
+    </button>
+    <button class="nav-tab" id="navStorico" onclick="switchTab('Storico')">
+      <i class="ti ti-clock-hour-4"></i>Storico
+    </button>
+  </nav>
+
+  <button class="fab" onclick="openModal('modalAtt')" aria-label="Aggiungi attività">
+    <i class="ti ti-plus"></i>
+  </button>
+</div>
+
+<!-- MODAL: Nuova attività -->
+<div id="modalAtt" class="modal-overlay" style="display:none" onclick="closeOverlay(event,'modalAtt')">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">📋 Registra attività</div>
+    <div class="form-group">
+      <label class="form-label">Pianta</label>
+      <select class="form-control" id="attPianta"></select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tipo attività</label>
+      <select class="form-control" id="attTipo">
+        <option value="Potatura">✂️ Potatura</option>
+        <option value="Concimatura">🌱 Concimatura</option>
+        <option value="Irrigazione">💧 Irrigazione</option>
+        <option value="Trattamento">🧪 Trattamento antiparassitario</option>
+        <option value="Raccolta">🍎 Raccolta</option>
+        <option value="Altro">📋 Altro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Data eseguita</label>
+      <input type="date" class="form-control" id="attDataEs">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Prossima scadenza (opzionale)</label>
+      <input type="date" class="form-control" id="attDataProx">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note (prodotti usati, quantità, osservazioni…)</label>
+      <textarea class="form-control" id="attNote" placeholder="Es: 200g concime granulare, potatura di ritorno..."></textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" style="flex:1" onclick="saveAttivita()">
+        <i class="ti ti-device-floppy"></i> Salva
+      </button>
+      <button class="btn btn-secondary" onclick="closeModal('modalAtt')">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Nuova pianta -->
+<div id="modalPianta" class="modal-overlay" style="display:none" onclick="closeOverlay(event,'modalPianta')">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">🌱 Aggiungi pianta</div>
+    <div class="form-group">
+      <label class="form-label">Nome</label>
+      <input type="text" class="form-control" id="npNome" placeholder="Es: Olivo grande, Pomodori serra...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tipo</label>
+      <select class="form-control" id="npTipo">
+        <option>Albero da frutto</option>
+        <option>Albero ornamentale</option>
+        <option>Olivo</option>
+        <option>Vite</option>
+        <option>Verdura</option>
+        <option>Erba aromatica</option>
+        <option>Fiore</option>
+        <option>Arbusto</option>
+        <option>Altro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Posizione</label>
+      <input type="text" class="form-control" id="npPos" placeholder="Es: Giardino nord, Serra, Vaso terrazza...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note</label>
+      <textarea class="form-control" id="npNote" placeholder="Varietà, anno di impianto, particolarità..."></textarea>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" style="flex:1" onclick="savePianta()">
+        <i class="ti ti-plus"></i> Aggiungi
+      </button>
+      <button class="btn btn-secondary" onclick="closeModal('modalPianta')">Annulla</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────────
+let API_URL = localStorage.getItem('giardinoApiUrl') || '';
+let currentUser = '';
+let piante = [], attivita = [], utenti = [];
+let currentFilter = 'tutte';
+
+// ── EMOJI MAP ──────────────────────────────────────────
+const emojiTipo = {
+  'Albero da frutto':'🍎','Albero ornamentale':'🌲','Olivo':'🫒','Vite':'🍇',
+  'Verdura':'🥬','Erba aromatica':'🌿','Fiore':'🌸','Arbusto':'🌿','Altro':'🪴'
+};
+const tipoPillClass = {
+  'Potatura':'tp-potatura','Concimatura':'tp-concimatura','Irrigazione':'tp-irrigazione',
+  'Trattamento':'tp-trattamento','Raccolta':'tp-raccolta','Altro':'tp-altro'
+};
+
+// ── NAVIGATION ─────────────────────────────────────────
+function showScreen(id) {
+  ['screenLogin','screenConfig','screenMain'].forEach(s => {
+    const el = document.getElementById(s);
+    if (s === 'screenMain') { el.style.display = (s === id) ? 'flex' : 'none'; }
+    else { el.style.display = (s === id) ? 'block' : 'none'; }
+  });
+}
+
+function switchTab(name) {
+  ['Scadenze','Piante','Storico'].forEach(t => {
+    document.getElementById('panel'+t).classList.toggle('active', t === name);
+    document.getElementById('nav'+t).classList.toggle('active', t === name);
+  });
+}
+
+// ── MODALS ─────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).style.display = 'flex'; }
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function closeOverlay(e, id) { if (e.target.id === id) closeModal(id); }
+
+// ── API ────────────────────────────────────────────────
+async function apiCall(params) {
+  if (!API_URL) { alert('API non configurata. Vai alla configurazione.'); return null; }
+  try {
+    const url = API_URL + '?' + new URLSearchParams(params);
+    const r = await fetch(url);
+    return await r.json();
+  } catch(e) {
+    console.error('Errore API:', e);
+    alert('Errore di connessione al Google Sheet. Controlla l\'URL nelle impostazioni.');
+    return null;
+  }
+}
+
+// ── CONFIG ─────────────────────────────────────────────
+function saveApiUrl() {
+  const v = document.getElementById('apiUrlInput').value.trim();
+  if (!v || !v.startsWith('https://')) { alert('Inserisci un URL valido che inizi con https://'); return; }
+  API_URL = v;
+  localStorage.setItem('giardinoApiUrl', v);
+  showScreen('screenLogin');
+  loadUtenti();
+}
+
+// ── UTENTI ─────────────────────────────────────────────
+async function loadUtenti() {
+  if (!API_URL) return;
+  const res = await apiCall({ action:'read', sheet:'Utenti' });
+  if (!res || !res.data) return;
+  utenti = res.data;
+  const sel = document.getElementById('loginUtente');
+  sel.innerHTML = '<option value="">— seleziona —</option>';
+  utenti.forEach(u => {
+    const o = document.createElement('option');
+    o.value = u.nome; o.textContent = u.nome;
+    sel.appendChild(o);
+  });
+}
+
+// ── LOGIN / LOGOUT ─────────────────────────────────────
+function doLogin() {
+  const nome = document.getElementById('loginUtente').value;
+  const pin  = document.getElementById('loginPin').value;
+  if (!nome) { alert('Seleziona il tuo nome'); return; }
+  if (!API_URL) { alert('Configura prima il collegamento al Google Sheet'); showScreen('screenConfig'); return; }
+  if (utenti.length > 0) {
+    const u = utenti.find(x => x.nome === nome && String(x.pin) === String(pin));
+    if (!u) { alert('PIN non corretto'); return; }
+  }
+  currentUser = nome;
+  document.getElementById('headerUser').textContent = nome;
+  showScreen('screenMain');
+  loadAll();
+}
+
+function doLogout() {
+  currentUser = ''; piante = []; attivita = [];
+  document.getElementById('loginPin').value = '';
+  showScreen('screenLogin');
+}
+
+// ── LOAD DATA ──────────────────────────────────────────
+async function loadAll() {
+  document.getElementById('headerSub').textContent = 'Aggiornamento...';
+  const [rP, rA] = await Promise.all([
+    apiCall({ action:'read', sheet:'Piante' }),
+    apiCall({ action:'read', sheet:'Attività' })
+  ]);
+  if (rP && rP.data) piante = rP.data.filter(p => p.id);
+  if (rA && rA.data) attivita = rA.data.filter(a => a.id);
+  const now = new Date().toLocaleDateString('it-IT');
+  document.getElementById('headerSub').textContent = 'Aggiornato: ' + now;
+  renderAll();
+}
+
+function renderAll() {
+  renderScad();
+  renderPiante();
+  renderStorico();
+  fillPianteSel();
+}
+
+// ── SCADENZE ───────────────────────────────────────────
+function daysLeft(dateStr) {
+  if (!dateStr) return null;
+  const d = new Date(dateStr);
+  if (isNaN(d)) return null;
+  return Math.round((d - new Date()) / 86400000);
+}
+
+function scadInfo(days) {
+  if (days === null) return { cls:'badge-gray', itemCls:'', text:'Nessuna scadenza' };
+  if (days < 0)      return { cls:'badge-red',   itemCls:'urgente', text:'Scaduta ' + Math.abs(days) + ' gg fa' };
+  if (days <= 14)    return { cls:'badge-amber',  itemCls:'presto',  text:'Fra ' + days + ' giorni' };
+  if (days <= 30)    return { cls:'badge-amber',  itemCls:'presto',  text:'Fra ' + days + ' giorni' };
+  return               { cls:'badge-green',  itemCls:'ok',     text:'Fra ' + days + ' giorni' };
+}
+
+function buildScadItems() {
+  return attivita.map(a => {
+    const p = piante.find(x => String(x.id) === String(a.pianta_id));
+    const nome = p ? p.nome : '(pianta ' + a.pianta_id + ')';
+    const emoji = p ? (emojiTipo[p.tipo] || '🪴') : '🪴';
+    const days = daysLeft(a.data_prossima);
+    return { a, nome, emoji, days, info: scadInfo(days) };
+  }).sort((x, y) => {
+    if (x.days === null && y.days === null) return 0;
+    if (x.days === null) return 1;
+    if (y.days === null) return -1;
+    return x.days - y.days;
+  });
+}
+
+function renderScad() {
+  let items = buildScadItems();
+  if (currentFilter === 'scadute')  items = items.filter(i => i.days !== null && i.days < 0);
+  if (currentFilter === 'prossime') items = items.filter(i => i.days !== null && i.days >= 0 && i.days <= 30);
+  if (currentFilter === 'ok')       items = items.filter(i => i.days === null || i.days > 30);
+  const el = document.getElementById('scadList');
+  if (items.length === 0) {
+    el.innerHTML = '<div class="empty-state"><i class="ti ti-mood-happy"></i><p>Nessuna scadenza in questa categoria</p></div>';
+    return;
+  }
+  el.innerHTML = items.map(({ a, nome, emoji, info }) => {
+    const tc = tipoPillClass[a.tipo] || 'tp-altro';
+    const nota = a.note ? ' · ' + String(a.note).substring(0, 45) : '';
+    return `<div class="scad-item ${info.itemCls}">
+      <div class="scad-icon">${emoji}</div>
+      <div class="scad-body">
+        <div class="scad-plant">${nome}</div>
+        <div class="scad-meta">
+          <span class="tipo-pill ${tc}">${a.tipo}</span>
+          <span>${nota}</span>
+        </div>
+      </div>
+      <span class="scad-badge ${info.cls}">${info.text}</span>
+    </div>`;
+  }).join('');
+}
+
+function filterScad(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-pills .pill').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderScad();
+}
+
+// ── PIANTE ─────────────────────────────────────────────
+function renderPiante() {
+  document.getElementById('sTot').textContent = piante.length;
+  document.getElementById('sAlb').textContent = piante.filter(p => p.tipo && p.tipo.toLowerCase().includes('alber') || p.tipo === 'Olivo' || p.tipo === 'Vite').length;
+  document.getElementById('sVeg').textContent = piante.filter(p => p.tipo === 'Verdura' || p.tipo === 'Erba aromatica').length;
+  const g = document.getElementById('plantGrid');
+  const cards = piante.map(p => {
+    const emoji = emojiTipo[p.tipo] || '🪴';
+    const atts = attivita.filter(a => String(a.pianta_id) === String(p.id));
+    const prossimaGiorni = atts.filter(a => a.data_prossima).map(a => daysLeft(a.data_prossima)).filter(d => d !== null).sort((a,b)=>a-b)[0];
+    let tagCls='badge-gray', tagTxt='Nessuna scad.';
+    if (prossimaGiorni !== undefined) {
+      if (prossimaGiorni < 0)       { tagCls='badge-red';   tagTxt='Scaduta'; }
+      else if (prossimaGiorni <= 14){ tagCls='badge-amber'; tagTxt='Fra ' + prossimaGiorni + ' gg'; }
+      else                           { tagCls='badge-green'; tagTxt='Fra ' + prossimaGiorni + ' gg'; }
+    }
+    const pos = p.posizione ? ' · ' + p.posizione : '';
+    return `<div class="plant-card">
+      <div class="plant-emoji">${emoji}</div>
+      <div class="plant-name">${p.nome}</div>
+      <div class="plant-type">${p.tipo || ''}${pos}</div>
+      <span class="plant-scad-tag scad-badge ${tagCls}">${tagTxt}</span>
+    </div>`;
+  });
+  const addCard = `<div class="plant-card add-card" onclick="openModal('modalPianta')">
+    <i class="ti ti-plus" style="font-size:24px"></i>
+    <span>Nuova pianta</span>
+  </div>`;
+  g.innerHTML = cards.join('') + addCard;
+}
+
+// ── STORICO ────────────────────────────────────────────
+function renderStorico() {
+  const sorted = [...attivita].sort((a, b) => new Date(b.data_eseguita) - new Date(a.data_eseguita)).slice(0, 30);
+  const el = document.getElementById('storicoList');
+  if (sorted.length === 0) {
+    el.innerHTML = '<div class="empty-state"><i class="ti ti-history"></i><p>Nessuna attività registrata.<br>Usa il + per aggiungere la prima!</p></div>';
+    return;
+  }
+  el.innerHTML = sorted.map(a => {
+    const p = piante.find(x => String(x.id) === String(a.pianta_id));
+    const nome = p ? p.nome : '(pianta ' + a.pianta_id + ')';
+    const d = a.data_eseguita ? new Date(a.data_eseguita).toLocaleDateString('it-IT') : '—';
+    const tc = tipoPillClass[a.tipo] || 'tp-altro';
+    const nota = a.note ? ' · ' + String(a.note).substring(0, 35) : '';
+    const utente = a.utente ? ' · ' + a.utente : '';
+    return `<div class="storico-item">
+      <div class="storico-left">
+        <div class="storico-plant">${nome}</div>
+        <div class="storico-meta">
+          <span class="tipo-pill ${tc}">${a.tipo}</span>
+          <span>${nota}${utente}</span>
+        </div>
+      </div>
+      <div class="storico-date">${d}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── SAVE ATTIVITÀ ──────────────────────────────────────
+function fillPianteSel() {
+  const sel = document.getElementById('attPianta');
+  sel.innerHTML = piante.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+}
+
+async function saveAttivita() {
+  const pId   = document.getElementById('attPianta').value;
+  const tipo  = document.getElementById('attTipo').value;
+  const dataEs= document.getElementById('attDataEs').value;
+  const dataP = document.getElementById('attDataProx').value;
+  const note  = document.getElementById('attNote').value;
+  if (!pId || !tipo || !dataEs) { alert('Compila almeno: pianta, tipo attività e data eseguita'); return; }
+  const id = Date.now();
+  const row = JSON.stringify([id, pId, tipo, dataEs, dataP, note, currentUser]);
+  const res = await apiCall({ action:'write', sheet:'Attività', row });
+  if (res && res.success) {
+    attivita.push({ id, pianta_id:pId, tipo, data_eseguita:dataEs, data_prossima:dataP, note, utente:currentUser });
+    closeModal('modalAtt');
+    document.getElementById('attNote').value = '';
+    document.getElementById('attDataProx').value = '';
+    renderAll();
+  } else { alert('Errore nel salvataggio. Controlla la connessione.'); }
+}
+
+// ── SAVE PIANTA ────────────────────────────────────────
+async function savePianta() {
+  const nome = document.getElementById('npNome').value.trim();
+  const tipo = document.getElementById('npTipo').value;
+  const pos  = document.getElementById('npPos').value.trim();
+  const note = document.getElementById('npNote').value.trim();
+  if (!nome) { alert('Inserisci il nome della pianta'); return; }
+  const id = Date.now();
+  const row = JSON.stringify([id, nome, tipo, pos, note]);
+  const res = await apiCall({ action:'write', sheet:'Piante', row });
+  if (res && res.success) {
+    piante.push({ id, nome, tipo, posizione:pos, note });
+    closeModal('modalPianta');
+    document.getElementById('npNome').value = '';
+    document.getElementById('npPos').value  = '';
+    document.getElementById('npNote').value = '';
+    renderAll();
+  } else { alert('Errore nel salvataggio.'); }
+}
+
+// ── INIT ───────────────────────────────────────────────
+(function init() {
+  document.getElementById('attDataEs').value = new Date().toISOString().split('T')[0];
+  if (API_URL) {
+    document.getElementById('apiUrlInput').value = API_URL;
+    loadUtenti();
+  }
+})();
+</script>
+</body>
+</html>
