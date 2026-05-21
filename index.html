@@ -1460,6 +1460,10 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
   // Tasto Enter sul PIN
   document.getElementById('loginPin').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
 
+  // Listener per funzioni chiamate dall'HTML
+  window.addEventListener('reloadUtenti', () => window.reloadUtenti());
+  window.addEventListener('switchSetupTab', e => window.switchSetupTab(e.detail));
+
   // Data default spesa
   document.getElementById('spData').value = new Date().toISOString().split('T')[0];
 })();
@@ -1515,7 +1519,7 @@ window.loadMeteo = async function() {
 
     // Consiglio giardino
     let consiglio = '';
-    if (cur.weather[0].id >= 500 && cur.weather[0].id < 600) consiglio = '🚿 Piove — salta l'irrigazione oggi!';
+    if (cur.weather[0].id >= 500 && cur.weather[0].id < 600) consiglio = "🚿 Piove — evita di irrigare oggi!";
     else if (temp > 30) consiglio = '🌡️ Caldo intenso — irrriga mattina presto o sera';
     else if (temp < 5) consiglio = '🥶 Freddo — proteggi le piante sensibili al gelo';
     else consiglio = '✅ Condizioni ideali per lavorare in giardino';
@@ -1741,6 +1745,16 @@ window.exportPDF = function() {
 };
 </script>
 
+<script>
+// Funzioni globali accessibili da HTML (fuori dal modulo ES)
+function reloadUtenti() {
+  // Chiama la versione interna del modulo tramite evento custom
+  window.dispatchEvent(new CustomEvent('reloadUtenti'));
+}
+function switchSetupTabGlobal(tab) {
+  window.dispatchEvent(new CustomEvent('switchSetupTab', {detail: tab}));
+}
+</script>
 <script>
 // Pulisci tutto e registra SW aggiornato
 if ('serviceWorker' in navigator) {
