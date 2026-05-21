@@ -231,6 +231,13 @@ canvas{max-width:100%}
 
 /* RESPONSIVE */
 @media(max-width:400px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+
+/* Nascondi tab Firebase e Utenti su mobile */
+@media(max-width:600px){
+  .tab-setup-btn:nth-child(2),
+  .tab-setup-btn:nth-child(3){ display:none; }
+  #setupFirebase, #setupUtenti { display:none !important; }
+}
 </style>
 </head>
 <body>
@@ -657,8 +664,12 @@ window.switchSetupTab = function(tab) {
     if (!db) initFirebase();
     if (db) loadUtenti();
     else {
-      document.getElementById('utentiList').innerHTML = '<div class="notice notice-amber">⚠️ Firebase non configurato. Vai sulla scheda ⚙ Firebase prima.</div>';
+      document.getElementById('utentiList').innerHTML = '<div class="notice notice-amber">⚠️ Firebase non configurato.</div>';
     }
+  }
+  if (tab === 'login') {
+    if (!db) initFirebase();
+    if (db) loadUtenti();
   }
 };
 
@@ -697,16 +708,23 @@ function showToast(msg, dur=2500) {
 
 // ── UTENTI ─────────────────────────────────────────────
 async function loadUtenti() {
-  if (!db) return;
-  const snap = await getDocs(collection(db,'utenti'));
-  utenti = snap.docs.map(d => ({id:d.id, ...d.data()}));
-  const sel = document.getElementById('loginUtente');
-  sel.innerHTML = '<option value="">— seleziona —</option>';
-  utenti.forEach(u => {
-    const o = document.createElement('option');
-    o.value = u.nome; o.textContent = u.nome; sel.appendChild(o);
-  });
-  renderUtentiList();
+  if (!db) {
+    if (!initFirebase()) return;
+  }
+  try {
+    const snap = await getDocs(collection(db,'utenti'));
+    utenti = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    const sel = document.getElementById('loginUtente');
+    sel.innerHTML = '<option value="">— seleziona —</option>';
+    utenti.forEach(u => {
+      const o = document.createElement('option');
+      o.value = u.nome; o.textContent = u.nome; sel.appendChild(o);
+    });
+    renderUtentiList();
+  } catch(e) {
+    console.error('loadUtenti error:', e);
+    showToast('Errore caricamento utenti: ' + e.message);
+  }
 }
 
 function renderUtentiList() {
@@ -1287,6 +1305,9 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
   // Inizializza sempre Firebase con la config embedded
   if (initFirebase()) {
     loadUtenti();
+  } else {
+    // Riprova dopo 1 secondo
+    setTimeout(() => { if (initFirebase()) loadUtenti(); }, 1000);
   }
 
   // Tasto Enter sul PIN
