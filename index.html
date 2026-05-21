@@ -294,6 +294,7 @@ canvas{max-width:100%}
         <select class="form-control" id="loginUtente"><option value="">— seleziona —</option></select>
         <div id="loginStatus" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
         <button onclick="reloadUtenti()" style="margin-top:8px;width:100%;padding:8px;background:var(--g1);border:1.5px solid var(--g2);border-radius:var(--rads);color:var(--g7);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600">↻ Ricarica utenti</button>
+        <div id="debugInfo" style="margin-top:8px;padding:8px;background:#f1f5f9;border-radius:6px;font-size:11px;font-family:monospace;color:#334155;line-height:1.6;word-break:break-all"></div>
       </div>
       <div class="form-group">
         <label class="form-label">PIN</label>
@@ -850,15 +851,28 @@ async function loadUtenti() {
 
 window.reloadUtenti = async function() {
   const status = document.getElementById('loginStatus');
-  if (status) status.textContent = '⏳ Connessione a Firebase...';
+  const debug = document.getElementById('debugInfo');
+  let log = '';
+  const addLog = msg => { log += msg + '\n'; if(debug) debug.textContent = log; };
+
+  addLog('▶ Avvio ricarica...');
+  if (status) status.textContent = '⏳ Connessione...';
+
+  const cfg = JSON.parse(localStorage.getItem('fbConfig')||'null');
+  addLog('Config: ' + (cfg ? '✅ trovata (project: '+cfg.projectId+')' : '❌ non trovata'));
+
   if (!db) {
+    addLog('DB non inizializzato, provo initFirebase...');
     const ok = initFirebase();
-    if (!ok) {
-      if (status) status.textContent = '❌ Firebase non inizializzato';
-      return;
-    }
+    addLog('initFirebase: ' + (ok ? '✅ OK' : '❌ fallito'));
+    if (!ok) { if (status) status.textContent = '❌ Firebase non inizializzato'; return; }
+  } else {
+    addLog('DB: ✅ già inizializzato');
   }
+
+  addLog('Carico utenti da Firestore...');
   await loadUtenti();
+  addLog('Fine. Utenti trovati: ' + utenti.length);
 };
 
 function renderUtentiList() {
