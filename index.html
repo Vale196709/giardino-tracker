@@ -1229,7 +1229,18 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
   document.getElementById('attDataEs').value = new Date().toISOString().split('T')[0];
   initCal();
 
-  // Precarica config Firebase se esiste
+  // Config Firebase precaricata
+  const _defaultCfg = {
+    apiKey: 'AIzaSyClUZhdem-alQ3TbkklmJ7SLSGeNbQkX2c',
+    projectId: 'quintilina-eacbf',
+    appId: '1:840407908607:web:f31a526f7ff27e15baccca',
+    authDomain: 'quintilina-eacbf.firebaseapp.com',
+    storageBucket: 'quintilina-eacbf.appspot.com',
+    messagingSenderId: '840407908607'
+  };
+  if (!localStorage.getItem('fbConfig')) {
+    localStorage.setItem('fbConfig', JSON.stringify(_defaultCfg));
+  }
   const cfg = JSON.parse(localStorage.getItem('fbConfig')||'null');
   if (cfg) {
     document.getElementById('fbApiKey').value = cfg.apiKey||'';
