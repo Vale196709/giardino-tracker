@@ -5,242 +5,311 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Giardino Tracker</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1a7a3e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Giardino">
+<link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.4.0/dist/tabler-icons.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --green-900: #14532d;
-    --green-800: #166534;
-    --green-700: #15803d;
-    --green-600: #16a34a;
-    --green-500: #22c55e;
-    --green-100: #dcfce7;
-    --green-50:  #f0fdf4;
-    --amber-600: #d97706;
-    --amber-100: #fef3c7;
-    --amber-50:  #fffbeb;
-    --red-600:   #dc2626;
-    --red-100:   #fee2e2;
-    --red-50:    #fef2f2;
-    --blue-600:  #2563eb;
-    --blue-100:  #dbeafe;
-    --teal-600:  #0d9488;
-    --teal-100:  #ccfbf1;
-    --bg:        #f8faf7;
-    --surface:   #ffffff;
-    --border:    #e2e8d9;
-    --text:      #1a2e1a;
-    --text-muted:#5a7060;
-    --radius:    12px;
-    --radius-sm: 8px;
-    --shadow:    0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 6px rgba(0,0,0,0.05), 0 2px 4px rgba(0,0,0,0.04);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Georgia', 'Times New Roman', serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-  h1,h2,h3 { font-family: Georgia, serif; }
+:root {
+  --g9:#0f3d20; --g8:#155a2e; --g7:#1a7a3e; --g6:#22a050;
+  --g5:#2ec66a; --g2:#b8f0cb; --g1:#e6faf0; --g0:#f2fdf6;
+  --a6:#c47a0a; --a1:#fef3c7; --a0:#fffbeb;
+  --r6:#c92828; --r1:#fee2e2; --r0:#fff5f5;
+  --b6:#1d4ed8; --b1:#dbeafe;
+  --t6:#0f766e; --t1:#ccfbf1;
+  --bg:#f5f9f5; --surf:#ffffff; --border:#dde8dc; --text:#0f2a13; --muted:#5a7060;
+  --rad:14px; --rads:8px; --shadow:0 1px 4px rgba(0,0,0,0.07);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.09);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+h1,h2,h3{font-family:'Lora',serif}
 
-  /* LOGIN */
-  #screenLogin { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 1rem; background: linear-gradient(145deg, #f0fdf4 0%, #ecfdf5 50%, #f0fdf4 100%); }
-  .login-card { background: var(--surface); border-radius: 20px; box-shadow: 0 8px 32px rgba(22,101,52,0.12); padding: 2.5rem 2rem; width: 100%; max-width: 380px; }
-  .login-brand { text-align: center; margin-bottom: 2rem; }
-  .login-brand-icon { font-size: 56px; margin-bottom: 0.5rem; display: block; }
-  .login-brand h1 { font-size: 22px; color: var(--green-800); font-weight: normal; letter-spacing: -0.3px; }
-  .login-brand p { font-size: 13px; color: var(--text-muted); margin-top: 4px; font-family: sans-serif; }
-  .form-group { margin-bottom: 1rem; }
-  .form-label { display: block; font-size: 12px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 5px; font-family: sans-serif; }
-  .form-control { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 15px; background: var(--bg); color: var(--text); font-family: sans-serif; transition: border-color 0.2s; outline: none; }
-  .form-control:focus { border-color: var(--green-500); background: var(--surface); }
-  select.form-control { cursor: pointer; }
-  textarea.form-control { resize: vertical; min-height: 80px; }
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 18px; border-radius: var(--radius-sm); font-size: 14px; font-family: sans-serif; cursor: pointer; border: none; font-weight: 500; transition: all 0.15s; }
-  .btn-primary { background: var(--green-700); color: #fff; width: 100%; padding: 12px; font-size: 15px; }
-  .btn-primary:hover { background: var(--green-800); }
-  .btn-secondary { background: transparent; color: var(--text-muted); border: 1.5px solid var(--border); }
-  .btn-secondary:hover { background: var(--bg); }
-  .btn-sm { padding: 6px 12px; font-size: 13px; }
-  .login-footer { text-align: center; margin-top: 1.25rem; }
-  .link-btn { background: none; border: none; color: var(--green-700); font-size: 13px; cursor: pointer; font-family: sans-serif; text-decoration: underline; }
-  .notice-box { border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12px; font-family: sans-serif; margin-top: 1rem; line-height: 1.5; }
-  .notice-green { background: var(--green-50); color: var(--green-800); border: 1px solid var(--green-100); }
-  .notice-amber { background: var(--amber-50); color: var(--amber-600); border: 1px solid var(--amber-100); }
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--g2);border-radius:2px}
 
-  /* CONFIG */
-  #screenConfig { min-height: 100vh; padding: 2rem 1rem; background: var(--bg); }
-  .config-inner { max-width: 520px; margin: 0 auto; }
-  .config-header { margin-bottom: 1.5rem; }
-  .config-header h2 { font-size: 20px; color: var(--green-800); font-weight: normal; }
-  .config-header p { font-size: 13px; color: var(--text-muted); font-family: sans-serif; margin-top: 4px; }
-  .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1rem; box-shadow: var(--shadow); }
-  .card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 0.75rem; font-family: sans-serif; }
-  .steps-list { padding-left: 1.25rem; font-size: 13px; color: var(--text-muted); font-family: sans-serif; line-height: 2; }
-  code { background: #f1f5f9; padding: 1px 6px; border-radius: 4px; font-family: monospace; font-size: 12px; color: var(--green-800); }
-  .btn-row { display: flex; gap: 8px; margin-top: 1rem; }
+/* ── SETUP ── */
+#screenSetup{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;background:linear-gradient(155deg,#e9f7ee 0%,#f2fdf6 60%,#e6f5f0 100%)}
+.setup-card{background:var(--surf);border-radius:24px;box-shadow:0 12px 40px rgba(22,90,46,0.13);padding:2.5rem 2rem;width:100%;max-width:420px}
+.brand-icon{font-size:60px;display:block;text-align:center;margin-bottom:.5rem;filter:drop-shadow(0 4px 8px rgba(0,0,0,.12))}
+.brand-h1{text-align:center;font-size:24px;color:var(--g8);font-weight:600;letter-spacing:-.3px}
+.brand-sub{text-align:center;font-size:13px;color:var(--muted);margin-top:5px;margin-bottom:2rem}
+.form-group{margin-bottom:1rem}
+.form-label{display:block;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:5px}
+.form-control{width:100%;padding:10px 13px;border:1.5px solid var(--border);border-radius:var(--rads);font-size:15px;background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;transition:border-color .2s;outline:none}
+.form-control:focus{border-color:var(--g5);background:var(--surf)}
+select.form-control{cursor:pointer}
+textarea.form-control{resize:vertical;min-height:80px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:var(--rads);font-size:14px;font-family:'DM Sans',sans-serif;cursor:pointer;border:none;font-weight:500;transition:all .15s}
+.btn-primary{background:var(--g7);color:#fff;width:100%;padding:12px;font-size:15px}
+.btn-primary:hover{background:var(--g8)}
+.btn-secondary{background:transparent;color:var(--muted);border:1.5px solid var(--border)}
+.btn-secondary:hover{background:var(--bg)}
+.btn-danger{background:transparent;color:var(--r6);border:1.5px solid var(--r6)}
+.btn-danger:hover{background:var(--r0)}
+.btn-sm{padding:6px 12px;font-size:13px}
+.btn-ai{background:linear-gradient(135deg,var(--g7),var(--t6));color:#fff;padding:10px 18px}
+.btn-ai:hover{opacity:.9}
+.link-btn{background:none;border:none;color:var(--g7);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:underline}
+.notice{border-radius:var(--rads);padding:10px 14px;font-size:12px;font-family:'DM Sans',sans-serif;margin-top:.75rem;line-height:1.6}
+.notice-green{background:var(--g1);color:var(--g8);border:1px solid var(--g2)}
+.notice-amber{background:var(--a0);color:var(--a6);border:1px solid var(--a1)}
+.notice-blue{background:var(--b1);color:var(--b6);border:1px solid #bfdbfe}
+.steps-list{padding-left:1.25rem;font-size:13px;color:var(--muted);line-height:2.2}
+code{background:#f1f5f9;padding:2px 7px;border-radius:4px;font-family:monospace;font-size:12px;color:var(--g8)}
+.btn-row{display:flex;gap:8px;margin-top:1rem}
+.tabs-setup{display:flex;gap:4px;margin-bottom:1.5rem;background:var(--bg);padding:4px;border-radius:10px}
+.tab-setup-btn{flex:1;padding:8px;border:none;background:transparent;cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:500;color:var(--muted);border-radius:7px;transition:all .15s}
+.tab-setup-btn.active{background:var(--surf);color:var(--g8);box-shadow:var(--shadow)}
+.setup-panel{display:none}.setup-panel.active{display:block}
 
-  /* MAIN APP */
-  #screenMain { display: none; flex-direction: column; min-height: 100vh; }
-  #screenMain.active { display: flex; }
-  .top-bar { background: var(--surface); border-bottom: 1px solid var(--border); padding: 0.75rem 1rem; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-  .top-brand { display: flex; align-items: center; gap: 10px; }
-  .top-brand-icon { font-size: 26px; }
-  .top-brand-name { font-size: 17px; color: var(--green-800); }
-  .top-brand-sub { font-size: 11px; color: var(--text-muted); font-family: sans-serif; }
-  .user-chip { display: flex; align-items: center; gap: 6px; background: var(--green-50); border: 1px solid var(--green-100); border-radius: 20px; padding: 5px 12px; cursor: pointer; font-size: 13px; color: var(--green-800); font-family: sans-serif; transition: background 0.15s; }
-  .user-chip:hover { background: var(--green-100); }
-  .content { flex: 1; padding: 1rem; padding-bottom: 80px; max-width: 760px; margin: 0 auto; width: 100%; }
+/* ── MAIN APP ── */
+#screenMain{display:none;flex-direction:column;min-height:100vh}
+#screenMain.active{display:flex}
+.top-bar{background:var(--surf);border-bottom:1px solid var(--border);padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;box-shadow:0 1px 0 var(--border)}
+.top-brand{display:flex;align-items:center;gap:10px}
+.top-brand-icon{font-size:28px}
+.top-brand-name{font-size:17px;color:var(--g8);font-family:'Lora',serif}
+.top-brand-sub{font-size:11px;color:var(--muted)}
+.user-chip{display:flex;align-items:center;gap:6px;background:var(--g1);border:1px solid var(--g2);border-radius:20px;padding:5px 12px;cursor:pointer;font-size:13px;color:var(--g8);transition:background .15s}
+.user-chip:hover{background:var(--g2)}
+.content{flex:1;padding:1rem;padding-bottom:88px;max-width:800px;margin:0 auto;width:100%}
 
-  /* TABS NAV */
-  .nav-tabs { display: flex; background: var(--surface); border-top: 1px solid var(--border); position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; }
-  .nav-tab { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 0 8px; cursor: pointer; font-size: 10px; font-family: sans-serif; color: var(--text-muted); border: none; background: transparent; gap: 3px; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; transition: color 0.15s; }
-  .nav-tab i { font-size: 22px; }
-  .nav-tab.active { color: var(--green-700); }
-  .nav-tab.active i { color: var(--green-700); }
+/* TABS NAV */
+.nav-tabs{display:flex;background:var(--surf);border-top:1px solid var(--border);position:fixed;bottom:0;left:0;right:0;z-index:50}
+.nav-tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 0 8px;cursor:pointer;font-size:9px;font-family:'DM Sans',sans-serif;color:var(--muted);border:none;background:transparent;gap:3px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;transition:color .15s}
+.nav-tab i{font-size:22px}
+.nav-tab.active{color:var(--g7)}
+.nav-tab .badge-dot{position:relative}
+.nav-tab .badge-dot::after{content:'';position:absolute;top:-2px;right:-2px;width:7px;height:7px;background:var(--r6);border-radius:50%;border:1.5px solid var(--surf)}
 
-  /* TAB PANELS */
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
+/* PANELS */
+.tab-panel{display:none}.tab-panel.active{display:block}
 
-  /* FILTER PILLS */
-  .filter-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 1rem; }
-  .pill { padding: 5px 14px; border-radius: 20px; font-size: 12px; font-family: sans-serif; font-weight: 600; cursor: pointer; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-muted); transition: all 0.15s; }
-  .pill.active { background: var(--green-700); color: #fff; border-color: var(--green-700); }
+/* FILTER PILLS */
+.filter-pills{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+.pill{padding:5px 14px;border-radius:20px;font-size:12px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:var(--surf);color:var(--muted);transition:all .15s}
+.pill.active{background:var(--g7);color:#fff;border-color:var(--g7)}
 
-  /* SCADENZA ITEMS */
-  .scad-list { display: flex; flex-direction: column; gap: 8px; }
-  .scad-item { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px 14px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow); }
-  .scad-item.urgente { border-left: 3px solid var(--red-600); }
-  .scad-item.presto { border-left: 3px solid var(--amber-600); }
-  .scad-item.ok { border-left: 3px solid var(--green-500); }
-  .scad-icon { font-size: 24px; flex-shrink: 0; }
-  .scad-body { flex: 1; min-width: 0; }
-  .scad-plant { font-size: 15px; font-weight: 600; color: var(--text); font-family: sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .scad-meta { font-size: 12px; color: var(--text-muted); font-family: sans-serif; margin-top: 2px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-  .tipo-pill { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; font-family: sans-serif; }
-  .tp-potatura    { background: var(--blue-100); color: var(--blue-600); }
-  .tp-concimatura { background: var(--green-100); color: var(--green-700); }
-  .tp-irrigazione { background: var(--teal-100); color: var(--teal-600); }
-  .tp-trattamento { background: var(--amber-100); color: var(--amber-600); }
-  .tp-raccolta    { background: #ffe4e6; color: #e11d48; }
-  .tp-altro       { background: #f1f5f9; color: #64748b; }
-  .scad-badge { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 700; font-family: sans-serif; white-space: nowrap; }
-  .badge-red    { background: var(--red-100); color: var(--red-600); }
-  .badge-amber  { background: var(--amber-100); color: var(--amber-600); }
-  .badge-green  { background: var(--green-100); color: var(--green-700); }
-  .badge-gray   { background: #f1f5f9; color: #64748b; }
+/* SCADENZE */
+.scad-list{display:flex;flex-direction:column;gap:8px}
+.scad-item{background:var(--surf);border:1px solid var(--border);border-radius:var(--rad);padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:var(--shadow);cursor:pointer;transition:all .15s}
+.scad-item:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.scad-item.urgente{border-left:3px solid var(--r6)}
+.scad-item.presto{border-left:3px solid var(--a6)}
+.scad-item.ok{border-left:3px solid var(--g5)}
+.scad-icon{font-size:24px;flex-shrink:0}
+.scad-body{flex:1;min-width:0}
+.scad-plant{font-size:15px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.scad-meta{font-size:12px;color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.tipo-pill{display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600}
+.tp-potatura{background:var(--b1);color:var(--b6)}
+.tp-concimatura{background:var(--g1);color:var(--g7)}
+.tp-irrigazione{background:var(--t1);color:var(--t6)}
+.tp-trattamento{background:var(--a1);color:var(--a6)}
+.tp-raccolta{background:#ffe4e6;color:#e11d48}
+.tp-altro{background:#f1f5f9;color:#64748b}
+.scad-badge{font-size:11px;padding:4px 10px;border-radius:20px;font-weight:700;white-space:nowrap}
+.badge-red{background:var(--r1);color:var(--r6)}
+.badge-amber{background:var(--a1);color:var(--a6)}
+.badge-green{background:var(--g1);color:var(--g7)}
+.badge-gray{background:#f1f5f9;color:#64748b}
 
-  /* STATS */
-  .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 1rem; }
-  .stat-box { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; text-align: center; box-shadow: var(--shadow); }
-  .stat-num { font-size: 28px; color: var(--green-800); font-weight: normal; }
-  .stat-label { font-size: 11px; color: var(--text-muted); font-family: sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; }
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem}
+.stat-box{background:var(--surf);border:1px solid var(--border);border-radius:var(--rad);padding:1rem;text-align:center;box-shadow:var(--shadow)}
+.stat-num{font-size:30px;color:var(--g8);font-family:'Lora',serif}
+.stat-label{font-size:11px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
 
-  /* PLANT GRID */
-  .plant-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-  .plant-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; cursor: pointer; box-shadow: var(--shadow); transition: box-shadow 0.15s; }
-  .plant-card:hover { box-shadow: var(--shadow-md); }
-  .plant-card.add-card { border-style: dashed; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; color: var(--text-muted); font-size: 13px; font-family: sans-serif; min-height: 110px; }
-  .plant-card.add-card:hover { background: var(--green-50); color: var(--green-700); border-color: var(--green-500); }
-  .plant-emoji { font-size: 28px; margin-bottom: 6px; }
-  .plant-name { font-size: 14px; font-weight: 600; color: var(--text); font-family: sans-serif; }
-  .plant-type { font-size: 11px; color: var(--text-muted); font-family: sans-serif; margin-top: 2px; }
-  .plant-scad-tag { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; font-family: sans-serif; margin-top: 8px; display: inline-block; }
+/* PLANT GRID */
+.plant-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.plant-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rad);padding:1rem;cursor:pointer;box-shadow:var(--shadow);transition:all .15s}
+.plant-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.plant-card.add-card{border-style:dashed;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--muted);font-size:13px;min-height:110px}
+.plant-card.add-card:hover{background:var(--g1);color:var(--g7);border-color:var(--g5)}
+.plant-emoji{font-size:30px;margin-bottom:6px}
+.plant-name{font-size:14px;font-weight:600;color:var(--text)}
+.plant-type{font-size:11px;color:var(--muted);margin-top:2px}
+.plant-scad-tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;margin-top:8px;display:inline-block}
 
-  /* STORICO */
-  .storico-item { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--border); }
-  .storico-item:last-child { border-bottom: none; }
-  .storico-left { flex: 1; }
-  .storico-plant { font-size: 14px; font-weight: 600; color: var(--text); font-family: sans-serif; }
-  .storico-meta { font-size: 12px; color: var(--text-muted); font-family: sans-serif; margin-top: 3px; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-  .storico-date { font-size: 12px; color: var(--text-muted); font-family: sans-serif; white-space: nowrap; margin-left: 8px; }
+/* STORICO */
+.storico-item{display:flex;justify-content:space-between;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all .15s}
+.storico-item:last-child{border-bottom:none}
+.storico-item:hover{background:var(--g0);border-radius:var(--rads);padding-left:8px}
+.storico-left{flex:1}
+.storico-plant{font-size:14px;font-weight:600;color:var(--text)}
+.storico-meta{font-size:12px;color:var(--muted);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.storico-date{font-size:12px;color:var(--muted);white-space:nowrap;margin-left:8px}
 
-  /* FAB */
-  .fab { position: fixed; bottom: 72px; right: 1.25rem; width: 54px; height: 54px; border-radius: 50%; background: var(--green-700); color: #fff; border: none; font-size: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(22,101,52,0.35); z-index: 60; transition: background 0.15s, transform 0.15s; }
-  .fab:hover { background: var(--green-800); transform: scale(1.05); }
-  .fab:active { transform: scale(0.95); }
+/* FAB */
+.fab{position:fixed;bottom:76px;right:1.25rem;width:54px;height:54px;border-radius:50%;background:var(--g7);color:#fff;border:none;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(22,101,52,.4);z-index:60;transition:all .15s}
+.fab:hover{background:var(--g8);transform:scale(1.05)}
+.fab:active{transform:scale(.95)}
 
-  /* MODAL */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: flex; align-items: flex-end; justify-content: center; }
-  @media (min-width: 600px) { .modal-overlay { align-items: center; } }
-  .modal-box { background: var(--surface); border-radius: 20px 20px 0 0; padding: 1.5rem; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; }
-  @media (min-width: 600px) { .modal-box { border-radius: 20px; } }
-  .modal-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 1.25rem; }
-  .modal-title { font-size: 18px; color: var(--green-800); margin-bottom: 1.25rem; font-weight: normal; }
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:600px){.modal-overlay{align-items:center}}
+.modal-box{background:var(--surf);border-radius:20px 20px 0 0;padding:1.5rem;width:100%;max-width:520px;max-height:92vh;overflow-y:auto}
+@media(min-width:600px){.modal-box{border-radius:20px}}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 1.25rem}
+.modal-title{font-size:18px;color:var(--g8);margin-bottom:1.25rem;font-family:'Lora',serif}
+.modal-actions{display:flex;gap:8px;margin-top:1rem;flex-wrap:wrap}
+.modal-actions .btn{flex:1;min-width:90px}
 
-  /* SECTION HEADER */
-  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
-  .section-title { font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); font-family: sans-serif; }
+/* SECTION */
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.section-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rad);padding:1.25rem;margin-bottom:1rem;box-shadow:var(--shadow)}
+.card-title{font-size:14px;font-weight:600;color:var(--text);margin-bottom:.75rem}
 
-  /* EMPTY STATE */
-  .empty-state { text-align: center; padding: 3rem 1rem; color: var(--text-muted); font-family: sans-serif; }
-  .empty-state i { font-size: 48px; display: block; margin-bottom: 10px; color: var(--border); }
-  .empty-state p { font-size: 14px; }
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--muted)}
+.empty-state i{font-size:48px;display:block;margin-bottom:10px;color:var(--border)}
+.empty-state p{font-size:14px;line-height:1.6}
 
-  /* LOADING */
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .spinner { display: inline-block; animation: spin 0.8s linear infinite; }
+/* LOADING */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{display:inline-block;animation:spin .8s linear infinite}
+
+/* CALENDAR */
+.cal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem}
+.cal-month{font-family:'Lora',serif;font-size:18px;color:var(--g8)}
+.cal-nav{background:transparent;border:1.5px solid var(--border);border-radius:var(--rads);width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:16px;transition:all .15s}
+.cal-nav:hover{background:var(--g1);border-color:var(--g2);color:var(--g7)}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-dow{text-align:center;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:4px 0}
+.cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;border-radius:8px;font-size:13px;cursor:pointer;transition:all .15s;position:relative;flex-direction:column;gap:1px}
+.cal-day.other-month{color:var(--border)}
+.cal-day.today{background:var(--g1);color:var(--g7);font-weight:700;border:1.5px solid var(--g2)}
+.cal-day.has-event::after{content:'';position:absolute;bottom:3px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:var(--g7)}
+.cal-day.has-urgent::after{background:var(--r6)}
+.cal-day:hover:not(.other-month){background:var(--g0)}
+.cal-day-events{margin-top:.75rem}
+.cal-event-item{background:var(--surf);border:1px solid var(--border);border-radius:var(--rads);padding:8px 12px;margin-bottom:6px;font-size:13px;display:flex;align-items:center;gap:8px;cursor:pointer}
+.cal-event-item:hover{background:var(--g0)}
+.cal-event-item.evt-urgente{border-left:3px solid var(--r6)}
+.cal-event-item.evt-presto{border-left:3px solid var(--a6)}
+
+/* GRAFICI */
+.chart-container{position:relative;height:200px;margin-bottom:1rem}
+canvas{max-width:100%}
+.chart-legend{display:flex;gap:12px;flex-wrap:wrap;margin-top:.5rem;font-size:12px;color:var(--muted)}
+.legend-item{display:flex;align-items:center;gap:5px}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+
+/* AI PANEL */
+.ai-box{background:linear-gradient(135deg,var(--g1) 0%,var(--t1) 100%);border:1px solid var(--g2);border-radius:var(--rad);padding:1.25rem;margin-bottom:1rem}
+.ai-box-header{display:flex;align-items:center;gap:8px;margin-bottom:.75rem}
+.ai-box-title{font-size:14px;font-weight:600;color:var(--g8)}
+.ai-response{font-size:13px;color:var(--g9);line-height:1.7;white-space:pre-wrap}
+.ai-select-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:.75rem}
+.ai-select-row select{flex:1;min-width:140px;padding:8px 12px;border:1.5px solid var(--g2);border-radius:var(--rads);font-size:14px;background:var(--surf);color:var(--text);font-family:'DM Sans',sans-serif;outline:none}
+.ai-loading{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--g7);animation:pulse 1.2s ease-in-out infinite}
+.ai-dot:nth-child(2){animation-delay:.2s}
+.ai-dot:nth-child(3){animation-delay:.4s}
+.ai-api-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:.75rem}
+.ai-api-row .form-control{font-size:13px;padding:8px 10px}
+.ai-api-notice{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.5}
+
+/* UTENTI MANAGER */
+.utenti-list{display:flex;flex-direction:column;gap:6px}
+.utente-item{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--bg);border-radius:var(--rads);font-size:14px}
+.utente-name{flex:1;font-weight:500}
+.utente-pin{color:var(--muted);font-size:13px;font-family:monospace}
+
+/* TOAST */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--g8);color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;font-family:'DM Sans',sans-serif;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+
+/* RESPONSIVE */
+@media(max-width:400px){.stats-row{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
 
-<!-- ===== LOGIN ===== -->
-<div id="screenLogin">
-  <div class="login-card">
-    <div class="login-brand">
-      <span class="login-brand-icon">🌿</span>
-      <h1>Giardino Tracker</h1>
-      <p>Tieni sotto controllo il tuo verde</p>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Chi sei?</label>
-      <select class="form-control" id="loginUtente">
-        <option value="">— seleziona —</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">PIN</label>
-      <input type="password" class="form-control" id="loginPin" maxlength="6" placeholder="••••" inputmode="numeric">
-    </div>
-    <button class="btn btn-primary" onclick="doLogin()">Accedi</button>
-    <div class="notice-box notice-green" style="margin-top:1rem; font-family:sans-serif; font-size:12px;">
-      <i class="ti ti-info-circle" style="vertical-align:-2px"></i>
-      Prima di accedere, configura il collegamento al tuo Google Sheet.
-    </div>
-    <div class="login-footer">
-      <button class="link-btn" onclick="showScreen('screenConfig')">⚙ Configura collegamento Google Sheet</button>
-    </div>
-  </div>
-</div>
+<!-- ===== SETUP ===== -->
+<div id="screenSetup">
+  <div class="setup-card">
+    <span class="brand-icon">🌿</span>
+    <h1 class="brand-h1">Giardino Tracker</h1>
+    <p class="brand-sub">Tieni sotto controllo il tuo verde</p>
 
-<!-- ===== CONFIG ===== -->
-<div id="screenConfig" style="display:none">
-  <div class="config-inner">
-    <div class="config-header">
-      <h2>🌿 Configurazione</h2>
-      <p>Collega l'app al tuo Google Sheet</p>
+    <div class="tabs-setup">
+      <button class="tab-setup-btn active" onclick="switchSetupTab('login')">Accedi</button>
+      <button class="tab-setup-btn" onclick="switchSetupTab('firebase')">⚙ Firebase</button>
+      <button class="tab-setup-btn" onclick="switchSetupTab('utenti')">👥 Utenti</button>
     </div>
-    <div class="card">
-      <div class="card-title">URL Google Apps Script</div>
-      <div class="notice-box notice-amber" style="margin-bottom:1rem; font-size:12px;">
-        Incolla qui l'URL ottenuto dopo aver pubblicato lo script come App web su Google Apps Script.
+
+    <!-- LOGIN -->
+    <div id="setupLogin" class="setup-panel active">
+      <div class="form-group">
+        <label class="form-label">Chi sei?</label>
+        <select class="form-control" id="loginUtente"><option value="">— seleziona —</option></select>
       </div>
       <div class="form-group">
-        <label class="form-label">URL API</label>
-        <input type="text" class="form-control" id="apiUrlInput" placeholder="https://script.google.com/macros/s/.../exec">
+        <label class="form-label">PIN</label>
+        <input type="password" class="form-control" id="loginPin" maxlength="6" placeholder="••••" inputmode="numeric">
       </div>
-      <div class="btn-row">
-        <button class="btn btn-primary" style="width:auto; padding:10px 20px;" onclick="saveApiUrl()">Salva e continua</button>
-        <button class="btn btn-secondary" onclick="showScreen('screenLogin')">Annulla</button>
+      <button class="btn btn-primary" onclick="doLogin()">Accedi</button>
+      <div class="notice notice-green" style="margin-top:1rem">
+        <strong>Prima volta?</strong> Vai su <em>⚙ Firebase</em> per collegare il database, poi su <em>👥 Utenti</em> per creare i profili.
       </div>
     </div>
-    <div class="card">
-      <div class="card-title">Come ottenere l'URL</div>
-      <ol class="steps-list">
-        <li>Apri il Google Sheet <strong>GiardinoTracker</strong></li>
-        <li>Vai su <strong>Estensioni → Apps Script</strong></li>
-        <li>Incolla il codice fornito nel tutorial</li>
-        <li>Clicca <strong>Distribuisci → Nuova distribuzione</strong></li>
-        <li>Tipo: <code>App web</code> — Accesso: <code>Chiunque</code></li>
-        <li>Copia l'URL e incollalo qui sopra</li>
+
+    <!-- FIREBASE CONFIG -->
+    <div id="setupFirebase" class="setup-panel">
+      <div class="notice notice-amber" style="margin-bottom:1rem">
+        Crea un progetto gratuito su <strong>console.firebase.google.com</strong>, abilita Firestore e copia la config qui sotto.
+      </div>
+      <div class="form-group">
+        <label class="form-label">API Key</label>
+        <input type="text" class="form-control" id="fbApiKey" placeholder="AIzaSy...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Project ID</label>
+        <input type="text" class="form-control" id="fbProjectId" placeholder="mio-giardino-12345">
+      </div>
+      <div class="form-group">
+        <label class="form-label">App ID</label>
+        <input type="text" class="form-control" id="fbAppId" placeholder="1:12345:web:abc123">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" style="flex:1;width:auto;padding:10px 16px" onclick="saveFirebaseConfig()">Salva configurazione</button>
+      </div>
+      <ol class="steps-list" style="margin-top:1rem">
+        <li>Vai su <strong>console.firebase.google.com</strong></li>
+        <li>Crea progetto → Aggiungi app web</li>
+        <li>Copia <code>apiKey</code>, <code>projectId</code>, <code>appId</code></li>
+        <li>Abilita <strong>Firestore Database</strong> in modalità test</li>
+        <li>Incolla i valori qui sopra e salva</li>
       </ol>
+    </div>
+
+    <!-- UTENTI MANAGER -->
+    <div id="setupUtenti" class="setup-panel">
+      <div id="utentiList" class="utenti-list" style="margin-bottom:1rem"></div>
+      <div class="form-group">
+        <label class="form-label">Nome utente</label>
+        <input type="text" class="form-control" id="nuUtente" placeholder="Es: Marco, Giulia...">
+      </div>
+      <div class="form-group">
+        <label class="form-label">PIN (4-6 cifre)</label>
+        <input type="password" class="form-control" id="nuPin" maxlength="6" placeholder="••••" inputmode="numeric">
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" style="flex:1;width:auto;padding:10px 16px" onclick="addUtente()">Aggiungi utente</button>
+      </div>
+      <div class="notice notice-blue" style="margin-top:1rem">
+        Gli utenti vengono salvati su Firebase e condivisi tra tutti i dispositivi connessi.
+      </div>
     </div>
   </div>
 </div>
@@ -251,7 +320,7 @@
     <div class="top-brand">
       <span class="top-brand-icon">🌿</span>
       <div>
-        <div class="top-brand-name">Giardino Tracker</div>
+        <div class="top-brand-name">Giardino</div>
         <div class="top-brand-sub" id="headerSub">Caricamento...</div>
       </div>
     </div>
@@ -265,10 +334,10 @@
   <div class="content">
     <!-- SCADENZE -->
     <div id="panelScadenze" class="tab-panel active">
-      <div class="filter-pills" style="margin-bottom:1rem;">
+      <div class="filter-pills">
         <button class="pill active" onclick="filterScad('tutte',this)">Tutte</button>
         <button class="pill" onclick="filterScad('scadute',this)">🔴 Scadute</button>
-        <button class="pill" onclick="filterScad('prossime',this)">🟡 Prossime 30gg</button>
+        <button class="pill" onclick="filterScad('prossime',this)">🟡 Entro 30gg</button>
         <button class="pill" onclick="filterScad('ok',this)">🟢 In regola</button>
       </div>
       <div id="scadList" class="scad-list">
@@ -286,11 +355,77 @@
       <div id="plantGrid" class="plant-grid"></div>
     </div>
 
+    <!-- CALENDARIO -->
+    <div id="panelCalendario" class="tab-panel">
+      <div class="card">
+        <div class="cal-header">
+          <button class="cal-nav" onclick="calPrev()"><i class="ti ti-chevron-left"></i></button>
+          <div class="cal-month" id="calMonthLabel">—</div>
+          <button class="cal-nav" onclick="calNext()"><i class="ti ti-chevron-right"></i></button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+      </div>
+      <div class="section-header" style="margin-top:.5rem">
+        <div class="section-title" id="calEventsTitle">Scadenze selezionate</div>
+      </div>
+      <div id="calEvents" class="cal-day-events"></div>
+    </div>
+
+    <!-- STATISTICHE -->
+    <div id="panelStats" class="tab-panel">
+      <div class="card">
+        <div class="card-title">Attività per mese (ultimi 6 mesi)</div>
+        <div class="chart-container"><canvas id="chartMesi"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Distribuzione per tipo</div>
+        <div class="chart-container" style="height:180px"><canvas id="chartTipi"></canvas></div>
+        <div class="chart-legend" id="chartTipiLegend"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Attività per pianta</div>
+        <div class="chart-container"><canvas id="chartPiante"></canvas></div>
+      </div>
+    </div>
+
+    <!-- AI CONSIGLI -->
+    <div id="panelAI" class="tab-panel">
+      <div class="ai-box">
+        <div class="ai-box-header">
+          <span style="font-size:24px">✨</span>
+          <div class="ai-box-title">Consigli AI con Gemini (Google)</div>
+        </div>
+        <div style="font-size:13px;color:var(--g8);margin-bottom:1rem;line-height:1.6">
+          Scegli una pianta e ricevi suggerimenti personalizzati su irrigazione, concimatura, potatura e cure stagionali. Powered by <strong>Google Gemini</strong> — gratuito!
+        </div>
+        <div class="form-group">
+          <label class="form-label">Chiave API Google Gemini</label>
+          <input type="password" class="form-control" id="aiApiKey" placeholder="AIza..." style="font-size:13px">
+          <div class="ai-api-notice">La chiave è salvata solo nel browser. Ottienila gratuitamente su <strong>aistudio.google.com</strong></div>
+        </div>
+        <div class="ai-select-row">
+          <select id="aiPianta" class="form-control" style="flex:1"></select>
+          <select id="aiArgomento" class="form-control" style="flex:1">
+            <option value="generale">🌿 Consiglio generale</option>
+            <option value="irrigazione">💧 Irrigazione</option>
+            <option value="concimatura">🌱 Concimatura</option>
+            <option value="potatura">✂️ Potatura</option>
+            <option value="parassiti">🐛 Parassiti & malattie</option>
+            <option value="stagione">📅 Cure di stagione</option>
+          </select>
+        </div>
+        <button class="btn btn-ai" onclick="getAiSuggestion()" id="aiBtnChiedi">
+          <i class="ti ti-sparkles"></i> Chiedi consiglio a Gemini
+        </button>
+      </div>
+      <div id="aiResult"></div>
+    </div>
+
     <!-- STORICO -->
     <div id="panelStorico" class="tab-panel">
       <div class="card">
         <div class="section-header">
-          <div class="section-title">Ultime 30 attività</div>
+          <div class="section-title">Ultime 40 attività</div>
         </div>
         <div id="storicoList"></div>
       </div>
@@ -299,10 +434,19 @@
 
   <nav class="nav-tabs">
     <button class="nav-tab active" id="navScadenze" onclick="switchTab('Scadenze')">
-      <i class="ti ti-calendar-due"></i>Scadenze
+      <span class="badge-dot"><i class="ti ti-calendar-due"></i></span>Scadenze
     </button>
     <button class="nav-tab" id="navPiante" onclick="switchTab('Piante')">
       <i class="ti ti-trees"></i>Piante
+    </button>
+    <button class="nav-tab" id="navCalendario" onclick="switchTab('Calendario')">
+      <i class="ti ti-calendar-month"></i>Calendario
+    </button>
+    <button class="nav-tab" id="navStats" onclick="switchTab('Stats')">
+      <i class="ti ti-chart-bar"></i>Statistiche
+    </button>
+    <button class="nav-tab" id="navAI" onclick="switchTab('AI')">
+      <i class="ti ti-sparkles"></i>AI
     </button>
     <button class="nav-tab" id="navStorico" onclick="switchTab('Storico')">
       <i class="ti ti-clock-hour-4"></i>Storico
@@ -343,13 +487,11 @@
       <input type="date" class="form-control" id="attDataProx">
     </div>
     <div class="form-group">
-      <label class="form-label">Note (prodotti usati, quantità, osservazioni…)</label>
+      <label class="form-label">Note (prodotti, quantità, osservazioni…)</label>
       <textarea class="form-control" id="attNote" placeholder="Es: 200g concime granulare, potatura di ritorno..."></textarea>
     </div>
     <div class="btn-row">
-      <button class="btn btn-primary" style="flex:1" onclick="saveAttivita()">
-        <i class="ti ti-device-floppy"></i> Salva
-      </button>
+      <button class="btn btn-primary" style="flex:1" onclick="saveAttivita()"><i class="ti ti-device-floppy"></i> Salva</button>
       <button class="btn btn-secondary" onclick="closeModal('modalAtt')">Annulla</button>
     </div>
   </div>
@@ -367,15 +509,9 @@
     <div class="form-group">
       <label class="form-label">Tipo</label>
       <select class="form-control" id="npTipo">
-        <option>Albero da frutto</option>
-        <option>Albero ornamentale</option>
-        <option>Olivo</option>
-        <option>Vite</option>
-        <option>Verdura</option>
-        <option>Erba aromatica</option>
-        <option>Fiore</option>
-        <option>Arbusto</option>
-        <option>Altro</option>
+        <option>Albero da frutto</option><option>Albero ornamentale</option>
+        <option>Olivo</option><option>Vite</option><option>Verdura</option>
+        <option>Erba aromatica</option><option>Fiore</option><option>Arbusto</option><option>Altro</option>
       </select>
     </div>
     <div class="form-group">
@@ -387,22 +523,79 @@
       <textarea class="form-control" id="npNote" placeholder="Varietà, anno di impianto, particolarità..."></textarea>
     </div>
     <div class="btn-row">
-      <button class="btn btn-primary" style="flex:1" onclick="savePianta()">
-        <i class="ti ti-plus"></i> Aggiungi
-      </button>
+      <button class="btn btn-primary" style="flex:1" onclick="savePianta()"><i class="ti ti-plus"></i> Aggiungi</button>
       <button class="btn btn-secondary" onclick="closeModal('modalPianta')">Annulla</button>
     </div>
   </div>
 </div>
 
-<script>
+<!-- MODAL: Modifica attività -->
+<div id="modalEditAtt" class="modal-overlay" style="display:none" onclick="closeOverlay(event,'modalEditAtt')">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Modifica attività</div>
+    <div class="form-group"><label class="form-label">Pianta</label><select class="form-control" id="eaPianta"></select></div>
+    <div class="form-group"><label class="form-label">Tipo</label>
+      <select class="form-control" id="eaTipo">
+        <option value="Potatura">✂️ Potatura</option><option value="Concimatura">🌱 Concimatura</option>
+        <option value="Irrigazione">💧 Irrigazione</option><option value="Trattamento">🧪 Trattamento</option>
+        <option value="Raccolta">🍎 Raccolta</option><option value="Altro">📋 Altro</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Data eseguita</label><input type="date" class="form-control" id="eaDataEs"></div>
+    <div class="form-group"><label class="form-label">Prossima scadenza</label><input type="date" class="form-control" id="eaDataProx"></div>
+    <div class="form-group"><label class="form-label">Note</label><textarea class="form-control" id="eaNote"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="updateAttivita()"><i class="ti ti-device-floppy"></i> Salva</button>
+      <button class="btn btn-secondary" onclick="closeModal('modalEditAtt')">Annulla</button>
+      <button class="btn btn-danger" onclick="deleteAttivita()"><i class="ti ti-trash"></i> Elimina</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Modifica pianta -->
+<div id="modalEditPianta" class="modal-overlay" style="display:none" onclick="closeOverlay(event,'modalEditPianta')">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">✏️ Modifica pianta</div>
+    <div class="form-group"><label class="form-label">Nome</label><input type="text" class="form-control" id="epNome"></div>
+    <div class="form-group"><label class="form-label">Tipo</label>
+      <select class="form-control" id="epTipo">
+        <option>Albero da frutto</option><option>Albero ornamentale</option><option>Olivo</option>
+        <option>Vite</option><option>Verdura</option><option>Erba aromatica</option>
+        <option>Fiore</option><option>Arbusto</option><option>Altro</option>
+      </select>
+    </div>
+    <div class="form-group"><label class="form-label">Posizione</label><input type="text" class="form-control" id="epPos"></div>
+    <div class="form-group"><label class="form-label">Note</label><textarea class="form-control" id="epNote"></textarea></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="updatePianta()"><i class="ti ti-device-floppy"></i> Salva</button>
+      <button class="btn btn-secondary" onclick="closeModal('modalEditPianta')">Annulla</button>
+      <button class="btn btn-danger" onclick="deletePianta()"><i class="ti ti-trash"></i> Elimina</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- Firebase SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import {
+  getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, setDoc
+} from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
 // ── STATE ──────────────────────────────────────────────
-let API_URL = localStorage.getItem('giardinoApiUrl') || '';
+let db = null, fbApp = null;
 let currentUser = '';
 let piante = [], attivita = [], utenti = [];
 let currentFilter = 'tutte';
+let editingAttId = null, editingPiantaId = null;
+let calYear, calMonth, calSelectedDate = null;
+let chartMesiInst = null, chartTipiInst = null, chartPianteInst = null;
 
-// ── EMOJI MAP ──────────────────────────────────────────
+// ── EMOJI ──────────────────────────────────────────────
 const emojiTipo = {
   'Albero da frutto':'🍎','Albero ornamentale':'🌲','Olivo':'🫒','Vite':'🍇',
   'Verdura':'🥬','Erba aromatica':'🌿','Fiore':'🌸','Arbusto':'🌿','Altro':'🪴'
@@ -411,228 +604,269 @@ const tipoPillClass = {
   'Potatura':'tp-potatura','Concimatura':'tp-concimatura','Irrigazione':'tp-irrigazione',
   'Trattamento':'tp-trattamento','Raccolta':'tp-raccolta','Altro':'tp-altro'
 };
+const chartColors = {
+  'Potatura':'#2563eb','Concimatura':'#16a34a','Irrigazione':'#0d9488',
+  'Trattamento':'#d97706','Raccolta':'#e11d48','Altro':'#64748b'
+};
+
+// ── FIREBASE INIT ──────────────────────────────────────
+function initFirebase() {
+  const cfg = JSON.parse(localStorage.getItem('fbConfig') || 'null');
+  if (!cfg) return false;
+  try {
+    if (!fbApp) {
+      fbApp = initializeApp(cfg, 'giardino');
+      db = getFirestore(fbApp);
+    }
+    return true;
+  } catch(e) { console.error(e); return false; }
+}
+
+window.saveFirebaseConfig = function() {
+  const apiKey = document.getElementById('fbApiKey').value.trim();
+  const projectId = document.getElementById('fbProjectId').value.trim();
+  const appId = document.getElementById('fbAppId').value.trim();
+  if (!apiKey || !projectId || !appId) { showToast('Compila tutti i campi Firebase'); return; }
+  const cfg = { apiKey, projectId, appId, authDomain:`${projectId}.firebaseapp.com`, storageBucket:`${projectId}.appspot.com`, messagingSenderId:'0' };
+  localStorage.setItem('fbConfig', JSON.stringify(cfg));
+  if (initFirebase()) { showToast('✅ Firebase configurato!'); switchSetupTab('utenti'); loadUtenti(); }
+  else showToast('❌ Errore configurazione Firebase');
+};
 
 // ── NAVIGATION ─────────────────────────────────────────
-function showScreen(id) {
-  ['screenLogin','screenConfig','screenMain'].forEach(s => {
-    const el = document.getElementById(s);
-    if (s === 'screenMain') { el.style.display = (s === id) ? 'flex' : 'none'; }
-    else { el.style.display = (s === id) ? 'block' : 'none'; }
+window.switchSetupTab = function(tab) {
+  ['login','firebase','utenti'].forEach(t => {
+    document.getElementById('setupLogin'.replace('login',t) || 'setup'+t.charAt(0).toUpperCase()+t.slice(1))?.classList.remove('active');
+    document.querySelectorAll('.tab-setup-btn').forEach((b,i) => b.classList.remove('active'));
   });
+  const panels = {login:'setupLogin',firebase:'setupFirebase',utenti:'setupUtenti'};
+  document.getElementById(panels[tab]).classList.add('active');
+  const idx = {login:0,firebase:1,utenti:2}[tab];
+  document.querySelectorAll('.tab-setup-btn')[idx].classList.add('active');
+};
+
+function showScreen(id) {
+  document.getElementById('screenSetup').style.display = (id==='screenSetup') ? 'flex' : 'none';
+  const main = document.getElementById('screenMain');
+  main.style.display = (id==='screenMain') ? 'flex' : 'none';
 }
 
-function switchTab(name) {
-  ['Scadenze','Piante','Storico'].forEach(t => {
-    document.getElementById('panel'+t).classList.toggle('active', t === name);
-    document.getElementById('nav'+t).classList.toggle('active', t === name);
+window.switchTab = function(name) {
+  const panels = ['Scadenze','Piante','Calendario','Stats','AI','Storico'];
+  panels.forEach(t => {
+    document.getElementById('panel'+t)?.classList.toggle('active', t===name);
+    const nav = document.getElementById('nav'+t);
+    if (nav) nav.classList.toggle('active', t===name);
   });
-}
+  if (name==='Calendario') renderCalendar();
+  if (name==='Stats') renderCharts();
+  if (name==='AI') fillAiPianteSel();
+};
 
 // ── MODALS ─────────────────────────────────────────────
-function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-function closeOverlay(e, id) { if (e.target.id === id) closeModal(id); }
+window.openModal = function(id) { document.getElementById(id).style.display='flex'; };
+window.closeModal = function(id) { document.getElementById(id).style.display='none'; };
+window.closeOverlay = function(e,id) { if (e.target.id===id) closeModal(id); };
 
-// ── API ────────────────────────────────────────────────
-async function apiCall(params) {
-  if (!API_URL) { alert('API non configurata. Vai alla configurazione.'); return null; }
-  try {
-    const url = API_URL + '?' + new URLSearchParams(params);
-    const r = await fetch(url);
-    return await r.json();
-  } catch(e) {
-    console.error('Errore API:', e);
-    alert('Errore di connessione al Google Sheet. Controlla l\'URL nelle impostazioni.');
-    return null;
-  }
-}
-
-// ── CONFIG ─────────────────────────────────────────────
-function saveApiUrl() {
-  const v = document.getElementById('apiUrlInput').value.trim();
-  if (!v || !v.startsWith('https://')) { alert('Inserisci un URL valido che inizi con https://'); return; }
-  API_URL = v;
-  localStorage.setItem('giardinoApiUrl', v);
-  showScreen('screenLogin');
-  loadUtenti();
+// ── TOAST ──────────────────────────────────────────────
+function showToast(msg, dur=2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
 }
 
 // ── UTENTI ─────────────────────────────────────────────
 async function loadUtenti() {
-  if (!API_URL) return;
-  const res = await apiCall({ action:'read', sheet:'Utenti' });
-  if (!res || !res.data) return;
-  utenti = res.data;
+  if (!db) return;
+  const snap = await getDocs(collection(db,'utenti'));
+  utenti = snap.docs.map(d => ({id:d.id, ...d.data()}));
   const sel = document.getElementById('loginUtente');
   sel.innerHTML = '<option value="">— seleziona —</option>';
   utenti.forEach(u => {
     const o = document.createElement('option');
-    o.value = u.nome; o.textContent = u.nome;
-    sel.appendChild(o);
+    o.value = u.nome; o.textContent = u.nome; sel.appendChild(o);
   });
+  renderUtentiList();
 }
 
+function renderUtentiList() {
+  const el = document.getElementById('utentiList');
+  if (!utenti.length) { el.innerHTML = '<div style="font-size:13px;color:var(--muted);margin-bottom:.5rem">Nessun utente creato ancora.</div>'; return; }
+  el.innerHTML = utenti.map(u => `
+    <div class="utente-item">
+      <span class="utente-name">👤 ${u.nome}</span>
+      <span class="utente-pin">PIN: ${'•'.repeat((u.pin||'').toString().length)}</span>
+      <button class="btn btn-sm btn-danger" onclick="deleteUtente('${u.id}')"><i class="ti ti-trash"></i></button>
+    </div>`).join('');
+}
+
+window.addUtente = async function() {
+  if (!db) { showToast('Configura prima Firebase'); switchSetupTab('firebase'); return; }
+  const nome = document.getElementById('nuUtente').value.trim();
+  const pin  = document.getElementById('nuPin').value.trim();
+  if (!nome) { showToast('Inserisci il nome'); return; }
+  if (!pin || pin.length < 4) { showToast('PIN di almeno 4 cifre'); return; }
+  await addDoc(collection(db,'utenti'), { nome, pin });
+  document.getElementById('nuUtente').value = '';
+  document.getElementById('nuPin').value = '';
+  await loadUtenti();
+  showToast('✅ Utente aggiunto');
+};
+
+window.deleteUtente = async function(id) {
+  if (!confirm('Eliminare questo utente?')) return;
+  await deleteDoc(doc(db,'utenti',id));
+  await loadUtenti();
+  showToast('Utente eliminato');
+};
+
 // ── LOGIN / LOGOUT ─────────────────────────────────────
-function doLogin() {
+window.doLogin = function() {
   const nome = document.getElementById('loginUtente').value;
   const pin  = document.getElementById('loginPin').value;
-  if (!nome) { alert('Seleziona il tuo nome'); return; }
-  if (!API_URL) { alert('Configura prima il collegamento al Google Sheet'); showScreen('screenConfig'); return; }
+  if (!nome) { showToast('Seleziona il tuo nome'); return; }
+  if (!db) { showToast('Configura Firebase prima'); switchSetupTab('firebase'); return; }
   if (utenti.length > 0) {
-    const u = utenti.find(x => x.nome === nome && String(x.pin) === String(pin));
-    if (!u) { alert('PIN non corretto'); return; }
+    const u = utenti.find(x => x.nome===nome && String(x.pin)===String(pin));
+    if (!u) { showToast('PIN non corretto ❌'); return; }
   }
   currentUser = nome;
   document.getElementById('headerUser').textContent = nome;
   showScreen('screenMain');
   loadAll();
-}
+};
 
-function doLogout() {
+window.doLogout = function() {
   currentUser = ''; piante = []; attivita = [];
   document.getElementById('loginPin').value = '';
-  showScreen('screenLogin');
-}
+  showScreen('screenSetup');
+};
 
 // ── LOAD DATA ──────────────────────────────────────────
 async function loadAll() {
   document.getElementById('headerSub').textContent = 'Aggiornamento...';
-  const [rP, rA] = await Promise.all([
-    apiCall({ action:'read', sheet:'Piante' }),
-    apiCall({ action:'read', sheet:'Attività' })
+  if (!db) { document.getElementById('headerSub').textContent = 'Firebase non configurato'; return; }
+  const [snapP, snapA] = await Promise.all([
+    getDocs(query(collection(db,'piante'), orderBy('nome'))),
+    getDocs(query(collection(db,'attivita'), orderBy('data_eseguita','desc')))
   ]);
-  if (rP && rP.data) piante = rP.data.filter(p => p.id);
-  if (rA && rA.data) attivita = rA.data.filter(a => a.id);
-  const now = new Date().toLocaleDateString('it-IT');
-  document.getElementById('headerSub').textContent = 'Aggiornato: ' + now;
+  piante   = snapP.docs.map(d => ({id:d.id, ...d.data()}));
+  attivita = snapA.docs.map(d => ({id:d.id, ...d.data()}));
+  document.getElementById('headerSub').textContent = 'Aggiornato: ' + new Date().toLocaleDateString('it-IT');
   renderAll();
+  checkScadenzeBadge();
 }
 
 function renderAll() {
-  renderScad();
-  renderPiante();
-  renderStorico();
-  fillPianteSel();
+  renderScad(); renderPiante(); renderStorico(); fillPianteSel();
+}
+
+// ── BADGE SCADENZE ─────────────────────────────────────
+function checkScadenzeBadge() {
+  const urgenti = attivita.filter(a => { const d = daysLeft(a.data_prossima); return d !== null && d < 0; }).length;
+  const navScad = document.getElementById('navScadenze');
+  const dot = navScad.querySelector('.badge-dot');
+  if (urgenti > 0) dot.classList.add('has-urgent-dot');
 }
 
 // ── SCADENZE ───────────────────────────────────────────
 function daysLeft(dateStr) {
   if (!dateStr) return null;
-  const d = new Date(dateStr);
-  if (isNaN(d)) return null;
+  const d = new Date(dateStr); if (isNaN(d)) return null;
   return Math.round((d - new Date()) / 86400000);
 }
-
 function scadInfo(days) {
-  if (days === null) return { cls:'badge-gray', itemCls:'', text:'Nessuna scadenza' };
-  if (days < 0)      return { cls:'badge-red',   itemCls:'urgente', text:'Scaduta ' + Math.abs(days) + ' gg fa' };
-  if (days <= 14)    return { cls:'badge-amber',  itemCls:'presto',  text:'Fra ' + days + ' giorni' };
-  if (days <= 30)    return { cls:'badge-amber',  itemCls:'presto',  text:'Fra ' + days + ' giorni' };
-  return               { cls:'badge-green',  itemCls:'ok',     text:'Fra ' + days + ' giorni' };
+  if (days===null) return {cls:'badge-gray',itemCls:'',text:'Nessuna scadenza'};
+  if (days<0)      return {cls:'badge-red',itemCls:'urgente',text:'Scaduta '+Math.abs(days)+'gg fa'};
+  if (days<=14)    return {cls:'badge-amber',itemCls:'presto',text:'Fra '+days+' giorni'};
+  if (days<=30)    return {cls:'badge-amber',itemCls:'presto',text:'Fra '+days+' giorni'};
+  return               {cls:'badge-green',itemCls:'ok',text:'Fra '+days+' giorni'};
 }
 
 function buildScadItems() {
   return attivita.map(a => {
-    const p = piante.find(x => String(x.id) === String(a.pianta_id));
-    const nome = p ? p.nome : '(pianta ' + a.pianta_id + ')';
-    const emoji = p ? (emojiTipo[p.tipo] || '🪴') : '🪴';
+    const p = piante.find(x => x.id===a.pianta_id);
+    const nome = p ? p.nome : '(pianta)';
+    const emoji = p ? (emojiTipo[p.tipo]||'🪴') : '🪴';
     const days = daysLeft(a.data_prossima);
-    return { a, nome, emoji, days, info: scadInfo(days) };
-  }).sort((x, y) => {
-    if (x.days === null && y.days === null) return 0;
-    if (x.days === null) return 1;
-    if (y.days === null) return -1;
+    return {a, nome, emoji, days, info:scadInfo(days)};
+  }).sort((x,y) => {
+    if (x.days===null && y.days===null) return 0;
+    if (x.days===null) return 1; if (y.days===null) return -1;
     return x.days - y.days;
   });
 }
 
 function renderScad() {
   let items = buildScadItems();
-  if (currentFilter === 'scadute')  items = items.filter(i => i.days !== null && i.days < 0);
-  if (currentFilter === 'prossime') items = items.filter(i => i.days !== null && i.days >= 0 && i.days <= 30);
-  if (currentFilter === 'ok')       items = items.filter(i => i.days === null || i.days > 30);
+  if (currentFilter==='scadute')  items = items.filter(i => i.days!==null && i.days<0);
+  if (currentFilter==='prossime') items = items.filter(i => i.days!==null && i.days>=0 && i.days<=30);
+  if (currentFilter==='ok')       items = items.filter(i => i.days===null || i.days>30);
   const el = document.getElementById('scadList');
-  if (items.length === 0) {
-    el.innerHTML = '<div class="empty-state"><i class="ti ti-mood-happy"></i><p>Nessuna scadenza in questa categoria</p></div>';
-    return;
-  }
-  el.innerHTML = items.map(({ a, nome, emoji, info }) => {
-    const tc = tipoPillClass[a.tipo] || 'tp-altro';
-    const nota = a.note ? ' · ' + String(a.note).substring(0, 45) : '';
-    return `<div class="scad-item ${info.itemCls}">
+  if (!items.length) { el.innerHTML = '<div class="empty-state"><i class="ti ti-mood-happy"></i><p>Nessuna scadenza in questa categoria</p></div>'; return; }
+  el.innerHTML = items.map(({a,nome,emoji,info}) => {
+    const tc = tipoPillClass[a.tipo]||'tp-altro';
+    const nota = a.note ? ' · '+String(a.note).substring(0,45) : '';
+    return `<div class="scad-item ${info.itemCls}" onclick="openEditAtt('${a.id}')">
       <div class="scad-icon">${emoji}</div>
       <div class="scad-body">
         <div class="scad-plant">${nome}</div>
-        <div class="scad-meta">
-          <span class="tipo-pill ${tc}">${a.tipo}</span>
-          <span>${nota}</span>
-        </div>
+        <div class="scad-meta"><span class="tipo-pill ${tc}">${a.tipo}</span><span>${nota}</span></div>
       </div>
       <span class="scad-badge ${info.cls}">${info.text}</span>
     </div>`;
   }).join('');
 }
 
-function filterScad(f, btn) {
+window.filterScad = function(f, btn) {
   currentFilter = f;
   document.querySelectorAll('.filter-pills .pill').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   renderScad();
-}
+};
 
 // ── PIANTE ─────────────────────────────────────────────
 function renderPiante() {
   document.getElementById('sTot').textContent = piante.length;
-  document.getElementById('sAlb').textContent = piante.filter(p => p.tipo && p.tipo.toLowerCase().includes('alber') || p.tipo === 'Olivo' || p.tipo === 'Vite').length;
-  document.getElementById('sVeg').textContent = piante.filter(p => p.tipo === 'Verdura' || p.tipo === 'Erba aromatica').length;
+  document.getElementById('sAlb').textContent = piante.filter(p => ['Albero da frutto','Albero ornamentale','Olivo','Vite'].includes(p.tipo)).length;
+  document.getElementById('sVeg').textContent = piante.filter(p => ['Verdura','Erba aromatica'].includes(p.tipo)).length;
   const g = document.getElementById('plantGrid');
   const cards = piante.map(p => {
-    const emoji = emojiTipo[p.tipo] || '🪴';
-    const atts = attivita.filter(a => String(a.pianta_id) === String(p.id));
-    const prossimaGiorni = atts.filter(a => a.data_prossima).map(a => daysLeft(a.data_prossima)).filter(d => d !== null).sort((a,b)=>a-b)[0];
+    const emoji = emojiTipo[p.tipo]||'🪴';
+    const atts = attivita.filter(a => a.pianta_id===p.id);
+    const prossimaGiorni = atts.filter(a=>a.data_prossima).map(a=>daysLeft(a.data_prossima)).filter(d=>d!==null).sort((a,b)=>a-b)[0];
     let tagCls='badge-gray', tagTxt='Nessuna scad.';
     if (prossimaGiorni !== undefined) {
-      if (prossimaGiorni < 0)       { tagCls='badge-red';   tagTxt='Scaduta'; }
-      else if (prossimaGiorni <= 14){ tagCls='badge-amber'; tagTxt='Fra ' + prossimaGiorni + ' gg'; }
-      else                           { tagCls='badge-green'; tagTxt='Fra ' + prossimaGiorni + ' gg'; }
+      if (prossimaGiorni<0){tagCls='badge-red';tagTxt='Scaduta';}
+      else if (prossimaGiorni<=14){tagCls='badge-amber';tagTxt='Fra '+prossimaGiorni+'gg';}
+      else{tagCls='badge-green';tagTxt='Fra '+prossimaGiorni+'gg';}
     }
-    const pos = p.posizione ? ' · ' + p.posizione : '';
-    return `<div class="plant-card">
+    return `<div class="plant-card" onclick="openEditPianta('${p.id}')">
       <div class="plant-emoji">${emoji}</div>
       <div class="plant-name">${p.nome}</div>
-      <div class="plant-type">${p.tipo || ''}${pos}</div>
+      <div class="plant-type">${p.tipo||''}${p.posizione?' · '+p.posizione:''}</div>
       <span class="plant-scad-tag scad-badge ${tagCls}">${tagTxt}</span>
     </div>`;
   });
-  const addCard = `<div class="plant-card add-card" onclick="openModal('modalPianta')">
-    <i class="ti ti-plus" style="font-size:24px"></i>
-    <span>Nuova pianta</span>
-  </div>`;
-  g.innerHTML = cards.join('') + addCard;
+  g.innerHTML = cards.join('') + `<div class="plant-card add-card" onclick="openModal('modalPianta')"><i class="ti ti-plus" style="font-size:24px"></i><span>Nuova pianta</span></div>`;
 }
 
 // ── STORICO ────────────────────────────────────────────
 function renderStorico() {
-  const sorted = [...attivita].sort((a, b) => new Date(b.data_eseguita) - new Date(a.data_eseguita)).slice(0, 30);
+  const sorted = [...attivita].sort((a,b)=>new Date(b.data_eseguita)-new Date(a.data_eseguita)).slice(0,40);
   const el = document.getElementById('storicoList');
-  if (sorted.length === 0) {
-    el.innerHTML = '<div class="empty-state"><i class="ti ti-history"></i><p>Nessuna attività registrata.<br>Usa il + per aggiungere la prima!</p></div>';
-    return;
-  }
+  if (!sorted.length) { el.innerHTML = '<div class="empty-state"><i class="ti ti-history"></i><p>Nessuna attività registrata.<br>Usa il + per aggiungere la prima!</p></div>'; return; }
   el.innerHTML = sorted.map(a => {
-    const p = piante.find(x => String(x.id) === String(a.pianta_id));
-    const nome = p ? p.nome : '(pianta ' + a.pianta_id + ')';
+    const p = piante.find(x => x.id===a.pianta_id);
+    const nome = p ? p.nome : '(pianta)';
     const d = a.data_eseguita ? new Date(a.data_eseguita).toLocaleDateString('it-IT') : '—';
-    const tc = tipoPillClass[a.tipo] || 'tp-altro';
-    const nota = a.note ? ' · ' + String(a.note).substring(0, 35) : '';
-    const utente = a.utente ? ' · ' + a.utente : '';
-    return `<div class="storico-item">
+    const tc = tipoPillClass[a.tipo]||'tp-altro';
+    const nota = a.note ? ' · '+String(a.note).substring(0,35) : '';
+    const utente = a.utente ? ' · '+a.utente : '';
+    return `<div class="storico-item" onclick="openEditAtt('${a.id}')">
       <div class="storico-left">
         <div class="storico-plant">${nome}</div>
-        <div class="storico-meta">
-          <span class="tipo-pill ${tc}">${a.tipo}</span>
-          <span>${nota}${utente}</span>
-        </div>
+        <div class="storico-meta"><span class="tipo-pill ${tc}">${a.tipo}</span><span>${nota}${utente}</span></div>
       </div>
       <div class="storico-date">${d}</div>
     </div>`;
@@ -641,57 +875,382 @@ function renderStorico() {
 
 // ── SAVE ATTIVITÀ ──────────────────────────────────────
 function fillPianteSel() {
-  const sel = document.getElementById('attPianta');
-  sel.innerHTML = piante.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+  ['attPianta','eaPianta'].forEach(id => {
+    const sel = document.getElementById(id);
+    if (sel) sel.innerHTML = piante.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+  });
 }
 
-async function saveAttivita() {
+window.saveAttivita = async function() {
   const pId   = document.getElementById('attPianta').value;
   const tipo  = document.getElementById('attTipo').value;
   const dataEs= document.getElementById('attDataEs').value;
   const dataP = document.getElementById('attDataProx').value;
   const note  = document.getElementById('attNote').value;
-  if (!pId || !tipo || !dataEs) { alert('Compila almeno: pianta, tipo attività e data eseguita'); return; }
-  const id = Date.now();
-  const row = JSON.stringify([id, pId, tipo, dataEs, dataP, note, currentUser]);
-  const res = await apiCall({ action:'write', sheet:'Attività', row });
-  if (res && res.success) {
-    attivita.push({ id, pianta_id:pId, tipo, data_eseguita:dataEs, data_prossima:dataP, note, utente:currentUser });
-    closeModal('modalAtt');
-    document.getElementById('attNote').value = '';
-    document.getElementById('attDataProx').value = '';
-    renderAll();
-  } else { alert('Errore nel salvataggio. Controlla la connessione.'); }
-}
+  if (!pId||!tipo||!dataEs) { showToast('Compila pianta, tipo e data'); return; }
+  const ref = await addDoc(collection(db,'attivita'), {pianta_id:pId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,utente:currentUser});
+  attivita.unshift({id:ref.id,pianta_id:pId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,utente:currentUser});
+  closeModal('modalAtt');
+  document.getElementById('attNote').value = '';
+  document.getElementById('attDataProx').value = '';
+  renderAll(); showToast('✅ Attività salvata');
+};
 
-// ── SAVE PIANTA ────────────────────────────────────────
-async function savePianta() {
+// ── EDIT ATTIVITÀ ──────────────────────────────────────
+window.openEditAtt = function(id) {
+  const a = attivita.find(x => x.id===id); if (!a) return;
+  editingAttId = id;
+  const sel = document.getElementById('eaPianta');
+  sel.innerHTML = piante.map(p => `<option value="${p.id}" ${p.id===a.pianta_id?'selected':''}>${p.nome}</option>`).join('');
+  document.getElementById('eaTipo').value    = a.tipo||'';
+  document.getElementById('eaDataEs').value  = a.data_eseguita||'';
+  document.getElementById('eaDataProx').value= a.data_prossima||'';
+  document.getElementById('eaNote').value    = a.note||'';
+  openModal('modalEditAtt');
+};
+
+window.updateAttivita = async function() {
+  const a = attivita.find(x => x.id===editingAttId); if (!a) return;
+  const pId   = document.getElementById('eaPianta').value;
+  const tipo  = document.getElementById('eaTipo').value;
+  const dataEs= document.getElementById('eaDataEs').value;
+  const dataP = document.getElementById('eaDataProx').value;
+  const note  = document.getElementById('eaNote').value;
+  await updateDoc(doc(db,'attivita',editingAttId), {pianta_id:pId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,utente:a.utente||currentUser});
+  Object.assign(a, {pianta_id:pId,tipo,data_eseguita:dataEs,data_prossima:dataP,note});
+  closeModal('modalEditAtt'); renderAll(); showToast('✅ Attività aggiornata');
+};
+
+window.deleteAttivita = async function() {
+  if (!confirm('Eliminare questa attività?')) return;
+  await deleteDoc(doc(db,'attivita',editingAttId));
+  attivita = attivita.filter(x => x.id!==editingAttId);
+  closeModal('modalEditAtt'); renderAll(); showToast('Attività eliminata');
+};
+
+// ── PIANTE CRUD ────────────────────────────────────────
+window.savePianta = async function() {
   const nome = document.getElementById('npNome').value.trim();
   const tipo = document.getElementById('npTipo').value;
   const pos  = document.getElementById('npPos').value.trim();
   const note = document.getElementById('npNote').value.trim();
-  if (!nome) { alert('Inserisci il nome della pianta'); return; }
-  const id = Date.now();
-  const row = JSON.stringify([id, nome, tipo, pos, note]);
-  const res = await apiCall({ action:'write', sheet:'Piante', row });
-  if (res && res.success) {
-    piante.push({ id, nome, tipo, posizione:pos, note });
-    closeModal('modalPianta');
-    document.getElementById('npNome').value = '';
-    document.getElementById('npPos').value  = '';
-    document.getElementById('npNote').value = '';
-    renderAll();
-  } else { alert('Errore nel salvataggio.'); }
+  if (!nome) { showToast('Inserisci il nome della pianta'); return; }
+  const ref = await addDoc(collection(db,'piante'), {nome,tipo,posizione:pos,note});
+  piante.push({id:ref.id,nome,tipo,posizione:pos,note});
+  piante.sort((a,b) => a.nome.localeCompare(b.nome));
+  closeModal('modalPianta');
+  ['npNome','npPos','npNote'].forEach(id => document.getElementById(id).value='');
+  renderAll(); showToast('✅ Pianta aggiunta');
+};
+
+window.openEditPianta = function(id) {
+  const p = piante.find(x => x.id===id); if (!p) return;
+  editingPiantaId = id;
+  document.getElementById('epNome').value = p.nome||'';
+  document.getElementById('epTipo').value = p.tipo||'';
+  document.getElementById('epPos').value  = p.posizione||'';
+  document.getElementById('epNote').value = p.note||'';
+  openModal('modalEditPianta');
+};
+
+window.updatePianta = async function() {
+  const p = piante.find(x => x.id===editingPiantaId); if (!p) return;
+  const nome = document.getElementById('epNome').value.trim();
+  const tipo = document.getElementById('epTipo').value;
+  const pos  = document.getElementById('epPos').value.trim();
+  const note = document.getElementById('epNote').value.trim();
+  if (!nome) { showToast('Il nome non può essere vuoto'); return; }
+  await updateDoc(doc(db,'piante',editingPiantaId), {nome,tipo,posizione:pos,note});
+  Object.assign(p, {nome,tipo,posizione:pos,note});
+  closeModal('modalEditPianta'); renderAll(); showToast('✅ Pianta aggiornata');
+};
+
+window.deletePianta = async function() {
+  if (!confirm('Eliminare questa pianta? Le attività collegate verranno mantenute.')) return;
+  await deleteDoc(doc(db,'piante',editingPiantaId));
+  piante = piante.filter(x => x.id!==editingPiantaId);
+  closeModal('modalEditPianta'); renderAll(); showToast('Pianta eliminata');
+};
+
+// ── CALENDARIO ─────────────────────────────────────────
+function initCal() {
+  const now = new Date();
+  calYear = now.getFullYear(); calMonth = now.getMonth();
 }
+
+window.calPrev = function() { calMonth--; if (calMonth<0){calMonth=11;calYear--;} renderCalendar(); };
+window.calNext = function() { calMonth++; if (calMonth>11){calMonth=0;calYear++;} renderCalendar(); };
+
+function renderCalendar() {
+  const mesi = ['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'];
+  document.getElementById('calMonthLabel').textContent = mesi[calMonth] + ' ' + calYear;
+  const firstDay = new Date(calYear, calMonth, 1).getDay();
+  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+  const start = (firstDay === 0) ? 6 : firstDay - 1;
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Mappa date → scadenze
+  const scadMap = {};
+  attivita.forEach(a => {
+    if (!a.data_prossima) return;
+    const d = new Date(a.data_prossima);
+    if (d.getFullYear()===calYear && d.getMonth()===calMonth) {
+      const k = d.getDate();
+      if (!scadMap[k]) scadMap[k] = [];
+      scadMap[k].push(a);
+    }
+  });
+
+  const dow = ['L','M','M','G','V','S','D'];
+  let html = dow.map(d => `<div class="cal-dow">${d}</div>`).join('');
+
+  // Giorni mese precedente
+  const prevDays = new Date(calYear, calMonth, 0).getDate();
+  for (let i = start-1; i >= 0; i--) {
+    html += `<div class="cal-day other-month">${prevDays-i}</div>`;
+  }
+
+  // Giorni mese corrente
+  for (let d = 1; d <= daysInMonth; d++) {
+    const thisDate = new Date(calYear, calMonth, d); thisDate.setHours(0,0,0,0);
+    const isToday = thisDate.getTime() === today.getTime();
+    const evts = scadMap[d] || [];
+    const hasUrgent = evts.some(a => daysLeft(a.data_prossima) < 0);
+    let cls = 'cal-day';
+    if (isToday) cls += ' today';
+    if (evts.length > 0) cls += hasUrgent ? ' has-urgent' : ' has-event';
+    const dateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    html += `<div class="${cls}" onclick="calDayClick('${dateStr}')">${d}</div>`;
+  }
+
+  // Giorni mese successivo
+  const total = start + daysInMonth;
+  const rem = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (let d = 1; d <= rem; d++) html += `<div class="cal-day other-month">${d}</div>`;
+
+  document.getElementById('calGrid').innerHTML = html;
+  if (calSelectedDate) calDayClick(calSelectedDate);
+  else renderCalEvents(null);
+}
+
+window.calDayClick = function(dateStr) {
+  calSelectedDate = dateStr;
+  const [y,m,d] = dateStr.split('-').map(Number);
+  const label = `${d} ${['Gennaio','Febbraio','Marzo','Aprile','Maggio','Giugno','Luglio','Agosto','Settembre','Ottobre','Novembre','Dicembre'][m-1]}`;
+  document.getElementById('calEventsTitle').textContent = 'Scadenze del ' + label;
+  const evts = attivita.filter(a => a.data_prossima === dateStr);
+  renderCalEvents(evts);
+};
+
+function renderCalEvents(evts) {
+  const el = document.getElementById('calEvents');
+  if (!evts || !evts.length) { el.innerHTML = '<div style="font-size:13px;color:var(--muted);padding:.5rem 0">Nessuna scadenza in questo giorno.</div>'; return; }
+  el.innerHTML = evts.map(a => {
+    const p = piante.find(x => x.id===a.pianta_id);
+    const nome = p ? p.nome : '(pianta)';
+    const emoji = p ? (emojiTipo[p.tipo]||'🪴') : '🪴';
+    const days = daysLeft(a.data_prossima);
+    const cls = days < 0 ? 'evt-urgente' : 'evt-presto';
+    const tc = tipoPillClass[a.tipo]||'tp-altro';
+    return `<div class="cal-event-item ${cls}" onclick="openEditAtt('${a.id}')">
+      <span style="font-size:20px">${emoji}</span>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:13px">${nome}</div>
+        <div style="margin-top:2px"><span class="tipo-pill ${tc}">${a.tipo}</span></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── GRAFICI ────────────────────────────────────────────
+function renderCharts() {
+  // Carica Chart.js se non presente
+  if (!window.Chart) {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+    s.onload = drawCharts;
+    document.head.appendChild(s);
+  } else { drawCharts(); }
+}
+
+function drawCharts() {
+  const C = window.Chart;
+  // ── Grafico mesi ──
+  const now = new Date();
+  const mesiLabels = [], mesiData = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const label = d.toLocaleDateString('it-IT',{month:'short',year:'2-digit'});
+    mesiLabels.push(label);
+    const count = attivita.filter(a => {
+      const da = new Date(a.data_eseguita);
+      return da.getFullYear()===d.getFullYear() && da.getMonth()===d.getMonth();
+    }).length;
+    mesiData.push(count);
+  }
+  if (chartMesiInst) chartMesiInst.destroy();
+  const ctx1 = document.getElementById('chartMesi').getContext('2d');
+  chartMesiInst = new C(ctx1, {
+    type:'bar',
+    data:{labels:mesiLabels,datasets:[{label:'Attività',data:mesiData,backgroundColor:'rgba(26,122,62,.7)',borderColor:'rgba(26,122,62,1)',borderWidth:1.5,borderRadius:6}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false}}}}
+  });
+
+  // ── Grafico tipi ──
+  const tipiCount = {};
+  attivita.forEach(a => { tipiCount[a.tipo] = (tipiCount[a.tipo]||0)+1; });
+  const tipiKeys = Object.keys(tipiCount);
+  const tipiVals = tipiKeys.map(k => tipiCount[k]);
+  const tipiColors = tipiKeys.map(k => chartColors[k]||'#64748b');
+  if (chartTipiInst) chartTipiInst.destroy();
+  const ctx2 = document.getElementById('chartTipi').getContext('2d');
+  chartTipiInst = new C(ctx2, {
+    type:'doughnut',
+    data:{labels:tipiKeys,datasets:[{data:tipiVals,backgroundColor:tipiColors,borderWidth:2,borderColor:'#fff'}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'60%'}
+  });
+  document.getElementById('chartTipiLegend').innerHTML = tipiKeys.map((k,i) =>
+    `<div class="legend-item"><div class="legend-dot" style="background:${tipiColors[i]}"></div><span>${k}: ${tipiVals[i]}</span></div>`).join('');
+
+  // ── Grafico piante ──
+  const pCount = {};
+  attivita.forEach(a => {
+    const p = piante.find(x => x.id===a.pianta_id);
+    const nome = p ? p.nome : 'Altra';
+    pCount[nome] = (pCount[nome]||0)+1;
+  });
+  const pKeys = Object.keys(pCount).sort((a,b) => pCount[b]-pCount[a]).slice(0,8);
+  const pVals = pKeys.map(k => pCount[k]);
+  if (chartPianteInst) chartPianteInst.destroy();
+  const ctx3 = document.getElementById('chartPiante').getContext('2d');
+  chartPianteInst = new C(ctx3, {
+    type:'bar',
+    data:{labels:pKeys,datasets:[{label:'Attività',data:pVals,backgroundColor:'rgba(13,148,136,.7)',borderColor:'rgba(13,148,136,1)',borderWidth:1.5,borderRadius:6}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(0,0,0,.04)'}},y:{grid:{display:false}}}}
+  });
+}
+
+// ── AI SUGGERIMENTI ────────────────────────────────────
+function fillAiPianteSel() {
+  const sel = document.getElementById('aiPianta');
+  sel.innerHTML = piante.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+  const saved = localStorage.getItem('geminiApiKey');
+  if (saved) document.getElementById('aiApiKey').value = saved;
+}
+
+window.getAiSuggestion = async function() {
+  const apiKey = document.getElementById('aiApiKey').value.trim();
+  if (!apiKey) { showToast('Inserisci la chiave API Gemini'); return; }
+  localStorage.setItem('geminiApiKey', apiKey);
+
+  const pId = document.getElementById('aiPianta').value;
+  const arg = document.getElementById('aiArgomento').value;
+  const pianta = piante.find(x => x.id===pId);
+  if (!pianta) { showToast('Seleziona una pianta'); return; }
+
+  const attsP = attivita.filter(a => a.pianta_id===pId).slice(0,8);
+  const storicoStr = attsP.length ? attsP.map(a => `- ${a.tipo} il ${a.data_eseguita}${a.note?' ('+a.note+')':''}`).join('\n') : 'Nessuna attività registrata.';
+  const oggi = new Date().toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+  const mese = new Date().toLocaleDateString('it-IT',{month:'long'});
+
+  const prompt = `Sei un esperto giardiniere italiano. Dammi consigli pratici e specifici su "${arg}" per questa pianta:
+
+🌱 Pianta: ${pianta.nome}
+📁 Tipo: ${pianta.tipo}
+📍 Posizione: ${pianta.posizione||'non specificata'}
+📝 Note: ${pianta.note||'nessuna'}
+📅 Data di oggi: ${oggi} (mese: ${mese})
+
+Storico attività recenti:
+${storicoStr}
+
+Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il testo più leggibile. Massimo 250 parole. Includi: cosa fare ora, quando farlo e come farlo.`;
+
+  const btn = document.getElementById('aiBtnChiedi');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader spinner"></i> Sto pensando...';
+
+  document.getElementById('aiResult').innerHTML = `
+    <div class="ai-box">
+      <div class="ai-loading">
+        <div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
+        <span>Gemini sta elaborando il consiglio...</span>
+      </div>
+    </div>`;
+
+  try {
+    // 1. Recupera i modelli disponibili con questa chiave
+    const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
+    const listData = await listRes.json();
+    if (listData.error) throw new Error('Chiave non valida: ' + listData.error.message);
+
+    // 2. Filtra solo quelli che supportano generateContent
+    const disponibili = (listData.models || [])
+      .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
+      .map(m => m.name.replace('models/',''));
+
+    if (!disponibili.length) throw new Error('Nessun modello disponibile con questa chiave API.');
+
+    // 3. Prova in ordine i modelli trovati
+    let text = null, usedModel = '', lastError = '';
+    for (const modello of disponibili) {
+      try {
+        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modello}:generateContent?key=${apiKey}`, {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
+        });
+        const data = await res.json();
+        if (data.error) { lastError = data.error.message; continue; }
+        const t = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (t) { text = t; usedModel = modello; break; }
+      } catch(e2) { lastError = e2.message; }
+    }
+    if (!text) throw new Error('Tutti i modelli hanno fallito. Ultimo errore: ' + lastError);
+
+    document.getElementById('aiResult').innerHTML = `
+      <div class="ai-box">
+        <div class="ai-box-header">
+          <span style="font-size:20px">✨</span>
+          <div class="ai-box-title">Consiglio AI per ${pianta.nome}</div>
+        </div>
+        <div class="ai-response">${text}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:.5rem">Modello: ${usedModel}</div>
+      </div>`;
+  } catch(e) {
+    document.getElementById('aiResult').innerHTML = `<div class="notice notice-amber">❌ Errore: ${e.message}. Controlla la chiave API.</div>`;
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-sparkles"></i> Chiedi consiglio a Gemini';
+};
 
 // ── INIT ───────────────────────────────────────────────
 (function init() {
   document.getElementById('attDataEs').value = new Date().toISOString().split('T')[0];
-  if (API_URL) {
-    document.getElementById('apiUrlInput').value = API_URL;
-    loadUtenti();
+  initCal();
+
+  // Precarica config Firebase se esiste
+  const cfg = JSON.parse(localStorage.getItem('fbConfig')||'null');
+  if (cfg) {
+    document.getElementById('fbApiKey').value = cfg.apiKey||'';
+    document.getElementById('fbProjectId').value = cfg.projectId||'';
+    document.getElementById('fbAppId').value = cfg.appId||'';
+    if (initFirebase()) loadUtenti();
   }
+
+  // Tasto Enter sul PIN
+  document.getElementById('loginPin').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
 })();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log('SW registrato'))
+      .catch(e => console.log('SW errore:', e));
+  });
+}
 </script>
 </body>
 </html>
