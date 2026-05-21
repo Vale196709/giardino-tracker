@@ -304,6 +304,13 @@ canvas{max-width:100%}
         <label class="form-label">PIN (4-6 cifre)</label>
         <input type="password" class="form-control" id="nuPin" maxlength="6" placeholder="••••" inputmode="numeric">
       </div>
+      <div class="form-group">
+        <label class="form-label">Ruolo</label>
+        <select class="form-control" id="nuRuolo">
+          <option value="admin">🔑 Admin (può modificare)</option>
+          <option value="user">👁 User (solo visualizzazione)</option>
+        </select>
+      </div>
       <div class="btn-row">
         <button class="btn btn-primary" style="flex:1;width:auto;padding:10px 16px" onclick="addUtente()">Aggiungi utente</button>
       </div>
@@ -331,6 +338,9 @@ canvas{max-width:100%}
     </div>
   </div>
 
+  <div id="readonlyBanner" style="display:none;background:var(--a1);border-bottom:1px solid var(--a6);padding:8px 1rem;font-size:12px;color:var(--a6);align-items:center;gap:8px;font-weight:600">
+    <i class="ti ti-eye" style="font-size:16px"></i> Modalità sola lettura — puoi visualizzare ma non modificare i dati
+  </div>
   <div class="content">
     <!-- SCADENZE -->
     <div id="panelScadenze" class="tab-panel active">
@@ -589,6 +599,7 @@ import {
 // ── STATE ──────────────────────────────────────────────
 let db = null, fbApp = null;
 let currentUser = '';
+let currentRole = 'admin'; // 'admin' o 'user'
 let piante = [], attivita = [], utenti = [];
 let currentFilter = 'tutte';
 let editingAttId = null, editingPiantaId = null;
@@ -635,14 +646,20 @@ window.saveFirebaseConfig = function() {
 
 // ── NAVIGATION ─────────────────────────────────────────
 window.switchSetupTab = function(tab) {
-  ['login','firebase','utenti'].forEach(t => {
-    document.getElementById('setupLogin'.replace('login',t) || 'setup'+t.charAt(0).toUpperCase()+t.slice(1))?.classList.remove('active');
-    document.querySelectorAll('.tab-setup-btn').forEach((b,i) => b.classList.remove('active'));
-  });
   const panels = {login:'setupLogin',firebase:'setupFirebase',utenti:'setupUtenti'};
+  Object.values(panels).forEach(id => document.getElementById(id).classList.remove('active'));
+  document.querySelectorAll('.tab-setup-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(panels[tab]).classList.add('active');
   const idx = {login:0,firebase:1,utenti:2}[tab];
   document.querySelectorAll('.tab-setup-btn')[idx].classList.add('active');
+  // Se si apre la tab utenti, assicurati che Firebase sia inizializzato
+  if (tab === 'utenti') {
+    if (!db) initFirebase();
+    if (db) loadUtenti();
+    else {
+      document.getElementById('utentiList').innerHTML = '<div class="notice notice-amber">⚠️ Firebase non configurato. Vai sulla scheda ⚙ Firebase prima.</div>';
+    }
+  }
 };
 
 function showScreen(id) {
@@ -664,7 +681,10 @@ window.switchTab = function(name) {
 };
 
 // ── MODALS ─────────────────────────────────────────────
-window.openModal = function(id) { document.getElementById(id).style.display='flex'; };
+window.openModal = function(id) {
+  if (currentRole === 'user') { showToast('👁 Modalità sola lettura'); return; }
+  document.getElementById(id).style.display='flex';
+};
 window.closeModal = function(id) { document.getElementById(id).style.display='none'; };
 window.closeOverlay = function(e,id) { if (e.target.id===id) closeModal(id); };
 
@@ -694,8 +714,8 @@ function renderUtentiList() {
   if (!utenti.length) { el.innerHTML = '<div style="font-size:13px;color:var(--muted);margin-bottom:.5rem">Nessun utente creato ancora.</div>'; return; }
   el.innerHTML = utenti.map(u => `
     <div class="utente-item">
-      <span class="utente-name">👤 ${u.nome}</span>
-      <span class="utente-pin">PIN: ${'•'.repeat((u.pin||'').toString().length)}</span>
+      <span class="utente-name">${u.ruolo==='admin'?'🔑':'👁'} ${u.nome}</span>
+      <span class="utente-pin">${u.ruolo==='admin'?'Admin':'User'}</span>
       <button class="btn btn-sm btn-danger" onclick="deleteUtente('${u.id}')"><i class="ti ti-trash"></i></button>
     </div>`).join('');
 }
@@ -706,7 +726,8 @@ window.addUtente = async function() {
   const pin  = document.getElementById('nuPin').value.trim();
   if (!nome) { showToast('Inserisci il nome'); return; }
   if (!pin || pin.length < 4) { showToast('PIN di almeno 4 cifre'); return; }
-  await addDoc(collection(db,'utenti'), { nome, pin });
+  const ruolo = document.getElementById('nuRuolo').value;
+  await addDoc(collection(db,'utenti'), { nome, pin, ruolo });
   document.getElementById('nuUtente').value = '';
   document.getElementById('nuPin').value = '';
   await loadUtenti();
@@ -730,17 +751,31 @@ window.doLogin = function() {
     const u = utenti.find(x => x.nome===nome && String(x.pin)===String(pin));
     if (!u) { showToast('PIN non corretto ❌'); return; }
   }
+  const uObj = utenti.find(x => x.nome===nome);
   currentUser = nome;
-  document.getElementById('headerUser').textContent = nome;
+  currentRole = uObj ? (uObj.ruolo || 'admin') : 'admin';
+  document.getElementById('headerUser').textContent = nome + (currentRole==='user' ? ' 👁' : ' 🔑');
   showScreen('screenMain');
+  applyRoleUI();
   loadAll();
 };
 
 window.doLogout = function() {
-  currentUser = ''; piante = []; attivita = [];
+  currentUser = ''; currentRole = 'admin'; piante = []; attivita = [];
   document.getElementById('loginPin').value = '';
   showScreen('screenSetup');
 };
+
+function applyRoleUI() {
+  const isUser = currentRole === 'user';
+  // Nascondi FAB (pulsante +)
+  document.querySelector('.fab').style.display = isUser ? 'none' : 'flex';
+  // Nascondi tab Storico edit (items non cliccabili)
+  document.documentElement.style.setProperty('--pointer-scad', isUser ? 'none' : 'pointer');
+  // Mostra banner readonly se user
+  const banner = document.getElementById('readonlyBanner');
+  if (banner) banner.style.display = isUser ? 'flex' : 'none';
+}
 
 // ── LOAD DATA ──────────────────────────────────────────
 async function loadAll() {
@@ -898,6 +933,7 @@ window.saveAttivita = async function() {
 
 // ── EDIT ATTIVITÀ ──────────────────────────────────────
 window.openEditAtt = function(id) {
+  if (currentRole === 'user') { showToast('👁 Modalità sola lettura'); return; }
   const a = attivita.find(x => x.id===id); if (!a) return;
   editingAttId = id;
   const sel = document.getElementById('eaPianta');
@@ -944,6 +980,7 @@ window.savePianta = async function() {
 };
 
 window.openEditPianta = function(id) {
+  if (currentRole === 'user') { showToast('👁 Modalità sola lettura'); return; }
   const p = piante.find(x => x.id===id); if (!p) return;
   editingPiantaId = id;
   document.getElementById('epNome').value = p.nome||'';
@@ -1246,7 +1283,10 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
     document.getElementById('fbApiKey').value = cfg.apiKey||'';
     document.getElementById('fbProjectId').value = cfg.projectId||'';
     document.getElementById('fbAppId').value = cfg.appId||'';
-    if (initFirebase()) loadUtenti();
+  }
+  // Inizializza sempre Firebase con la config embedded
+  if (initFirebase()) {
+    loadUtenti();
   }
 
   // Tasto Enter sul PIN
