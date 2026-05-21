@@ -232,6 +232,26 @@ canvas{max-width:100%}
 /* RESPONSIVE */
 @media(max-width:400px){.stats-row{grid-template-columns:repeat(2,1fr)}}
 
+.meteo-box{background:linear-gradient(135deg,#e0f2fe,#bae6fd);border:1px solid #7dd3fc;border-radius:var(--rad);padding:1.25rem;margin-bottom:1rem}
+.meteo-temp{font-size:52px;font-family:'Lora',serif;color:#0369a1;line-height:1}
+.meteo-desc{font-size:15px;color:#0c4a6e;font-weight:500;margin-top:4px;text-transform:capitalize}
+.meteo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:1rem}
+.meteo-stat{background:rgba(255,255,255,.6);border-radius:var(--rads);padding:8px;text-align:center}
+.meteo-stat-val{font-size:16px;font-weight:700;color:#0369a1}
+.meteo-stat-label{font-size:10px;color:#0c4a6e;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.prev-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:1rem}
+.prev-day{background:var(--surf);border:1px solid var(--border);border-radius:var(--rads);padding:8px 4px;text-align:center;font-size:11px}
+.prev-day-name{font-weight:700;color:var(--muted);text-transform:uppercase;font-size:9px}
+.prev-day-icon{font-size:20px;margin:4px 0}
+.prev-day-temp{color:var(--text);font-weight:600}
+.spesa-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.spesa-item:last-child{border-bottom:none}
+.spesa-cat{font-size:20px;flex-shrink:0}
+.spesa-body{flex:1}
+.spesa-desc{font-size:14px;font-weight:600}
+.spesa-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.spesa-importo{font-size:16px;font-weight:700;color:var(--g8);white-space:nowrap}
+
 /* Nascondi tab Firebase e Utenti su mobile */
 @media(max-width:600px){
   .tab-setup-btn:nth-child(2),
@@ -459,6 +479,42 @@ canvas{max-width:100%}
     </div>
   </div>
 
+    <!-- METEO -->
+    <div id="panelMeteo" class="tab-panel">
+      <div class="card">
+        <div class="card-title">🌤️ Meteo locale</div>
+        <div class="form-group">
+          <label class="form-label">Chiave API OpenWeatherMap</label>
+          <input type="password" class="form-control" id="owmKey" placeholder="abcd1234..." style="font-size:13px">
+          <div class="ai-api-notice">Gratuita su <strong>openweathermap.org</strong> → API keys</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Città</label>
+          <input type="text" class="form-control" id="owmCitta" placeholder="Es: Milano, Roma, Torino...">
+        </div>
+        <button class="btn btn-primary" onclick="loadMeteo()" style="width:auto;padding:10px 20px">
+          <i class="ti ti-refresh"></i> Aggiorna meteo
+        </button>
+      </div>
+      <div id="meteoResult"></div>
+      <div id="meteoPrev"></div>
+    </div>
+
+    <!-- SPESE -->
+    <div id="panelSpese" class="tab-panel">
+      <div id="speseStats" class="stats-row" style="grid-template-columns:repeat(2,1fr);margin-bottom:1rem"></div>
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">Registro spese</div>
+          <button class="btn btn-sm btn-primary" onclick="openModal('modalSpesa')"><i class="ti ti-plus"></i> Aggiungi</button>
+        </div>
+        <div id="speseList"></div>
+      </div>
+      <button class="btn" style="width:100%;background:var(--g1);color:var(--g8);border:1.5px solid var(--g2);margin-top:.5rem" onclick="exportPDF()">
+        <i class="ti ti-file-type-pdf"></i> Esporta report PDF
+      </button>
+    </div>
+
   <nav class="nav-tabs">
     <button class="nav-tab active" id="navScadenze" onclick="switchTab('Scadenze')">
       <span class="badge-dot"><i class="ti ti-calendar-due"></i></span>Scadenze
@@ -477,6 +533,12 @@ canvas{max-width:100%}
     </button>
     <button class="nav-tab" id="navStorico" onclick="switchTab('Storico')">
       <i class="ti ti-clock-hour-4"></i>Storico
+    </button>
+    <button class="nav-tab" id="navMeteo" onclick="switchTab('Meteo')">
+      <i class="ti ti-cloud"></i>Meteo
+    </button>
+    <button class="nav-tab" id="navSpese" onclick="switchTab('Spese')">
+      <i class="ti ti-coins"></i>Spese
     </button>
   </nav>
 
@@ -603,6 +665,45 @@ canvas{max-width:100%}
   </div>
 </div>
 
+<!-- MODAL: Nuova spesa -->
+<div id="modalSpesa" class="modal-overlay" style="display:none" onclick="closeOverlay(event,'modalSpesa')">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💰 Aggiungi spesa</div>
+    <div class="form-group">
+      <label class="form-label">Descrizione</label>
+      <input type="text" class="form-control" id="spDesc" placeholder="Es: Concime granulare, Antiparassitario...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Categoria</label>
+      <select class="form-control" id="spCat">
+        <option value="Concimi">🌱 Concimi</option>
+        <option value="Antiparassitari">🧪 Antiparassitari</option>
+        <option value="Attrezzatura">🔧 Attrezzatura</option>
+        <option value="Sementi">🌰 Sementi & piante</option>
+        <option value="Irrigazione">💧 Irrigazione</option>
+        <option value="Altro">📦 Altro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Importo (€)</label>
+      <input type="number" class="form-control" id="spImporto" placeholder="0.00" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Data</label>
+      <input type="date" class="form-control" id="spData">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note</label>
+      <input type="text" class="form-control" id="spNote" placeholder="Opzionale...">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" style="flex:1" onclick="saveSpesa()"><i class="ti ti-device-floppy"></i> Salva</button>
+      <button class="btn btn-secondary" onclick="closeModal('modalSpesa')">Annulla</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -690,7 +791,7 @@ function showScreen(id) {
 }
 
 window.switchTab = function(name) {
-  const panels = ['Scadenze','Piante','Calendario','Stats','AI','Storico'];
+  const panels = ['Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese'];
   panels.forEach(t => {
     document.getElementById('panel'+t)?.classList.toggle('active', t===name);
     const nav = document.getElementById('nav'+t);
@@ -699,6 +800,8 @@ window.switchTab = function(name) {
   if (name==='Calendario') renderCalendar();
   if (name==='Stats') renderCharts();
   if (name==='AI') fillAiPianteSel();
+  if (name==='Spese') renderSpese();
+  if (name==='Meteo') initMeteoPanel();
 };
 
 // ── MODALS ─────────────────────────────────────────────
@@ -837,6 +940,7 @@ async function loadAll() {
   document.getElementById('headerSub').textContent = 'Aggiornato: ' + new Date().toLocaleDateString('it-IT');
   renderAll();
   checkScadenzeBadge();
+  loadSpese();
 }
 
 function renderAll() {
@@ -1341,7 +1445,286 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
 
   // Tasto Enter sul PIN
   document.getElementById('loginPin').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+
+  // Data default spesa
+  document.getElementById('spData').value = new Date().toISOString().split('T')[0];
 })();
+
+// ══════════════════════════════════════════
+// METEO
+// ══════════════════════════════════════════
+function initMeteoPanel() {
+  const savedKey = localStorage.getItem('owmKey');
+  const savedCity = localStorage.getItem('owmCitta');
+  if (savedKey) document.getElementById('owmKey').value = savedKey;
+  if (savedCity) document.getElementById('owmCitta').value = savedCity;
+  if (savedKey && savedCity) loadMeteo();
+}
+
+const meteoIcon = code => {
+  if (code >= 200 && code < 300) return '⛈️';
+  if (code >= 300 && code < 400) return '🌦️';
+  if (code >= 500 && code < 600) return '🌧️';
+  if (code >= 600 && code < 700) return '❄️';
+  if (code >= 700 && code < 800) return '🌫️';
+  if (code === 800) return '☀️';
+  if (code === 801) return '🌤️';
+  if (code <= 804) return '☁️';
+  return '🌡️';
+};
+
+window.loadMeteo = async function() {
+  const key = document.getElementById('owmKey').value.trim();
+  const city = document.getElementById('owmCitta').value.trim();
+  if (!key || !city) { showToast('Inserisci chiave API e città'); return; }
+  localStorage.setItem('owmKey', key);
+  localStorage.setItem('owmCitta', city);
+
+  document.getElementById('meteoResult').innerHTML = '<div class="ai-loading" style="padding:1rem"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Caricamento meteo...</span></div>';
+
+  try {
+    const [curRes, prevRes] = await Promise.all([
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${key}&units=metric&lang=it`),
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${key}&units=metric&lang=it&cnt=40`)
+    ]);
+    const cur = await curRes.json();
+    const prev = await prevRes.json();
+    if (cur.cod !== 200) throw new Error(cur.message);
+
+    const icon = meteoIcon(cur.weather[0].id);
+    const temp = Math.round(cur.main.temp);
+    const feels = Math.round(cur.main.feels_like);
+    const desc = cur.weather[0].description;
+    const umidita = cur.main.humidity;
+    const vento = Math.round(cur.wind.speed * 3.6);
+    const pioggia = cur.rain ? cur.rain['1h'] || 0 : 0;
+
+    // Consiglio giardino
+    let consiglio = '';
+    if (cur.weather[0].id >= 500 && cur.weather[0].id < 600) consiglio = '🚿 Piove — salta l'irrigazione oggi!';
+    else if (temp > 30) consiglio = '🌡️ Caldo intenso — irrriga mattina presto o sera';
+    else if (temp < 5) consiglio = '🥶 Freddo — proteggi le piante sensibili al gelo';
+    else consiglio = '✅ Condizioni ideali per lavorare in giardino';
+
+    document.getElementById('meteoResult').innerHTML = `
+      <div class="meteo-box">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#0c4a6e;margin-bottom:4px">${cur.name}</div>
+            <div class="meteo-temp">${icon} ${temp}°</div>
+            <div class="meteo-desc">${desc}</div>
+          </div>
+          <div style="text-align:right;font-size:12px;color:#0369a1">
+            <div>Percepita ${feels}°</div>
+            <div style="margin-top:4px">${new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})}</div>
+          </div>
+        </div>
+        <div class="meteo-grid">
+          <div class="meteo-stat"><div class="meteo-stat-val">${umidita}%</div><div class="meteo-stat-label">Umidità</div></div>
+          <div class="meteo-stat"><div class="meteo-stat-val">${vento} km/h</div><div class="meteo-stat-label">Vento</div></div>
+          <div class="meteo-stat"><div class="meteo-stat-val">${pioggia} mm</div><div class="meteo-stat-label">Pioggia</div></div>
+        </div>
+        <div style="margin-top:1rem;padding:8px 12px;background:rgba(255,255,255,.7);border-radius:var(--rads);font-size:13px;color:#0c4a6e;font-weight:500">${consiglio}</div>
+      </div>`;
+
+    // Previsioni 5 giorni
+    const giorni = {};
+    prev.list.forEach(item => {
+      const d = item.dt_txt.split(' ')[0];
+      if (!giorni[d]) giorni[d] = [];
+      giorni[d].push(item);
+    });
+    const keys = Object.keys(giorni).slice(0,5);
+    const prevHtml = keys.map(k => {
+      const items = giorni[k];
+      const maxT = Math.round(Math.max(...items.map(i => i.main.temp_max)));
+      const minT = Math.round(Math.min(...items.map(i => i.main.temp_min)));
+      const ic = meteoIcon(items[Math.floor(items.length/2)].weather[0].id);
+      const nome = new Date(k).toLocaleDateString('it-IT',{weekday:'short'});
+      return `<div class="prev-day">
+        <div class="prev-day-name">${nome}</div>
+        <div class="prev-day-icon">${ic}</div>
+        <div class="prev-day-temp">${maxT}°</div>
+        <div style="font-size:10px;color:var(--muted)">${minT}°</div>
+      </div>`;
+    }).join('');
+    document.getElementById('meteoPrev').innerHTML = `<div class="prev-grid">${prevHtml}</div>`;
+
+  } catch(e) {
+    document.getElementById('meteoResult').innerHTML = `<div class="notice notice-amber">❌ Errore: ${e.message}. Controlla chiave API e nome città.</div>`;
+  }
+};
+
+// ══════════════════════════════════════════
+// SPESE
+// ══════════════════════════════════════════
+let spese = [];
+let editingSpesaId = null;
+const spesaCatEmoji = {'Concimi':'🌱','Antiparassitari':'🧪','Attrezzatura':'🔧','Sementi':'🌰','Irrigazione':'💧','Altro':'📦'};
+
+async function loadSpese() {
+  if (!db) return;
+  const snap = await getDocs(query(collection(db,'spese'), orderBy('data','desc')));
+  spese = snap.docs.map(d => ({id:d.id, ...d.data()}));
+  renderSpese();
+}
+
+function renderSpese() {
+  // Stats
+  const tot = spese.reduce((s,x) => s + parseFloat(x.importo||0), 0);
+  const anno = new Date().getFullYear();
+  const totAnno = spese.filter(x => x.data?.startsWith(String(anno))).reduce((s,x) => s + parseFloat(x.importo||0), 0);
+  document.getElementById('speseStats').innerHTML = `
+    <div class="stat-box"><div class="stat-num" style="font-size:22px">€ ${tot.toFixed(2)}</div><div class="stat-label">Totale</div></div>
+    <div class="stat-box"><div class="stat-num" style="font-size:22px">€ ${totAnno.toFixed(2)}</div><div class="stat-label">Anno ${anno}</div></div>`;
+
+  const el = document.getElementById('speseList');
+  if (!spese.length) { el.innerHTML = '<div class="empty-state"><i class="ti ti-coins"></i><p>Nessuna spesa registrata</p></div>'; return; }
+  el.innerHTML = spese.map(s => {
+    const emoji = spesaCatEmoji[s.categoria] || '📦';
+    const d = s.data ? new Date(s.data).toLocaleDateString('it-IT') : '—';
+    return `<div class="spesa-item" onclick="openEditSpesa('${s.id}')">
+      <div class="spesa-cat">${emoji}</div>
+      <div class="spesa-body">
+        <div class="spesa-desc">${s.descrizione}</div>
+        <div class="spesa-meta">${s.categoria} · ${d}${s.note?' · '+s.note:''}</div>
+      </div>
+      <div class="spesa-importo">€ ${parseFloat(s.importo||0).toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+window.saveSpesa = async function() {
+  const desc = document.getElementById('spDesc').value.trim();
+  const cat  = document.getElementById('spCat').value;
+  const imp  = document.getElementById('spImporto').value;
+  const data = document.getElementById('spData').value;
+  const note = document.getElementById('spNote').value.trim();
+  if (!desc || !imp || !data) { showToast('Compila descrizione, importo e data'); return; }
+  const ref = await addDoc(collection(db,'spese'), {descrizione:desc,categoria:cat,importo:parseFloat(imp),data,note,utente:currentUser});
+  spese.unshift({id:ref.id,descrizione:desc,categoria:cat,importo:parseFloat(imp),data,note,utente:currentUser});
+  closeModal('modalSpesa');
+  ['spDesc','spImporto','spNote'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('spData').value = new Date().toISOString().split('T')[0];
+  renderSpese();
+  showToast('✅ Spesa salvata');
+};
+
+window.openEditSpesa = function(id) {
+  if (currentRole === 'user') { showToast('👁 Modalità sola lettura'); return; }
+  const s = spese.find(x => x.id===id); if (!s) return;
+  editingSpesaId = id;
+  // riusa modal con valori precompilati
+  document.getElementById('spDesc').value = s.descrizione||'';
+  document.getElementById('spCat').value  = s.categoria||'Altro';
+  document.getElementById('spImporto').value = s.importo||'';
+  document.getElementById('spData').value = s.data||'';
+  document.getElementById('spNote').value = s.note||'';
+  // Cambia pulsante salva in aggiorna
+  const box = document.getElementById('modalSpesa').querySelector('.btn-row');
+  box.innerHTML = `<button class="btn btn-primary" style="flex:1" onclick="updateSpesa()"><i class="ti ti-device-floppy"></i> Aggiorna</button>
+    <button class="btn btn-secondary" onclick="closeModal('modalSpesa')">Annulla</button>
+    <button class="btn btn-danger" onclick="deleteSpesa()"><i class="ti ti-trash"></i></button>`;
+  openModal('modalSpesa');
+};
+
+window.updateSpesa = async function() {
+  const s = spese.find(x => x.id===editingSpesaId); if (!s) return;
+  const desc = document.getElementById('spDesc').value.trim();
+  const cat  = document.getElementById('spCat').value;
+  const imp  = parseFloat(document.getElementById('spImporto').value);
+  const data = document.getElementById('spData').value;
+  const note = document.getElementById('spNote').value.trim();
+  await updateDoc(doc(db,'spese',editingSpesaId), {descrizione:desc,categoria:cat,importo:imp,data,note});
+  Object.assign(s, {descrizione:desc,categoria:cat,importo:imp,data,note});
+  closeModal('modalSpesa');
+  // Ripristina pulsante salva
+  document.getElementById('modalSpesa').querySelector('.btn-row').innerHTML = `
+    <button class="btn btn-primary" style="flex:1" onclick="saveSpesa()"><i class="ti ti-device-floppy"></i> Salva</button>
+    <button class="btn btn-secondary" onclick="closeModal('modalSpesa')">Annulla</button>`;
+  renderSpese(); showToast('✅ Spesa aggiornata');
+};
+
+window.deleteSpesa = async function() {
+  if (!confirm('Eliminare questa spesa?')) return;
+  await deleteDoc(doc(db,'spese',editingSpesaId));
+  spese = spese.filter(x => x.id!==editingSpesaId);
+  closeModal('modalSpesa');
+  document.getElementById('modalSpesa').querySelector('.btn-row').innerHTML = `
+    <button class="btn btn-primary" style="flex:1" onclick="saveSpesa()"><i class="ti ti-device-floppy"></i> Salva</button>
+    <button class="btn btn-secondary" onclick="closeModal('modalSpesa')">Annulla</button>`;
+  renderSpese(); showToast('Spesa eliminata');
+};
+
+// ══════════════════════════════════════════
+// EXPORT PDF
+// ══════════════════════════════════════════
+window.exportPDF = function() {
+  const anno = new Date().getFullYear();
+  const tot = spese.reduce((s,x) => s + parseFloat(x.importo||0), 0);
+  const totAnno = spese.filter(x => x.data?.startsWith(String(anno))).reduce((s,x) => s + parseFloat(x.importo||0), 0);
+
+  // Raggruppa per categoria
+  const perCat = {};
+  spese.forEach(s => { perCat[s.categoria] = (perCat[s.categoria]||0) + parseFloat(s.importo||0); });
+
+  const rows = spese.map(s => `
+    <tr>
+      <td>${s.data ? new Date(s.data).toLocaleDateString('it-IT') : '—'}</td>
+      <td>${spesaCatEmoji[s.categoria]||''} ${s.categoria}</td>
+      <td>${s.descrizione}</td>
+      <td>${s.note||''}</td>
+      <td style="text-align:right;font-weight:600">€ ${parseFloat(s.importo||0).toFixed(2)}</td>
+    </tr>`).join('');
+
+  const catRows = Object.entries(perCat).map(([k,v]) =>
+    `<tr><td>${spesaCatEmoji[k]||''} ${k}</td><td style="text-align:right;font-weight:600">€ ${v.toFixed(2)}</td></tr>`).join('');
+
+  const attRows = [...attivita].slice(0,30).map(a => {
+    const p = piante.find(x => x.id===a.pianta_id);
+    return `<tr>
+      <td>${a.data_eseguita ? new Date(a.data_eseguita).toLocaleDateString('it-IT') : '—'}</td>
+      <td>${p ? p.nome : '—'}</td>
+      <td>${a.tipo}</td>
+      <td>${a.note||''}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>Report Giardino di Quintilina</title>
+  <style>
+    body{font-family:Georgia,serif;color:#1a1a1a;max-width:900px;margin:0 auto;padding:2rem}
+    h1{color:#1a7a3e;font-size:24px;border-bottom:2px solid #1a7a3e;padding-bottom:.5rem}
+    h2{color:#1a7a3e;font-size:16px;margin-top:2rem}
+    table{width:100%;border-collapse:collapse;margin-top:.5rem;font-size:13px}
+    th{background:#1a7a3e;color:#fff;padding:8px 10px;text-align:left}
+    td{padding:7px 10px;border-bottom:1px solid #dde8dc}
+    tr:nth-child(even){background:#f2fdf6}
+    .totale{font-size:18px;color:#1a7a3e;font-weight:bold;margin-top:1rem}
+    .footer{margin-top:3rem;font-size:11px;color:#888;text-align:center}
+    @media print{body{padding:0}}
+  </style></head><body>
+  <h1>🌿 Report Giardino di Quintilina</h1>
+  <p>Generato il ${new Date().toLocaleDateString('it-IT',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
+  <div class="totale">Totale spese anno ${anno}: € ${totAnno.toFixed(2)} &nbsp;|&nbsp; Totale storico: € ${tot.toFixed(2)}</div>
+
+  <h2>📊 Riepilogo per categoria</h2>
+  <table><tr><th>Categoria</th><th>Totale</th></tr>${catRows}</table>
+
+  <h2>💰 Dettaglio spese</h2>
+  <table><tr><th>Data</th><th>Categoria</th><th>Descrizione</th><th>Note</th><th>Importo</th></tr>${rows}</table>
+
+  <h2>📋 Ultime attività in giardino</h2>
+  <table><tr><th>Data</th><th>Pianta</th><th>Attività</th><th>Note</th></tr>${attRows}</table>
+
+  <div class="footer">Giardino di Quintilina — Report generato automaticamente</div>
+  </body></html>`;
+
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(() => w.print(), 500);
+};
 </script>
 
 <script>
