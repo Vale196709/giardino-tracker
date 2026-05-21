@@ -849,31 +849,7 @@ async function loadUtenti() {
   }
 }
 
-window.reloadUtenti = async function() {
-  const status = document.getElementById('loginStatus');
-  const debug = document.getElementById('debugInfo');
-  let log = '';
-  const addLog = msg => { log += msg + '\n'; if(debug) debug.textContent = log; };
-
-  addLog('▶ Avvio ricarica...');
-  if (status) status.textContent = '⏳ Connessione...';
-
-  const cfg = JSON.parse(localStorage.getItem('fbConfig')||'null');
-  addLog('Config: ' + (cfg ? '✅ trovata (project: '+cfg.projectId+')' : '❌ non trovata'));
-
-  if (!db) {
-    addLog('DB non inizializzato, provo initFirebase...');
-    const ok = initFirebase();
-    addLog('initFirebase: ' + (ok ? '✅ OK' : '❌ fallito'));
-    if (!ok) { if (status) status.textContent = '❌ Firebase non inizializzato'; return; }
-  } else {
-    addLog('DB: ✅ già inizializzato');
-  }
-
-  addLog('Carico utenti da Firestore...');
-  await loadUtenti();
-  addLog('Fine. Utenti trovati: ' + utenti.length);
-};
+// reloadUtenti definita sotto
 
 function renderUtentiList() {
   const el = document.getElementById('utentiList');
@@ -930,6 +906,28 @@ window.doLogout = function() {
   currentUser = ''; currentRole = 'admin'; piante = []; attivita = [];
   document.getElementById('loginPin').value = '';
   showScreen('screenSetup');
+};
+
+window.reloadUtenti = async function() {
+  const status = document.getElementById('loginStatus');
+  const debug = document.getElementById('debugInfo');
+  let log = '';
+  const addLog = msg => { log += msg + '\n'; if(debug) debug.textContent = log; };
+  addLog('▶ Avvio ricarica...');
+  if (status) status.textContent = '⏳ Connessione...';
+  const cfg = JSON.parse(localStorage.getItem('fbConfig')||'null');
+  addLog('Config: ' + (cfg ? '✅ trovata ('+cfg.projectId+')' : '❌ non trovata'));
+  if (!db) {
+    addLog('Inizializzo Firebase...');
+    const ok = initFirebase();
+    addLog('initFirebase: ' + (ok ? '✅ OK' : '❌ fallito'));
+    if (!ok) { if (status) status.textContent = '❌ Firebase non inizializzato'; return; }
+  } else {
+    addLog('DB: ✅ già pronto');
+  }
+  addLog('Carico utenti...');
+  await loadUtenti();
+  addLog('Utenti trovati: ' + utenti.length);
 };
 
 function applyRoleUI() {
