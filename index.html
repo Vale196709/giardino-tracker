@@ -246,7 +246,7 @@ canvas{max-width:100%}
 <div id="screenSetup">
   <div class="setup-card">
     <span class="brand-icon">🌿</span>
-    <h1 class="brand-h1">Giardino Tracker</h1>
+    <h1 class="brand-h1">Giardino di Quintilina</h1>
     <p class="brand-sub">Tieni sotto controllo il tuo verde</p>
 
     <div class="tabs-setup">
@@ -734,7 +734,15 @@ async function loadUtenti() {
 }
 
 window.reloadUtenti = async function() {
-  if (!db) initFirebase();
+  const status = document.getElementById('loginStatus');
+  if (status) status.textContent = '⏳ Connessione a Firebase...';
+  if (!db) {
+    const ok = initFirebase();
+    if (!ok) {
+      if (status) status.textContent = '❌ Firebase non inizializzato';
+      return;
+    }
+  }
   await loadUtenti();
 };
 
