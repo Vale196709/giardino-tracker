@@ -82,8 +82,9 @@ code{background:#f1f5f9;padding:2px 7px;border-radius:4px;font-family:monospace;
 .content{flex:1;padding:1rem;padding-bottom:88px;max-width:800px;margin:0 auto;width:100%}
 
 /* TABS NAV */
-.nav-tabs{display:flex;background:var(--surf);border-top:1px solid var(--border);position:fixed;bottom:0;left:0;right:0;z-index:50}
-.nav-tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 0 8px;cursor:pointer;font-size:9px;font-family:'DM Sans',sans-serif;color:var(--muted);border:none;background:transparent;gap:3px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;transition:color .15s}
+.nav-tabs{display:flex;background:var(--surf);border-top:1px solid var(--border);position:fixed;bottom:0;left:0;right:0;z-index:50;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{flex:0 0 auto;min-width:64px;display:flex;flex-direction:column;align-items:center;padding:10px 8px 8px;cursor:pointer;font-size:9px;font-family:'DM Sans',sans-serif;color:var(--muted);border:none;background:transparent;gap:3px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;transition:color .15s}
 .nav-tab i{font-size:22px}
 .nav-tab.active{color:var(--g7)}
 .nav-tab .badge-dot{position:relative}
