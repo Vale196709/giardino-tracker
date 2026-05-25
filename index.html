@@ -1670,6 +1670,55 @@ async function loadSpese() {
 }
 
 function renderSpese() {
+  const tot = spese.reduce((s,x) => s + parseFloat(x.importo||0), 0);
+  const anno = new Date().getFullYear();
+  const totAnno = spese.filter(x => x.data && x.data.startsWith(String(anno))).reduce((s,x) => s + parseFloat(x.importo||0), 0);
+  document.getElementById('speseStats').innerHTML = `
+    <div class="stat-box"><div class="stat-num" style="font-size:22px">€ ${tot.toFixed(2)}</div><div class="stat-label">Totale</div></div>
+    <div class="stat-box"><div class="stat-num" style="font-size:22px">€ ${totAnno.toFixed(2)}</div><div class="stat-label">Anno ${anno}</div></div>`;
+
+  const el = document.getElementById('speseList');
+  if (!spese.length) { el.innerHTML = '<div class="empty-state"><i class="ti ti-coins"></i><p>Nessuna spesa registrata</p></div>'; return; }
+
+  const classeEmoji = {'acquisto':'🏡','geometra':'📐','concessione':'📋','utilities':'🔌','attrezzi':'🔧','flora':'🌿','manutenzione':'🛠️','altro':'📦','uyilities':'🔌'};
+
+  el.innerHTML = spese.map(s => {
+    const emoji = classeEmoji[s.categoria] || classeEmoji[s.classe] || '📦';
+    const classe = s.classe || s.categoria || '';
+    const come = s.come ? ' · ' + s.come : '';
+    const dadove = s.da_dove ? ' · ' + s.da_dove : '';
+    let d = '—';
+    if (s.data) {
+      if (s.data.includes('/')) {
+        const parts = s.data.split('/');
+        if (parts.length === 3) {
+          let y = parts[2]; if (y.length === 2) y = '20'+y;
+          d = new Date(y+'-'+parts[1].padStart(2,'0')+'-'+parts[0].padStart(2,'0')).toLocaleDateString('it-IT');
+        }
+      } else {
+        d = new Date(s.data).toLocaleDateString('it-IT');
+      }
+    }
+    return `<div class="spesa-item" onclick="openEditSpesa('${s.id}')">
+      <div class="spesa-cat">${emoji}</div>
+      <div class="spesa-body">
+        <div class="spesa-desc">${s.descrizione || s.oggetto || ''}</div>
+        <div class="spesa-meta">${classe}${come}${dadove} · ${d}${s.note?' · '+String(s.note).substring(0,40):''}</div>
+      </div>
+      <div class="spesa-importo">€ ${parseFloat(s.importo||0).toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+
+async function loadSpese() {
+  if (!db) return;
+  const snap = await getDocs(query(collection(db,'spese'), orderBy('data','desc')));
+  spese = snap.docs.map(d => ({id:d.id, ...d.data()}));
+  renderSpese();
+}
+
+function renderSpese() {
   // Stats
   const tot = spese.reduce((s,x) => s + parseFloat(x.importo||0), 0);
   const anno = new Date().getFullYear();
