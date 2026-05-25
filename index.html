@@ -1336,8 +1336,9 @@ function drawCharts() {
 function fillAiPianteSel() {
   const sel = document.getElementById('aiPianta');
   sel.innerHTML = piante.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
-  const saved = localStorage.getItem('geminiApiKey');
-  if (saved) document.getElementById('aiApiKey').value = saved;
+  const defaultGeminiKey = 'AIzaSyAjlBkiAzSBvTtr032zKtvZLNvZe-d4JW4';
+  if (!localStorage.getItem('geminiApiKey')) localStorage.setItem('geminiApiKey', defaultGeminiKey);
+  document.getElementById('aiApiKey').value = localStorage.getItem('geminiApiKey') || defaultGeminiKey;
 }
 
 window.getAiSuggestion = async function() {
@@ -1472,11 +1473,15 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
 // METEO
 // ══════════════════════════════════════════
 function initMeteoPanel() {
-  const savedKey = localStorage.getItem('owmKey');
-  const savedCity = localStorage.getItem('owmCitta');
-  if (savedKey) document.getElementById('owmKey').value = savedKey;
-  if (savedCity) document.getElementById('owmCitta').value = savedCity;
-  if (savedKey && savedCity) loadMeteo();
+  const defaultOwmKey = '4fa7ded1927c5e2c6b7ad5bcf439aa25';
+  const defaultOwmCity = 'Terracina';
+  if (!localStorage.getItem('owmKey')) localStorage.setItem('owmKey', defaultOwmKey);
+  if (!localStorage.getItem('owmCitta')) localStorage.setItem('owmCitta', defaultOwmCity);
+  const savedKey = localStorage.getItem('owmKey') || defaultOwmKey;
+  const savedCity = localStorage.getItem('owmCitta') || defaultOwmCity;
+  document.getElementById('owmKey').value = savedKey;
+  document.getElementById('owmCitta').value = savedCity;
+  loadMeteo();
 }
 
 const meteoIcon = code => {
