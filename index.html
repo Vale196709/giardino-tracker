@@ -550,7 +550,7 @@ canvas{max-width:100%}
     </button>
   </nav>
 
-  <button class="fab" onclick="openModal('modalAtt')" aria-label="Aggiungi attività">
+  <button class="fab" onclick="fabClick()" aria-label="Aggiungi">
     <i class="ti ti-plus"></i>
   </button>
 </div>
@@ -742,6 +742,7 @@ import {
 // ── STATE ──────────────────────────────────────────────
 let db = null, fbApp = null;
 let currentUser = '';
+let currentTab = 'Scadenze';
 let currentRole = 'admin'; // 'admin' o 'user'
 let piante = [], attivita = [], utenti = [];
 let currentFilter = 'tutte';
@@ -822,6 +823,7 @@ window.switchTab = function(name) {
     const nav = document.getElementById('nav'+t);
     if (nav) nav.classList.toggle('active', t===name);
   });
+  currentTab = name;
   if (name==='Calendario') renderCalendar();
   if (name==='Stats') renderCharts();
   if (name==='AI') fillAiPianteSel();
@@ -830,6 +832,12 @@ window.switchTab = function(name) {
 };
 
 // ── MODALS ─────────────────────────────────────────────
+window.fabClick = function() {
+  if (currentTab === 'Spese') openModal('modalSpesa');
+  else if (currentTab === 'Piante') openModal('modalPianta');
+  else openModal('modalAtt');
+};
+
 window.openModal = function(id) {
   if (currentRole === 'user') { showToast('👁 Modalità sola lettura'); return; }
   document.getElementById(id).style.display='flex';
