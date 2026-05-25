@@ -513,9 +513,14 @@ canvas{max-width:100%}
         </div>
         <div id="speseList"></div>
       </div>
-      <button class="btn" style="width:100%;background:var(--g1);color:var(--g8);border:1.5px solid var(--g2);margin-top:.5rem" onclick="exportPDF()">
-        <i class="ti ti-file-type-pdf"></i> Esporta report PDF
-      </button>
+      <div style="display:flex;gap:8px;margin-top:.5rem">
+        <button class="btn" style="flex:1;background:var(--g1);color:var(--g8);border:1.5px solid var(--g2)" onclick="exportPDF()">
+          <i class="ti ti-file-type-pdf"></i> Esporta PDF
+        </button>
+        <button class="btn" style="flex:1;background:var(--b1);color:var(--b6);border:1.5px solid #bfdbfe" onclick="importStorico()">
+          <i class="ti ti-cloud-download"></i> Importa storico
+        </button>
+      </div>
     </div>
 
   <nav class="nav-tabs">
@@ -672,33 +677,50 @@ canvas{max-width:100%}
 <div id="modalSpesa" class="modal-overlay" style="display:none" onclick="closeOverlay(event,'modalSpesa')">
   <div class="modal-box">
     <div class="modal-handle"></div>
-    <div class="modal-title">💰 Aggiungi spesa</div>
+    <div class="modal-title">💰 Registra spesa</div>
     <div class="form-group">
-      <label class="form-label">Descrizione</label>
-      <input type="text" class="form-control" id="spDesc" placeholder="Es: Concime granulare, Antiparassitario...">
-    </div>
-    <div class="form-group">
-      <label class="form-label">Categoria</label>
-      <select class="form-control" id="spCat">
-        <option value="Concimi">🌱 Concimi</option>
-        <option value="Antiparassitari">🧪 Antiparassitari</option>
-        <option value="Attrezzatura">🔧 Attrezzatura</option>
-        <option value="Sementi">🌰 Sementi & piante</option>
-        <option value="Irrigazione">💧 Irrigazione</option>
-        <option value="Altro">📦 Altro</option>
-      </select>
+      <label class="form-label">Data</label>
+      <input type="date" class="form-control" id="spData">
     </div>
     <div class="form-group">
       <label class="form-label">Importo (€)</label>
       <input type="number" class="form-control" id="spImporto" placeholder="0.00" step="0.01" min="0">
     </div>
     <div class="form-group">
-      <label class="form-label">Data</label>
-      <input type="date" class="form-control" id="spData">
+      <label class="form-label">Oggetto</label>
+      <input type="text" class="form-control" id="spDesc" placeholder="Es: Decespugliatore, Anticipo geometra...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Classe</label>
+      <select class="form-control" id="spCat">
+        <option value="acquisto">🏡 Acquisto</option>
+        <option value="geometra">📐 Geometra</option>
+        <option value="concessione">📋 Concessione</option>
+        <option value="utilities">🔌 Utilities</option>
+        <option value="attrezzi">🔧 Attrezzi</option>
+        <option value="flora">🌿 Flora</option>
+        <option value="manutenzione">🛠️ Manutenzione</option>
+        <option value="altro">📦 Altro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Come pagato</label>
+      <select class="form-control" id="spCome">
+        <option value="contanti">💵 Contanti</option>
+        <option value="bonifico ISP">🏦 Bonifico ISP</option>
+        <option value="carta">💳 Carta</option>
+        <option value="bancomat">💳 Bancomat</option>
+        <option value="AMEX">💳 AMEX</option>
+        <option value="altro">📦 Altro</option>
+      </select>
     </div>
     <div class="form-group">
       <label class="form-label">Note</label>
-      <input type="text" class="form-control" id="spNote" placeholder="Opzionale...">
+      <textarea class="form-control" id="spNote" placeholder="Dettagli, riferimenti, osservazioni..." style="min-height:60px"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Da dove (opzionale)</label>
+      <input type="text" class="form-control" id="spDaDove" placeholder="Es: Valentino, Antonella...">
     </div>
     <div class="btn-row">
       <button class="btn btn-primary" style="flex:1" onclick="saveSpesa()"><i class="ti ti-device-floppy"></i> Salva</button>
@@ -1465,6 +1487,58 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
   window.addEventListener('reloadUtenti', () => window.reloadUtenti());
   window.addEventListener('switchSetupTab', e => window.switchSetupTab(e.detail));
 
+window.importStorico = async function() {
+  if (currentRole === 'user') { showToast('👁 Solo gli admin possono importare'); return; }
+  if (!confirm('Importare le ' + storicoSpese.length + ' spese dallo storico Google Sheet? Le spese già presenti non verranno duplicate.')) return;
+  let importati = 0, saltati = 0;
+  for (const s of storicoSpese) {
+    // Evita duplicati cercando per data+importo+oggetto
+    const esiste = spese.find(x =>
+      String(x.importo) === String(s.importo) &&
+      (x.data === s.data) &&
+      ((x.descrizione||x.oggetto||'').toLowerCase() === (s.oggetto||'').toLowerCase())
+    );
+    if (esiste) { saltati++; continue; }
+    const ref = await addDoc(collection(db,'spese'), s);
+    spese.unshift({id:ref.id,...s});
+    importati++;
+  }
+  renderSpese();
+  showToast('✅ Importati: ' + importati + ', già presenti: ' + saltati);
+};
+
+// Dati storici dal Google Sheet "SOSTENUTE"
+const storicoSpese = [
+  {data:'2025-01-26',importo:300,oggetto:'ANTICIPO IACOVACCI accatastamento',descrizione:'ANTICIPO IACOVACCI accatastamento',classe:'geometra',categoria:'geometra',come:'contanti',note:'300 DI 3000, I° VOCE PREVENTIVO',da_dove:'',utente:'import'},
+  {data:'2025-01-26',importo:2700,oggetto:'ANTICIPO IACOVACCI',descrizione:'ANTICIPO IACOVACCI',classe:'geometra',categoria:'geometra',come:'contanti',note:'2700 3000, I° VOCE PREVENTIVO',da_dove:'VALENTINO SU ANTICIPO DI ANTONELLA DEL 10 12 024',utente:'import'},
+  {data:'2025-01-26',importo:4000,oggetto:'CAPARRA PROPOSTA VENDITA Anna Terenzi',descrizione:'CAPARRA PROPOSTA VENDITA Anna Terenzi',classe:'acquisto',categoria:'acquisto',come:'bonifico ISP',note:'alla terenzi data assegno firmato da Valentino',da_dove:'',utente:'import'},
+  {data:'2025-03-03',importo:14000,oggetto:'rogito terenzi',descrizione:'rogito terenzi',classe:'acquisto',categoria:'acquisto',come:'bonifico ISP',note:'',da_dove:'',utente:'import'},
+  {data:'2025-03-03',importo:1000,oggetto:'notaio',descrizione:'notaio',classe:'acquisto',categoria:'acquisto',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2025-03-03',importo:2700,oggetto:'notaio',descrizione:'notaio',classe:'acquisto',categoria:'acquisto',come:'bonifico ISP',note:'',da_dove:'',utente:'import'},
+  {data:'2025-03-03',importo:3000,oggetto:'iacovacci all'atto notarile',descrizione:'iacovacci all'atto notarile',classe:'geometra',categoria:'geometra',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2025-03-03',importo:2000,oggetto:'iacovacci anticipo',descrizione:'iacovacci anticipo',classe:'geometra',categoria:'geometra',come:'contanti',note:'della presentazione della pratica al comune di terracina',da_dove:'',utente:'import'},
+  {data:'2025-04-30',importo:300,oggetto:'alberi misto',descrizione:'alberi misto',classe:'flora',categoria:'flora',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2025-04-30',importo:400,oggetto:'attrezzi',descrizione:'attrezzi',classe:'attrezzi',categoria:'attrezzi',come:'carta',note:'',da_dove:'',utente:'import'},
+  {data:'2025-04-30',importo:60,oggetto:'concime',descrizione:'concime',classe:'flora',categoria:'flora',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2025-05-10',importo:290,oggetto:'contanti iacovacci tasse',descrizione:'contanti iacovacci tasse',classe:'concessione',categoria:'concessione',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2025-05-10',importo:350,oggetto:'decespugliatore',descrizione:'decespugliatore',classe:'attrezzi',categoria:'attrezzi',come:'carta',note:'',da_dove:'',utente:'import'},
+  {data:'2025-06-13',importo:370,oggetto:'generatore',descrizione:'generatore',classe:'attrezzi',categoria:'attrezzi',come:'carta',note:'vale su AMEX',da_dove:'',utente:'import'},
+  {data:'2025-06-20',importo:2500,oggetto:'pozzarolo pozzo',descrizione:'pozzarolo pozzo',classe:'utilities',categoria:'utilities',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2025-06-20',importo:700,oggetto:'pompa pozzo',descrizione:'pompa pozzo',classe:'attrezzi',categoria:'attrezzi',come:'contanti',note:'350 vale 350 anto',da_dove:'',utente:'import'},
+  {data:'2025-07-10',importo:500,oggetto:'comune di terracina diritti di segreteria',descrizione:'comune di terracina diritti di segreteria',classe:'concessione',categoria:'concessione',come:'bonifico ISP',note:'intesa attraverso pagoPA',da_dove:'',utente:'import'},
+  {data:'2025-07-18',importo:4000,oggetto:'sal iacovacci',descrizione:'sal iacovacci',classe:'geometra',categoria:'geometra',come:'contanti',note:'intesa bancomat',da_dove:'',utente:'import'},
+  {data:'2025-07-18',importo:800,oggetto:'accatastamento pozzo',descrizione:'accatastamento pozzo',classe:'utilities',categoria:'utilities',come:'contanti',note:'intesa san paolo bancomat dati iacovacci',da_dove:'',utente:'import'},
+  {data:'2025-09-25',importo:120,oggetto:'fertilizzanti e disserbante',descrizione:'fertilizzanti e disserbante',classe:'flora',categoria:'flora',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2025-10-20',importo:570,oggetto:'alberi piantati il 20 10 + acconto prossimi alberi',descrizione:'alberi piantati il 20 10 + acconto prossimi alberi',classe:'flora',categoria:'flora',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2026-02-28',importo:33,oggetto:'concime',descrizione:'concime',classe:'flora',categoria:'flora',come:'',note:'',da_dove:'',utente:'import'},
+  {data:'2026-02-27',importo:350,oggetto:'opere murarie per contatore enel',descrizione:'opere murarie per contatore enel',classe:'utilities',categoria:'utilities',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2026-03-27',importo:37,oggetto:'scatole plastica per stivali e guanti',descrizione:'scatole plastica per stivali e guanti',classe:'attrezzi',categoria:'attrezzi',come:'',note:'',da_dove:'',utente:'import'},
+  {data:'2026-03-28',importo:3000,oggetto:'Iacovacci convocazione conferenza dei servizi',descrizione:'Iacovacci convocazione conferenza dei servizi',classe:'geometra',categoria:'geometra',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2026-04-10',importo:90,oggetto:'operaio decespugliatore',descrizione:'operaio decespugliatore',classe:'manutenzione',categoria:'manutenzione',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2026-05-22',importo:50,oggetto:'pali legacci e mazzetta per alberi',descrizione:'pali legacci e mazzetta per alberi',classe:'flora',categoria:'flora',come:'bancomat',note:'',da_dove:'',utente:'import'},
+  {data:'2026-05-22',importo:15,oggetto:'zappa',descrizione:'zappa',classe:'attrezzi',categoria:'attrezzi',come:'bancomat',note:'',da_dove:'',utente:'import'},
+];
+
   // Data default spesa
   document.getElementById('spData').value = new Date().toISOString().split('T')[0];
 })();
@@ -1603,32 +1677,55 @@ function renderSpese() {
 
   const el = document.getElementById('speseList');
   if (!spese.length) { el.innerHTML = '<div class="empty-state"><i class="ti ti-coins"></i><p>Nessuna spesa registrata</p></div>'; return; }
+  const classeEmoji = {'acquisto':'🏡','geometra':'📐','concessione':'📋','utilities':'🔌','attrezzi':'🔧','flora':'🌿','manutenzione':'🛠️','altro':'📦','uyilities':'🔌'};
   el.innerHTML = spese.map(s => {
-    const emoji = spesaCatEmoji[s.categoria] || '📦';
-    const d = s.data ? new Date(s.data).toLocaleDateString('it-IT') : '—';
-    return `<div class="spesa-item" onclick="openEditSpesa('${s.id}')">
-      <div class="spesa-cat">${emoji}</div>
+    const emoji = classeEmoji[s.categoria] || classeEmoji[s.classe] || '📦';
+    const classe = s.classe || s.categoria || '';
+    const come = s.come ? ' · ' + s.come : '';
+    const dadove = s.da_dove ? ' · ' + s.da_dove : '';
+    // Gestisci formato data italiano (gg/mm/aaaa) e ISO
+    let d = '—';
+    if (s.data) {
+      if (s.data.includes('/')) {
+        const parts = s.data.split('/');
+        if (parts.length === 3) {
+          let y = parts[2]; if (y.length === 2) y = '20'+y;
+          d = new Date(y+'-'+parts[1].padStart(2,'0')+'-'+parts[0].padStart(2,'0')).toLocaleDateString('it-IT');
+        }
+      } else {
+        d = new Date(s.data).toLocaleDateString('it-IT');
+      }
+    }
+    return \`<div class="spesa-item" onclick="openEditSpesa('\${s.id}')">
+      <div class="spesa-cat">\${emoji}</div>
       <div class="spesa-body">
-        <div class="spesa-desc">${s.descrizione}</div>
-        <div class="spesa-meta">${s.categoria} · ${d}${s.note?' · '+s.note:''}</div>
+        <div class="spesa-desc">\${s.descrizione || s.oggetto || ''}</div>
+        <div class="spesa-meta">\${classe}\${come}\${dadove} · \${d}\${s.note?' · '+String(s.note).substring(0,40):''}</div>
       </div>
-      <div class="spesa-importo">€ ${parseFloat(s.importo||0).toFixed(2)}</div>
-    </div>`;
+      <div class="spesa-importo">€ \${parseFloat(s.importo||0).toFixed(2)}</div>
+    </div>\`;
   }).join('');
 }
 
 window.saveSpesa = async function() {
-  const desc = document.getElementById('spDesc').value.trim();
-  const cat  = document.getElementById('spCat').value;
-  const imp  = document.getElementById('spImporto').value;
-  const data = document.getElementById('spData').value;
-  const note = document.getElementById('spNote').value.trim();
-  if (!desc || !imp || !data) { showToast('Compila descrizione, importo e data'); return; }
-  const ref = await addDoc(collection(db,'spese'), {descrizione:desc,categoria:cat,importo:parseFloat(imp),data,note,utente:currentUser});
-  spese.unshift({id:ref.id,descrizione:desc,categoria:cat,importo:parseFloat(imp),data,note,utente:currentUser});
+  const desc  = document.getElementById('spDesc').value.trim();
+  const cat   = document.getElementById('spCat').value;
+  const imp   = document.getElementById('spImporto').value;
+  const data  = document.getElementById('spData').value;
+  const note  = document.getElementById('spNote').value.trim();
+  const come  = document.getElementById('spCome').value;
+  const dadove= document.getElementById('spDaDove').value.trim();
+  if (!desc || !imp || !data) { showToast('Compila oggetto, importo e data'); return; }
+  const rec = {descrizione:desc,oggetto:desc,classe:cat,categoria:cat,importo:parseFloat(imp),data,note,come,da_dove:dadove,utente:currentUser};
+  const ref = await addDoc(collection(db,'spese'), rec);
+  spese.unshift({id:ref.id,...rec});
   closeModal('modalSpesa');
-  ['spDesc','spImporto','spNote'].forEach(id => document.getElementById(id).value='');
+  ['spDesc','spImporto','spNote','spDaDove'].forEach(id => document.getElementById(id).value='');
   document.getElementById('spData').value = new Date().toISOString().split('T')[0];
+  // Ripristina btn
+  document.getElementById('modalSpesa').querySelector('.btn-row').innerHTML = \`
+    <button class="btn btn-primary" style="flex:1" onclick="saveSpesa()"><i class="ti ti-device-floppy"></i> Salva</button>
+    <button class="btn btn-secondary" onclick="closeModal('modalSpesa')">Annulla</button>\`;
   renderSpese();
   showToast('✅ Spesa salvata');
 };
