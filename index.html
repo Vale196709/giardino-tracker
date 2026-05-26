@@ -6,6 +6,7 @@
 <title>Giardino di Quintilina</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
 <link rel="manifest" href="manifest.json">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <meta name="theme-color" content="#1a7a3e">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -389,6 +390,7 @@ canvas{max-width:100%}
         <button class="pill" onclick="filterScad('scadute',this)">🔴 Scadute</button>
         <button class="pill" onclick="filterScad('prossime',this)">🟡 Entro 30gg</button>
         <button class="pill" onclick="filterScad('ok',this)">🟢 In regola</button>
+        <button class="pill" onclick="sendTestEmail()" style="background:var(--g1);color:var(--g7);border-color:var(--g2)">📧 Test mail</button>
       </div>
       <div id="scadList" class="scad-list">
         <div class="empty-state"><i class="ti ti-loader spinner"></i><p>Caricamento dati...</p></div>
@@ -936,6 +938,83 @@ window.doLogout = function() {
   currentUser = ''; currentRole = 'admin'; piante = []; attivita = [];
   document.getElementById('loginPin').value = '';
   showScreen('screenSetup');
+};
+
+// ══════════════════════════════════════════
+// NOTIFICHE EMAIL
+// ══════════════════════════════════════════
+const EMAILJS_SERVICE  = 'service_ufiw7bb';
+const EMAILJS_TEMPLATE = 'template_c0a34pc';
+
+async function checkAndNotify() {
+  // Controlla se abbiamo già notificato oggi
+  const oggi = new Date().toISOString().split('T')[0];
+  const lastCheck = localStorage.getItem('lastNotifyCheck');
+  if (lastCheck === oggi) { console.log('Notifiche già controllate oggi'); return; }
+
+  // Trova scadenze urgenti (scadute o entro 7 giorni)
+  const urgenti = attivita.filter(a => {
+    if (!a.data_prossima) return false;
+    const days = Math.round((new Date(a.data_prossima) - new Date()) / 86400000);
+    return days <= 7;
+  });
+
+  if (!urgenti.length) {
+    localStorage.setItem('lastNotifyCheck', oggi);
+    console.log('Nessuna scadenza urgente');
+    return;
+  }
+
+  console.log(`Invio notifiche per ${urgenti.length} scadenze...`);
+
+  // Ottieni email degli admin da Firebase
+  const adminEmails = utenti
+    .filter(u => u.ruolo === 'admin' && u.email)
+    .map(u => u.email);
+
+  // Se nessun admin ha email configurata, usa email di default
+  const destinatari = adminEmails.length ? adminEmails : [];
+
+  for (const a of urgenti) {
+    const pianta = piante.find(p => p.id === a.pianta_id);
+    const nomePianta = pianta ? pianta.nome : 'Pianta sconosciuta';
+    const days = Math.round((new Date(a.data_prossima) - new Date()) / 86400000);
+    const statoTxt = days < 0 ? `SCADUTA da ${Math.abs(days)} giorni` : `Scade tra ${days} giorni`;
+
+    try {
+      await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+        pianta: nomePianta,
+        tipo: a.tipo,
+        data: new Date(a.data_prossima).toLocaleDateString('it-IT'),
+        note: a.note || 'nessuna',
+        stato: statoTxt,
+        to_email: 'vale196709@gmail.com'
+      });
+      console.log(`Mail inviata per ${nomePianta} - ${a.tipo}`);
+    } catch(e) {
+      console.error('Errore invio mail:', e);
+    }
+  }
+
+  localStorage.setItem('lastNotifyCheck', oggi);
+  showToast(`📧 Inviate ${urgenti.length} notifiche email`);
+}
+
+window.sendTestEmail = async function() {
+  try {
+    await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+      pianta: 'Olivo di test',
+      tipo: 'Potatura',
+      data: new Date().toLocaleDateString('it-IT'),
+      note: 'Questa è una mail di test',
+      stato: 'Test manuale',
+      to_email: 'vale196709@gmail.com'
+    });
+    showToast('📧 Mail di test inviata!');
+  } catch(e) {
+    showToast('❌ Errore: ' + e.message);
+    console.error(e);
+  }
 };
 
 window.reloadUtenti = async function() {
@@ -1499,12 +1578,20 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
     setTimeout(() => { if (initFirebase()) loadUtenti(); }, 1000);
   }
 
+  // Inizializza EmailJS
+  emailjs.init('9YVGzzNQ_0ByT8JI8');
+
   // Tasto Enter sul PIN
   document.getElementById('loginPin').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
 
   // Listener per funzioni chiamate dall'HTML
   window.addEventListener('reloadUtenti', () => window.reloadUtenti());
   window.addEventListener('switchSetupTab', e => window.switchSetupTab(e.detail));
+
+  // Controlla scadenze e invia mail all'apertura (solo admin)
+  if (currentRole === 'admin') {
+    setTimeout(() => checkAndNotify(), 2000);
+  }
 
 window.importStorico = async function() {
   if (currentRole === 'user') { showToast('👁 Solo gli admin possono importare'); return; }
