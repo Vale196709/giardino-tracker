@@ -9,6 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <meta name="theme-color" content="#1a7a3e">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Quintilina">
 <link rel="apple-touch-icon" href="icon-192.png">
@@ -950,7 +951,7 @@ async function checkAndNotify() {
   // Controlla se abbiamo già notificato oggi
   const oggi = new Date().toISOString().split('T')[0];
   const lastCheck = localStorage.getItem('lastNotifyCheck');
-  if (lastCheck === oggi) { console.log('Notifiche già controllate oggi'); return; }
+  // if (lastCheck === oggi) { console.log('Notifiche già controllate oggi'); return; } // debug: disabilitato temporaneamente
 
   // Trova scadenze urgenti (scadute o entro 7 giorni)
   const urgenti = attivita.filter(a => {
@@ -987,8 +988,7 @@ async function checkAndNotify() {
         tipo: a.tipo,
         data: new Date(a.data_prossima).toLocaleDateString('it-IT'),
         note: a.note || 'nessuna',
-        stato: statoTxt,
-        to_email: 'vale196709@gmail.com'
+        stato: statoTxt
       });
       console.log(`Mail inviata per ${nomePianta} - ${a.tipo}`);
     } catch(e) {
@@ -1002,18 +1002,21 @@ async function checkAndNotify() {
 
 window.sendTestEmail = async function() {
   try {
-    await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+    showToast('⏳ Invio in corso...');
+    const result = await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
       pianta: 'Olivo di test',
       tipo: 'Potatura',
       data: new Date().toLocaleDateString('it-IT'),
-      note: 'Questa è una mail di test',
-      stato: 'Test manuale',
-      to_email: 'vale196709@gmail.com'
+      note: 'Test',
+      stato: 'Test manuale'
     });
-    showToast('📧 Mail di test inviata!');
+    console.log('EmailJS result:', JSON.stringify(result));
+    showToast('📧 Inviata! Status: ' + result.status + ' - ' + result.text, 4000);
   } catch(e) {
-    showToast('❌ Errore: ' + e.message);
-    console.error(e);
+    const errMsg = typeof e === 'object' ? JSON.stringify(e) : String(e);
+    console.error('EmailJS error completo:', e);
+    showToast('❌ ' + errMsg, 5000);
+    alert('Errore EmailJS:\n' + errMsg);
   }
 };
 
