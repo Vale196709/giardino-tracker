@@ -392,6 +392,7 @@ canvas{max-width:100%}
         <button class="pill" onclick="filterScad('prossime',this)">🟡 Entro 30gg</button>
         <button class="pill" onclick="filterScad('ok',this)">🟢 In regola</button>
         <button class="pill" onclick="sendTestEmail()" style="background:var(--g1);color:var(--g7);border-color:var(--g2)">📧 Test mail</button>
+        <button class="pill" id="btnResetNotify" style="display:none;background:var(--a1);color:var(--a6);border-color:var(--a6)" onclick="resetNotify()">🔄 Reset notifiche</button>
       </div>
       <div id="scadList" class="scad-list">
         <div class="empty-state"><i class="ti ti-loader spinner"></i><p>Caricamento dati...</p></div>
@@ -1008,6 +1009,11 @@ async function checkAndNotify() {
   showToast('📧 Inviate ' + urgenti.length + ' notifiche email');
 }
 
+window.resetNotify = function() {
+  localStorage.removeItem('lastNotifyCheck');
+  showToast('🔄 Reset eseguito — ricarica la pagina per inviare le notifiche');
+};
+
 window.sendTestEmail = async function() {
   try {
     showToast('⏳ Invio in corso...');
@@ -1062,6 +1068,9 @@ function applyRoleUI() {
   // Nascondi tab Spese per utenti User
   const navSpese = document.getElementById('navSpese');
   if (navSpese) navSpese.style.display = isUser ? 'none' : 'flex';
+  // Mostra pulsante reset notifiche solo agli admin
+  const btnReset = document.getElementById('btnResetNotify');
+  if (btnReset) btnReset.style.display = isUser ? 'none' : 'inline-flex';
 }
 
 // ── LOAD DATA ──────────────────────────────────────────
