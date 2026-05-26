@@ -947,11 +947,13 @@ window.doLogout = function() {
 const EMAILJS_SERVICE  = 'service_3rupcwg';
 const EMAILJS_TEMPLATE = 'template_c0a34pc';
 
+const MAKE_WEBHOOK = 'https://hook.eu1.make.com/kad6otco6fk4pgqs1gv6vxaaa6mb3gs9';
+
 async function checkAndNotify() {
   // Controlla se abbiamo già notificato oggi
   const oggi = new Date().toISOString().split('T')[0];
   const lastCheck = localStorage.getItem('lastNotifyCheck');
-  // if (lastCheck === oggi) { console.log('Notifiche già controllate oggi'); return; } // debug: disabilitato temporaneamente
+  if (lastCheck === oggi) { console.log('Notifiche già controllate oggi'); return; }
 
   // Trova scadenze urgenti (scadute o entro 7 giorni)
   const urgenti = attivita.filter(a => {
@@ -966,38 +968,44 @@ async function checkAndNotify() {
     return;
   }
 
-  console.log(`Invio notifiche per ${urgenti.length} scadenze...`);
-
-  // Ottieni email degli admin da Firebase
-  const adminEmails = utenti
-    .filter(u => u.ruolo === 'admin' && u.email)
-    .map(u => u.email);
-
-  // Se nessun admin ha email configurata, usa email di default
-  const destinatari = adminEmails.length ? adminEmails : [];
-
-  for (const a of urgenti) {
+  // Prepara dati per Make webhook
+  const scadenzeData = urgenti.map(a => {
     const pianta = piante.find(p => p.id === a.pianta_id);
     const nomePianta = pianta ? pianta.nome : 'Pianta sconosciuta';
     const days = Math.round((new Date(a.data_prossima) - new Date()) / 86400000);
-    const statoTxt = days < 0 ? `SCADUTA da ${Math.abs(days)} giorni` : `Scade tra ${days} giorni`;
+    return {
+      pianta: nomePianta,
+      tipo: a.tipo,
+      data: new Date(a.data_prossima).toLocaleDateString('it-IT'),
+      note: a.note || 'nessuna',
+      stato: days < 0 ? 'SCADUTA da ' + Math.abs(days) + ' giorni' : 'Scade tra ' + days + ' giorni'
+    };
+  });
 
+  try {
+    // Invia al webhook Make
+    await fetch(MAKE_WEBHOOK, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ scadenze: scadenzeData, data: oggi })
+    });
+    console.log('Dati inviati a Make:', scadenzeData.length, 'scadenze');
+  } catch(e) {
+    console.error('Errore webhook Make:', e);
+  }
+
+  // Invia anche via EmailJS direttamente per ogni scadenza
+  for (const s of scadenzeData) {
     try {
-      await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-        pianta: nomePianta,
-        tipo: a.tipo,
-        data: new Date(a.data_prossima).toLocaleDateString('it-IT'),
-        note: a.note || 'nessuna',
-        stato: statoTxt
-      });
-      console.log(`Mail inviata per ${nomePianta} - ${a.tipo}`);
+      await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, s);
+      console.log('Mail inviata per:', s.pianta);
     } catch(e) {
-      console.error('Errore invio mail:', e);
+      console.error('Errore EmailJS:', e);
     }
   }
 
   localStorage.setItem('lastNotifyCheck', oggi);
-  showToast(`📧 Inviate ${urgenti.length} notifiche email`);
+  showToast('📧 Inviate ' + urgenti.length + ' notifiche email');
 }
 
 window.sendTestEmail = async function() {
