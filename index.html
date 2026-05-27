@@ -1610,7 +1610,16 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
 
   // Controlla scadenze e invia mail all'apertura (solo admin)
   if (currentRole === 'admin') {
-    setTimeout(() => checkAndNotify(), 2000);
+    setTimeout(() => {
+      console.log('Attivita caricate:', attivita.length);
+      attivita.forEach(a => {
+        if (a.data_prossima) {
+          const days = Math.round((new Date(a.data_prossima) - new Date()) / 86400000);
+          console.log('Scadenza:', a.tipo, a.data_prossima, 'giorni:', days);
+        }
+      });
+      checkAndNotify();
+    }, 4000);
   }
 
 window.importStorico = async function() {
