@@ -1,15 +1,22 @@
+bash
+
+cd /mnt/user-data/outputs && sed -n '1,300p' index.html
+Output
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Giardino Tracker</title>
+<title>Giardino di Quintilina</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
 <link rel="manifest" href="manifest.json">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <meta name="theme-color" content="#1a7a3e">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Giardino">
+<meta name="apple-mobile-web-app-title" content="Quintilina">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.4.0/dist/tabler-icons.min.css">
 <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -82,8 +89,9 @@ code{background:#f1f5f9;padding:2px 7px;border-radius:4px;font-family:monospace;
 .content{flex:1;padding:1rem;padding-bottom:88px;max-width:800px;margin:0 auto;width:100%}
 
 /* TABS NAV */
-.nav-tabs{display:flex;background:var(--surf);border-top:1px solid var(--border);position:fixed;bottom:0;left:0;right:0;z-index:50}
-.nav-tab{flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 0 8px;cursor:pointer;font-size:9px;font-family:'DM Sans',sans-serif;color:var(--muted);border:none;background:transparent;gap:3px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;transition:color .15s}
+.nav-tabs{display:flex;background:var(--surf);border-top:1px solid var(--border);position:fixed;bottom:0;left:0;right:0;z-index:50;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.nav-tabs::-webkit-scrollbar{display:none}
+.nav-tab{flex:0 0 auto;min-width:64px;display:flex;flex-direction:column;align-items:center;padding:10px 8px 8px;cursor:pointer;font-size:9px;font-family:'DM Sans',sans-serif;color:var(--muted);border:none;background:transparent;gap:3px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;transition:color .15s}
 .nav-tab i{font-size:22px}
 .nav-tab.active{color:var(--g7)}
 .nav-tab .badge-dot{position:relative}
@@ -231,16 +239,45 @@ canvas{max-width:100%}
 
 /* RESPONSIVE */
 @media(max-width:400px){.stats-row{grid-template-columns:repeat(2,1fr)}}
+
+.meteo-box{background:linear-gradient(135deg,#e0f2fe,#bae6fd);border:1px solid #7dd3fc;border-radius:var(--rad);padding:1.25rem;margin-bottom:1rem}
+.meteo-temp{font-size:52px;font-family:'Lora',serif;color:#0369a1;line-height:1}
+.meteo-desc{font-size:15px;color:#0c4a6e;font-weight:500;margin-top:4px;text-transform:capitalize}
+.meteo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:1rem}
+.meteo-stat{background:rgba(255,255,255,.6);border-radius:var(--rads);padding:8px;text-align:center}
+.meteo-stat-val{font-size:16px;font-weight:700;color:#0369a1}
+.meteo-stat-label{font-size:10px;color:#0c4a6e;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.prev-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:1rem}
+.prev-day{background:var(--surf);border:1px solid var(--border);border-radius:var(--rads);padding:8px 4px;text-align:center;font-size:11px}
+.prev-day-name{font-weight:700;color:var(--muted);text-transform:uppercase;font-size:9px}
+.prev-day-icon{font-size:20px;margin:4px 0}
+.prev-day-temp{color:var(--text);font-weight:600}
+.spesa-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.spesa-item:last-child{border-bottom:none}
+.spesa-cat{font-size:20px;flex-shrink:0}
+.spesa-body{flex:1}
+.spesa-desc{font-size:14px;font-weight:600}
+.spesa-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.spesa-importo{font-size:16px;font-weight:700;color:var(--g8);white-space:nowrap}
+
+/* Nascondi tab Firebase e Utenti su mobile (non su PC) */
+@media(max-width:600px){
+  .tab-setup-btn:nth-child(2),
+  .tab-setup-btn:nth-child(3){ display:none; }
+  #setupFirebase, #setupUtenti { display:none !important; }
+  #setupLogin { display:block !important; }
+}
 </style>
 </head>
 <body>
 
 <!-- ===== SETUP ===== -->
-<div id="screenSetup">
-  <div class="setup-card">
+<div id="screenSetup" style="position:relative;overflow:hidden">
+  
+  <div class="setup-card" style="position:relative;z-index:1">
     <span class="brand-icon">🌿</span>
-    <h1 class="brand-h1">Giardino Tracker</h1>
-    <p class="brand-sub">Tieni sotto controllo il tuo verde</p>
+    <h1 class="brand-h1">Giardino di Quintilina</h1>
+    <p class="brand-sub">Verde e non solo</p>
 
     <div class="tabs-setup">
       <button class="tab-setup-btn active" onclick="switchSetupTab('login')">Accedi</button>
@@ -253,18 +290,24 @@ canvas{max-width:100%}
       <div class="form-group">
         <label class="form-label">Chi sei?</label>
         <select class="form-control" id="loginUtente"><option value="">— seleziona —</option></select>
+        <div id="loginStatus" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
+        <button onclick="reloadUtenti()" style="margin-top:8px;width:100%;padding:8px;background:var(--g1);border:1.5px solid var(--g2);border-radius:var(--rads);color:var(--g7);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600">↻ Ricarica utenti</button>
+        <div id="debugInfo" style="margin-top:8px;padding:8px;background:#f1f5f9;border-radius:6px;font-size:11px;font-family:monospace;color:#334155;line-height:1.6;word-break:break-all"></div>
       </div>
       <div class="form-group">
         <label class="form-label">PIN</label>
         <input type="password" class="form-control" id="loginPin" maxlength="6" placeholder="••••" inputmode="numeric">
       </div>
       <button class="btn btn-primary" onclick="doLogin()">Accedi</button>
-      <div class="notice notice-green" style="margin-top:1rem">
-        <strong>Prima volta?</strong> Vai su <em>⚙ Firebase</em> per collegare il database, poi su <em>👥 Utenti</em> per creare i profili.
-      </div>
+
     </div>
 
     <!-- FIREBASE CONFIG -->
+    bash
+
+cd /mnt/user-data/outputs && sed -n '301,600p' index.html
+Output
+
     <div id="setupFirebase" class="setup-panel">
       <div class="notice notice-amber" style="margin-bottom:1rem">
         Crea un progetto gratuito su <strong>console.firebase.google.com</strong>, abilita Firestore e copia la config qui sotto.
@@ -327,7 +370,7 @@ canvas{max-width:100%}
     <div class="top-brand">
       <span class="top-brand-icon">🌿</span>
       <div>
-        <div class="top-brand-name">Giardino</div>
+        <div class="top-brand-name">Giardino di Quintilina</div>
         <div class="top-brand-sub" id="headerSub">Caricamento...</div>
       </div>
     </div>
@@ -349,6 +392,8 @@ canvas{max-width:100%}
         <button class="pill" onclick="filterScad('scadute',this)">🔴 Scadute</button>
         <button class="pill" onclick="filterScad('prossime',this)">🟡 Entro 30gg</button>
         <button class="pill" onclick="filterScad('ok',this)">🟢 In regola</button>
+        <button class="pill" onclick="sendTestEmail()" style="background:var(--g1);color:var(--g7);border-color:var(--g2)">📧 Test mail</button>
+
       </div>
       <div id="scadList" class="scad-list">
         <div class="empty-state"><i class="ti ti-loader spinner"></i><p>Caricamento dati...</p></div>
@@ -442,6 +487,92 @@ canvas{max-width:100%}
     </div>
   </div>
 
+    <!-- METEO -->
+    <div id="panelMeteo" class="tab-panel">
+      <div class="card">
+        <div class="card-title">🌤️ Meteo locale</div>
+        <div class="form-group">
+          <label class="form-label">Chiave API OpenWeatherMap</label>
+          <input type="password" class="form-control" id="owmKey" placeholder="abcd1234..." style="font-size:13px">
+          <div class="ai-api-notice">Gratuita su <strong>openweathermap.org</strong> → API keys</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Città</label>
+          <input type="text" class="form-control" id="owmCitta" placeholder="Es: Milano, Roma, Torino...">
+        </div>
+        <button class="btn btn-primary" onclick="loadMeteo()" style="width:auto;padding:10px 20px">
+          <i class="ti ti-refresh"></i> Aggiorna meteo
+        </button>
+      </div>
+      <div id="meteoResult"></div>
+      <div id="meteoPrev"></div>
+    </div>
+
+    <!-- SPESE -->
+    <div id="panelSpese" class="tab-panel">
+      <div id="speseStats" class="stats-row" style="grid-template-columns:repeat(2,1fr);margin-bottom:1rem"></div>
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">Registro spese</div>
+          <button class="btn btn-sm btn-primary" onclick="openModal('modalSpesa')"><i class="ti ti-plus"></i> Aggiungi</button>
+        </div>
+        <div id="speseList"></div>
+      </div>
+      <div style="display:flex;gap:8px;margin-top:.5rem">
+        <button class="btn" style="flex:1;background:var(--g1);color:var(--g8);border:1.5px solid var(--g2)" onclick="exportPDF()">
+          <i class="ti ti-file-type-pdf"></i> Esporta PDF
+        </button>
+        <button class="btn" style="flex:1;background:var(--b1);color:var(--b6);border:1.5px solid #bfdbfe" onclick="importStorico()">
+          <i class="ti ti-cloud-download"></i> Importa storico
+        </button>
+      </div>
+    </div>
+
+    <!-- MAPPA -->
+    <div id="panelMappa" class="tab-panel">
+      <div class="card" style="padding:.75rem">
+        <div class="section-header">
+          <div class="section-title">🗺️ Mappa del giardino</div>
+          <div style="font-size:11px;color:var(--muted)">Trascina le piante sulla mappa</div>
+        </div>
+        <div id="mappaContainer" style="position:relative;width:100%;max-width:380px;margin:0 auto;border-radius:10px;overflow:hidden;border:2px solid var(--border)">
+          <img src="mappa.jpg" style="width:100%;display:block;user-select:none" draggable="false" id="mappaImg">
+          <div id="mappaMarkers" style="position:absolute;inset:0"></div>
+        </div>
+        <div style="margin-top:.75rem;font-size:12px;color:var(--muted);text-align:center">
+          Tocca la mappa per posizionare una pianta · Trascina per spostarla
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-title" style="margin-bottom:.75rem">Piante posizionate</div>
+        <div id="mappaPianteList" style="font-size:13px;color:var(--muted)">Caricamento...</div>
+      </div>
+    </div>
+
+    <!-- BACHECA -->
+    <div id="panelBacheca" class="tab-panel">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
+        <div class="section-title">💬 Bacheca condivisa</div>
+      </div>
+      <div class="card" style="padding:.75rem">
+        <div class="form-group" style="margin-bottom:.5rem">
+          <textarea class="form-control" id="notaInput" placeholder="Scrivi una nota, osservazione, promemoria..." style="min-height:80px"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <select class="form-control" id="notaTipo" style="flex:1;padding:8px;font-size:13px">
+            <option value="nota">📝 Nota</option>
+            <option value="osservazione">🔍 Osservazione</option>
+            <option value="promemoria">⏰ Promemoria</option>
+            <option value="problema">⚠️ Problema</option>
+          </select>
+          <button class="btn btn-primary" style="padding:10px 16px" onclick="saveNota()">
+            <i class="ti ti-send"></i> Pubblica
+          </button>
+        </div>
+      </div>
+      <div id="bachecaList"></div>
+    </div>
+
   <nav class="nav-tabs">
     <button class="nav-tab active" id="navScadenze" onclick="switchTab('Scadenze')">
       <span class="badge-dot"><i class="ti ti-calendar-due"></i></span>Scadenze
@@ -461,10 +592,27 @@ canvas{max-width:100%}
     <button class="nav-tab" id="navStorico" onclick="switchTab('Storico')">
       <i class="ti ti-clock-hour-4"></i>Storico
     </button>
+    <button class="nav-tab" id="navMeteo" onclick="switchTab('Meteo')">
+      <i class="ti ti-cloud"></i>Meteo
+    </button>
+    <button class="nav-tab" id="navSpese" onclick="switchTab('Spese')">
+      <i class="ti ti-coins"></i>Spese
+    </button>
+    <button class="nav-tab" id="navMappa" onclick="switchTab('Mappa')">
+      <i class="ti ti-map"></i>Mappa
+    </button>
+    <button class="nav-tab" id="navBacheca" onclick="switchTab('Bacheca')">
+      <i class="ti ti-message-circle"></i>Bacheca
+    </button>
   </nav>
 
-  <button class="fab" onclick="openModal('modalAtt')" aria-label="Aggiungi attività">
+  <button class="fab" onclick="fabClick()" aria-label="Aggiungi">
     <i class="ti ti-plus"></i>
+bash
+
+cd /mnt/user-data/outputs && sed -n '601,900p' index.html
+Output
+
   </button>
 </div>
 
@@ -586,6 +734,62 @@ canvas{max-width:100%}
   </div>
 </div>
 
+<!-- MODAL: Nuova spesa -->
+<div id="modalSpesa" class="modal-overlay" style="display:none" onclick="closeOverlay(event,'modalSpesa')">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title">💰 Registra spesa</div>
+    <div class="form-group">
+      <label class="form-label">Data</label>
+      <input type="date" class="form-control" id="spData">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Importo (€)</label>
+      <input type="number" class="form-control" id="spImporto" placeholder="0.00" step="0.01" min="0">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Oggetto</label>
+      <input type="text" class="form-control" id="spDesc" placeholder="Es: Decespugliatore, Anticipo geometra...">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Classe</label>
+      <select class="form-control" id="spCat">
+        <option value="acquisto">🏡 Acquisto</option>
+        <option value="geometra">📐 Geometra</option>
+        <option value="concessione">📋 Concessione</option>
+        <option value="utilities">🔌 Utilities</option>
+        <option value="attrezzi">🔧 Attrezzi</option>
+        <option value="flora">🌿 Flora</option>
+        <option value="manutenzione">🛠️ Manutenzione</option>
+        <option value="altro">📦 Altro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Come pagato</label>
+      <select class="form-control" id="spCome">
+        <option value="contanti">💵 Contanti</option>
+        <option value="bonifico ISP">🏦 Bonifico ISP</option>
+        <option value="carta">💳 Carta</option>
+        <option value="bancomat">💳 Bancomat</option>
+        <option value="AMEX">💳 AMEX</option>
+        <option value="altro">📦 Altro</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Note</label>
+      <textarea class="form-control" id="spNote" placeholder="Dettagli, riferimenti, osservazioni..." style="min-height:60px"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Da dove (opzionale)</label>
+      <input type="text" class="form-control" id="spDaDove" placeholder="Es: Valentino, Antonella...">
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-primary" style="flex:1" onclick="saveSpesa()"><i class="ti ti-device-floppy"></i> Salva</button>
+      <button class="btn btn-secondary" onclick="closeModal('modalSpesa')">Annulla</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
 
@@ -599,6 +803,7 @@ import {
 // ── STATE ──────────────────────────────────────────────
 let db = null, fbApp = null;
 let currentUser = '';
+let currentTab = 'Scadenze';
 let currentRole = 'admin'; // 'admin' o 'user'
 let piante = [], attivita = [], utenti = [];
 let currentFilter = 'tutte';
@@ -647,17 +852,21 @@ window.saveFirebaseConfig = function() {
 // ── NAVIGATION ─────────────────────────────────────────
 window.switchSetupTab = function(tab) {
   const panels = {login:'setupLogin',firebase:'setupFirebase',utenti:'setupUtenti'};
-  Object.values(panels).forEach(id => document.getElementById(id).classList.remove('active'));
+  Object.values(panels).forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.remove('active'); el.style.removeProperty('display'); }
+  });
   document.querySelectorAll('.tab-setup-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(panels[tab]).classList.add('active');
+  const target = document.getElementById(panels[tab]);
+  if (target) { target.classList.add('active'); target.style.display = 'block'; }
+  const allBtns = document.querySelectorAll('.tab-setup-btn');
   const idx = {login:0,firebase:1,utenti:2}[tab];
-  document.querySelectorAll('.tab-setup-btn')[idx].classList.add('active');
-  // Se si apre la tab utenti, assicurati che Firebase sia inizializzato
-  if (tab === 'utenti') {
+  if (allBtns[idx]) allBtns[idx].classList.add('active');
+  if (tab === 'utenti' || tab === 'login') {
     if (!db) initFirebase();
     if (db) loadUtenti();
-    else {
-      document.getElementById('utentiList').innerHTML = '<div class="notice notice-amber">⚠️ Firebase non configurato. Vai sulla scheda ⚙ Firebase prima.</div>';
+    else if (tab === 'utenti') {
+      document.getElementById('utentiList').innerHTML = '<div class="notice notice-amber">⚠️ Firebase non configurato.</div>';
     }
   }
 };
@@ -669,18 +878,29 @@ function showScreen(id) {
 }
 
 window.switchTab = function(name) {
-  const panels = ['Scadenze','Piante','Calendario','Stats','AI','Storico'];
+  const panels = ['Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese','Mappa','Bacheca'];
   panels.forEach(t => {
     document.getElementById('panel'+t)?.classList.toggle('active', t===name);
     const nav = document.getElementById('nav'+t);
     if (nav) nav.classList.toggle('active', t===name);
   });
+  currentTab = name;
   if (name==='Calendario') renderCalendar();
   if (name==='Stats') renderCharts();
   if (name==='AI') fillAiPianteSel();
+  if (name==='Spese') renderSpese();
+  if (name==='Meteo') initMeteoPanel();
+  if (name==='Mappa') initMappa();
+  if (name==='Bacheca') loadBacheca();
 };
 
 // ── MODALS ─────────────────────────────────────────────
+window.fabClick = function() {
+  if (currentTab === 'Spese') openModal('modalSpesa');
+  else if (currentTab === 'Piante') openModal('modalPianta');
+  else openModal('modalAtt');
+};
+
 window.openModal = function(id) {
   if (currentRole === 'user') { showToast('👁 Modalità sola lettura'); return; }
   document.getElementById(id).style.display='flex';
@@ -693,21 +913,41 @@ function showToast(msg, dur=2500) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), dur);
+bash
+
+cd /mnt/user-data/outputs && sed -n '901,1200p' index.html
+Output
+
 }
 
 // ── UTENTI ─────────────────────────────────────────────
 async function loadUtenti() {
-  if (!db) return;
-  const snap = await getDocs(collection(db,'utenti'));
-  utenti = snap.docs.map(d => ({id:d.id, ...d.data()}));
-  const sel = document.getElementById('loginUtente');
-  sel.innerHTML = '<option value="">— seleziona —</option>';
-  utenti.forEach(u => {
-    const o = document.createElement('option');
-    o.value = u.nome; o.textContent = u.nome; sel.appendChild(o);
-  });
-  renderUtentiList();
+  const status = document.getElementById('loginStatus');
+  if (status) status.textContent = '⏳ Caricamento...';
+  if (!db) {
+    if (!initFirebase()) {
+      if (status) status.textContent = '❌ Firebase non raggiungibile';
+      return;
+    }
+  }
+  try {
+    const snap = await getDocs(collection(db,'utenti'));
+    utenti = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    const sel = document.getElementById('loginUtente');
+    sel.innerHTML = '<option value="">— seleziona —</option>';
+    utenti.forEach(u => {
+      const o = document.createElement('option');
+      o.value = u.nome; o.textContent = u.nome; sel.appendChild(o);
+    });
+    renderUtentiList();
+    if (status) status.textContent = utenti.length ? '✅ ' + utenti.length + ' utenti trovati' : '⚠️ Nessun utente trovato';
+  } catch(e) {
+    console.error('loadUtenti error:', e);
+    if (status) status.textContent = '❌ Errore: ' + e.message;
+  }
 }
+
+// reloadUtenti definita sotto
 
 function renderUtentiList() {
   const el = document.getElementById('utentiList');
@@ -766,6 +1006,328 @@ window.doLogout = function() {
   showScreen('screenSetup');
 };
 
+// ══════════════════════════════════════════
+// MAPPA GIARDINO
+// ══════════════════════════════════════════
+let mappaPositions = {}; // {pianta_id: {x_pct, y_pct}}
+
+async function initMappa() {
+  // Carica posizioni salvate da Firebase
+  try {
+    const snap = await getDocs(collection(db,'mappa'));
+    mappaPositions = {};
+    snap.docs.forEach(d => { mappaPositions[d.id] = d.data(); });
+  } catch(e) { console.log('Mappa:', e); }
+  renderMappa();
+}
+
+function renderMappa() {
+  const container = document.getElementById('mappaContainer');
+  const markers = document.getElementById('mappaMarkers');
+  if (!markers) return;
+  markers.innerHTML = '';
+
+  // Mostra marker per piante con posizione
+  piante.forEach(p => {
+    const pos = mappaPositions[p.id];
+    if (!pos) return;
+    const emoji = emojiTipo[p.tipo] || '🪴';
+    const marker = document.createElement('div');
+    marker.className = 'mappa-marker';
+    marker.style.left = pos.x_pct + '%';
+    marker.style.top  = pos.y_pct + '%';
+    marker.innerHTML = emoji + '<div class="mappa-marker-label">' + p.nome + '</div>';
+    marker.title = p.nome;
+    // Drag
+    if (currentRole === 'admin') makeDraggable(marker, p.id);
+    markers.appendChild(marker);
+  });
+
+  // Click su mappa per posizionare pianta
+  if (currentRole === 'admin') {
+    const img = document.getElementById('mappaImg');
+    img.onclick = (e) => {
+      const rect = container.getBoundingClientRect();
+      const x = ((e.clientX - rect.left) / rect.width) * 100;
+      const y = ((e.clientY - rect.top) / rect.height) * 100;
+      openMappaModal(x, y);
+    };
+  }
+
+  renderMappaPianteList();
+}
+
+function makeDraggable(el, piantaId) {
+  let startX, startY, startLeft, startTop;
+  const container = document.getElementById('mappaContainer');
+
+  el.addEventListener('touchstart', e => {
+    e.stopPropagation();
+    const t = e.touches[0];
+    startX = t.clientX; startY = t.clientY;
+    startLeft = parseFloat(el.style.left);
+    startTop  = parseFloat(el.style.top);
+  }, {passive:true});
+
+  el.addEventListener('touchmove', e => {
+    e.preventDefault();
+    const t = e.touches[0];
+    const rect = container.getBoundingClientRect();
+    const dx = ((t.clientX - startX) / rect.width) * 100;
+    const dy = ((t.clientY - startY) / rect.height) * 100;
+    el.style.left = Math.max(0, Math.min(100, startLeft + dx)) + '%';
+    el.style.top  = Math.max(0, Math.min(100, startTop  + dy)) + '%';
+  }, {passive:false});
+
+  el.addEventListener('touchend', async () => {
+    const x = parseFloat(el.style.left);
+    const y = parseFloat(el.style.top);
+    await saveMappaPosition(piantaId, x, y);
+  });
+}
+
+async function saveMappaPosition(piantaId, x, y) {
+  mappaPositions[piantaId] = {x_pct: x, y_pct: y};
+  await setDoc(doc(db,'mappa',piantaId), {x_pct: x, y_pct: y});
+}
+
+function openMappaModal(x, y) {
+  const sel = '<select id="mappaPiantaSel" class="form-control" style="margin-bottom:.75rem">' +
+    piante.map(p => '<option value="' + p.id + '">' + (emojiTipo[p.tipo]||'🪴') + ' ' + p.nome + '</option>').join('') +
+    '</select>';
+  const confirmed = confirm('Posiziona pianta qui. Scegli dalla lista dopo aver chiuso questo dialog.');
+  if (!confirmed) return;
+  // Usa la prima pianta non ancora posizionata
+  const nonPos = piante.filter(p => !mappaPositions[p.id]);
+  if (!nonPos.length) { showToast('Tutte le piante sono già posizionate!'); return; }
+  const pianta = nonPos[0];
+  saveMappaPosition(pianta.id, x, y).then(() => { renderMappa(); showToast('✅ ' + pianta.nome + ' posizionata!'); });
+}
+
+function renderMappaPianteList() {
+  const el = document.getElementById('mappaPianteList');
+  const posizionate = piante.filter(p => mappaPositions[p.id]);
+  const nonPosizionate = piante.filter(p => !mappaPositions[p.id]);
+  let html = '';
+  if (posizionate.length) {
+    html += '<div style="margin-bottom:.5rem"><strong>✅ Posizionate (' + posizionate.length + ')</strong></div>';
+    html += posizionate.map(p => `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
+      <span style="font-size:18px">${emojiTipo[p.tipo]||'🪴'}</span>
+      <span style="flex:1;font-size:13px">${p.nome}</span>
+      ${currentRole==='admin'?`<button class="btn btn-sm btn-danger" onclick="removeMappaPosition('${p.id}')"><i class="ti ti-x"></i></button>`:''}
+    </div>`).join('');
+  }
+  if (nonPosizionate.length) {
+    html += '<div style="margin-top:.75rem;margin-bottom:.5rem"><strong>📍 Da posizionare (' + nonPosizionate.length + ')</strong></div>';
+    html += nonPosizionate.map(p => `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);opacity:.6">
+      <span style="font-size:18px">${emojiTipo[p.tipo]||'🪴'}</span>
+      <span style="font-size:13px">${p.nome}</span>
+      ${currentRole==='admin'?`<button class="btn btn-sm" style="background:var(--g1);color:var(--g7);border:1px solid var(--g2)" onclick="posizionaPrimaLibera('${p.id}')">📍 Posiziona</button>`:''}
+    </div>`).join('');
+  }
+  el.innerHTML = html || '<div style="color:var(--muted)">Nessuna pianta trovata</div>';
+}
+
+window.removeMappaPosition = async function(piantaId) {
+  delete mappaPositions[piantaId];
+  await deleteDoc(doc(db,'mappa',piantaId));
+  renderMappa();
+  showToast('Posizione rimossa');
+};
+
+window.posizionaPrimaLibera = function(piantaId) {
+  showToast('Tocca la mappa per posizionare la pianta');
+  const img = document.getElementById('mappaImg');
+  const container = document.getElementById('mappaContainer');
+  const handler = (e) => {
+    const rect = container.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 100;
+    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    saveMappaPosition(piantaId, x, y).then(() => { renderMappa(); showToast('✅ Pianta posizionata!'); });
+    img.removeEventListener('click', handler);
+  };
+  img.addEventListener('click', handler);
+  // Touch
+  const thandler = (e) => {
+    const t = e.touches[0];
+    const rect = container.getBoundingClientRect();
+    const x = ((t.clientX - rect.left) / rect.width) * 100;
+    const y = ((t.clientY - rect.top) / rect.height) * 100;
+    saveMappaPosition(piantaId, x, y).then(() => { renderMappa(); showToast('✅ Pianta posizionata!'); });
+    img.removeEventListener('touchstart', thandler);
+  };
+  img.addEventListener('touchstart', thandler, {passive:true});
+};
+
+// ══════════════════════════════════════════
+// BACHECA NOTE CONDIVISE
+// ══════════════════════════════════════════
+let note = [];
+
+async function loadBacheca() {
+  if (!db) return;
+  const snap = await getDocs(query(collection(db,'bacheca'), orderBy('timestamp','desc')));
+  note = snap.docs.map(d => ({id:d.id, ...d.data()}));
+  renderBacheca();
+}
+
+function renderBacheca() {
+  const el = document.getElementById('bachecaList');
+  if (!note.length) { el.innerHTML = '<div class="empty-state"><i class="ti ti-message-circle"></i><p>Nessuna nota ancora.<br>Scrivi la prima!</p></div>'; return; }
+  const tipoEmoji = {'nota':'📝','osservazione':'🔍','promemoria':'⏰','problema':'⚠️'};
+  el.innerHTML = note.map(n => {
+    const d = n.timestamp ? new Date(n.timestamp).toLocaleDateString('it-IT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+    return `<div class="nota-item">
+      <div class="nota-header">
+        <span class="nota-tipo nt-${n.tipo}">${tipoEmoji[n.tipo]||'📝'} ${n.tipo}</span>
+        <span class="nota-autore">👤 ${n.autore||'—'}</span>
+        ${currentRole==='admin'?`<button class="btn btn-sm btn-danger" style="padding:3px 8px" onclick="deleteNota('${n.id}')"><i class="ti ti-trash"></i></button>`:''}
+      </div>
+      <div class="nota-testo">${n.testo}</div>
+      <div class="nota-data">${d}</div>
+    </div>`;
+  }).join('');
+}
+
+window.saveNota = async function() {
+  const testo = document.getElementById('notaInput').value.trim();
+  const tipo  = document.getElementById('notaTipo').value;
+  if (!testo) { showToast('Scrivi qualcosa prima di pubblicare'); return; }
+  const rec = {testo, tipo, autore:currentUser, timestamp: new Date().toISOString()};
+  const ref = await addDoc(collection(db,'bacheca'), rec);
+  note.unshift({id:ref.id,...rec});
+  document.getElementById('notaInput').value = '';
+  renderBacheca();
+  showToast('✅ Nota pubblicata');
+};
+
+window.deleteNota = async function(id) {
+  if (!confirm('Eliminare questa nota?')) return;
+  await deleteDoc(doc(db,'bacheca',id));
+  note = note.filter(n => n.id !== id);
+  renderBacheca();
+  showToast('Nota eliminata');
+};
+
+// ══════════════════════════════════════════
+// NOTIFICHE EMAIL
+// ══════════════════════════════════════════
+const EMAILJS_SERVICE  = 'service_3rupcwg';
+const EMAILJS_TEMPLATE = 'template_c0a34pc';
+
+const MAKE_WEBHOOK = 'https://hook.eu1.make.com/kad6otco6fk4pgqs1gv6vxaaa6mb3gs9';
+
+async function checkAndNotify() {
+bash
+
+cd /mnt/user-data/outputs && sed -n '1201,1500p' index.html
+Output
+
+  // Controlla se abbiamo già notificato oggi
+  const oggi = new Date().toISOString().split('T')[0];
+  const lastCheck = localStorage.getItem('lastNotifyCheck');
+  if (lastCheck === oggi) { console.log('Notifiche già controllate oggi'); return; }
+
+  // Trova scadenze urgenti (scadute o entro 7 giorni)
+  const urgenti = attivita.filter(a => {
+    if (!a.data_prossima) return false;
+    const days = Math.round((new Date(a.data_prossima) - new Date()) / 86400000);
+    return days <= 7;
+  });
+
+  if (!urgenti.length) {
+    localStorage.setItem('lastNotifyCheck', oggi);
+    console.log('Nessuna scadenza urgente');
+    return;
+  }
+
+  // Prepara dati per Make webhook
+  const scadenzeData = urgenti.map(a => {
+    const pianta = piante.find(p => p.id === a.pianta_id);
+    const nomePianta = pianta ? pianta.nome : 'Pianta sconosciuta';
+    const days = Math.round((new Date(a.data_prossima) - new Date()) / 86400000);
+    return {
+      pianta: nomePianta,
+      tipo: a.tipo,
+      data: new Date(a.data_prossima).toLocaleDateString('it-IT'),
+      note: a.note || 'nessuna',
+      stato: days < 0 ? 'SCADUTA da ' + Math.abs(days) + ' giorni' : 'Scade tra ' + days + ' giorni'
+    };
+  });
+
+  try {
+    // Invia al webhook Make
+    await fetch(MAKE_WEBHOOK, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ scadenze: scadenzeData, data: oggi })
+    });
+    console.log('Dati inviati a Make:', scadenzeData.length, 'scadenze');
+  } catch(e) {
+    console.error('Errore webhook Make:', e);
+  }
+
+  // Invia anche via EmailJS direttamente per ogni scadenza
+  for (const s of scadenzeData) {
+    try {
+      await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, s);
+      console.log('Mail inviata per:', s.pianta);
+    } catch(e) {
+      console.error('Errore EmailJS:', e);
+    }
+  }
+
+  localStorage.setItem('lastNotifyCheck', oggi);
+  showToast('📧 Inviate ' + urgenti.length + ' notifiche email');
+}
+
+window.resetNotify = function() {
+  localStorage.removeItem('lastNotifyCheck');
+  showToast('🔄 Reset eseguito — ricarica la pagina per inviare le notifiche');
+};
+
+window.sendTestEmail = async function() {
+  try {
+    showToast('⏳ Invio in corso...');
+    const result = await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+      pianta: 'Olivo di test',
+      tipo: 'Potatura',
+      data: new Date().toLocaleDateString('it-IT'),
+      note: 'Test',
+      stato: 'Test manuale'
+    });
+    console.log('EmailJS result:', JSON.stringify(result));
+    showToast('📧 Inviata! Status: ' + result.status + ' - ' + result.text, 4000);
+  } catch(e) {
+    const errMsg = typeof e === 'object' ? JSON.stringify(e) : String(e);
+    console.error('EmailJS error completo:', e);
+    showToast('❌ ' + errMsg, 5000);
+    alert('Errore EmailJS:\n' + errMsg);
+  }
+};
+
+window.reloadUtenti = async function() {
+  const status = document.getElementById('loginStatus');
+  const debug = document.getElementById('debugInfo');
+  let log = '';
+  const addLog = msg => { log += msg + '\n'; if(debug) debug.textContent = log; };
+  addLog('▶ Avvio ricarica...');
+  if (status) status.textContent = '⏳ Connessione...';
+  const cfg = JSON.parse(localStorage.getItem('fbConfig')||'null');
+  addLog('Config: ' + (cfg ? '✅ trovata ('+cfg.projectId+')' : '❌ non trovata'));
+  if (!db) {
+    addLog('Inizializzo Firebase...');
+    const ok = initFirebase();
+    addLog('initFirebase: ' + (ok ? '✅ OK' : '❌ fallito'));
+    if (!ok) { if (status) status.textContent = '❌ Firebase non inizializzato'; return; }
+  } else {
+    addLog('DB: ✅ già pronto');
+  }
+  addLog('Carico utenti...');
+  await loadUtenti();
+  addLog('Utenti trovati: ' + utenti.length);
+};
+
 function applyRoleUI() {
   const isUser = currentRole === 'user';
   // Nascondi FAB (pulsante +)
@@ -775,6 +1337,10 @@ function applyRoleUI() {
   // Mostra banner readonly se user
   const banner = document.getElementById('readonlyBanner');
   if (banner) banner.style.display = isUser ? 'flex' : 'none';
+  // Nascondi tab Spese per utenti User
+  const navSpese = document.getElementById('navSpese');
+  if (navSpese) navSpese.style.display = isUser ? 'none' : 'flex';
+
 }
 
 // ── LOAD DATA ──────────────────────────────────────────
@@ -790,6 +1356,15 @@ async function loadAll() {
   document.getElementById('headerSub').textContent = 'Aggiornato: ' + new Date().toLocaleDateString('it-IT');
   renderAll();
   checkScadenzeBadge();
+  await loadSpese();
+  // Auto-importa storico se admin e spese vuote
+  if (currentRole === 'admin' && spese.length === 0) {
+    setTimeout(async () => {
+      if (confirm('Nessuna spesa trovata. Vuoi importare lo storico dal Google Sheet?')) {
+        await window.importStorico();
+      }
+    }, 800);
+  }
 }
 
 function renderAll() {
@@ -948,6 +1523,11 @@ window.openEditAtt = function(id) {
 window.updateAttivita = async function() {
   const a = attivita.find(x => x.id===editingAttId); if (!a) return;
   const pId   = document.getElementById('eaPianta').value;
+bash
+
+cd /mnt/user-data/outputs && sed -n '1501,1800p' index.html
+Output
+
   const tipo  = document.getElementById('eaTipo').value;
   const dataEs= document.getElementById('eaDataEs').value;
   const dataP = document.getElementById('eaDataProx').value;
@@ -1171,8 +1751,9 @@ function drawCharts() {
 function fillAiPianteSel() {
   const sel = document.getElementById('aiPianta');
   sel.innerHTML = piante.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
-  const saved = localStorage.getItem('geminiApiKey');
-  if (saved) document.getElementById('aiApiKey').value = saved;
+  const defaultGeminiKey = 'AIzaSyAjlBkiAzSBvTtr032zKtvZLNvZe-d4JW4';
+  if (!localStorage.getItem('geminiApiKey')) localStorage.setItem('geminiApiKey', defaultGeminiKey);
+  document.getElementById('aiApiKey').value = localStorage.getItem('geminiApiKey') || defaultGeminiKey;
 }
 
 window.getAiSuggestion = async function() {
@@ -1247,6 +1828,11 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
 
     document.getElementById('aiResult').innerHTML = `
       <div class="ai-box">
+bash
+
+cd /mnt/user-data/outputs && sed -n '1801,2262p' index.html
+Output
+
         <div class="ai-box-header">
           <span style="font-size:20px">✨</span>
           <div class="ai-box-title">Consiglio AI per ${pianta.nome}</div>
@@ -1287,21 +1873,428 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
   // Inizializza sempre Firebase con la config embedded
   if (initFirebase()) {
     loadUtenti();
+  } else {
+    // Riprova dopo 1 secondo
+    setTimeout(() => { if (initFirebase()) loadUtenti(); }, 1000);
   }
+
+  // Inizializza EmailJS
+  emailjs.init('9YVGzzNQ_0ByT8JI8');
 
   // Tasto Enter sul PIN
   document.getElementById('loginPin').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+
+  // Listener per funzioni chiamate dall'HTML
+  window.addEventListener('reloadUtenti', () => window.reloadUtenti());
+  window.addEventListener('switchSetupTab', e => window.switchSetupTab(e.detail));
+
+  // Controlla scadenze e invia mail all'apertura (solo admin)
+  if (currentRole === 'admin') {
+    setTimeout(() => checkAndNotify(), 4000);
+  }
+
+window.importStorico = async function() {
+  if (currentRole === 'user') { showToast('👁 Solo gli admin possono importare'); return; }
+  if (!confirm('Importare le ' + storicoSpese.length + ' spese dallo storico Google Sheet? Le spese già presenti non verranno duplicate.')) return;
+  let importati = 0, saltati = 0;
+  for (const s of storicoSpese) {
+    // Evita duplicati cercando per data+importo+oggetto
+    const esiste = spese.find(x =>
+      String(x.importo) === String(s.importo) &&
+      (x.data === s.data) &&
+      ((x.descrizione||x.oggetto||'').toLowerCase() === (s.oggetto||'').toLowerCase())
+    );
+    if (esiste) { saltati++; continue; }
+    const ref = await addDoc(collection(db,'spese'), s);
+    spese.unshift({id:ref.id,...s});
+    importati++;
+  }
+  renderSpese();
+  showToast('✅ Importati: ' + importati + ', già presenti: ' + saltati);
+};
+
+// Dati storici dal Google Sheet "SOSTENUTE"
+const storicoSpese = [
+  {data:'2025-01-26',importo:300,oggetto:'ANTICIPO IACOVACCI accatastamento',descrizione:'ANTICIPO IACOVACCI accatastamento',classe:'geometra',categoria:'geometra',come:'contanti',note:"300 DI 3000, I grado VOCE PREVENTIVO",da_dove:'',utente:'import'},
+  {data:'2025-01-26',importo:2700,oggetto:'ANTICIPO IACOVACCI',descrizione:'ANTICIPO IACOVACCI',classe:'geometra',categoria:'geometra',come:'contanti',note:"2700 3000, I grado VOCE PREVENTIVO",da_dove:"VALENTINO SU ANTICIPO DI ANTONELLA DEL 10 12 024",utente:'import'},
+  {data:'2025-01-26',importo:4000,oggetto:'CAPARRA PROPOSTA VENDITA Anna Terenzi',descrizione:'CAPARRA PROPOSTA VENDITA Anna Terenzi',classe:'acquisto',categoria:'acquisto',come:'bonifico ISP',note:"alla terenzi data assegno firmato da Valentino",da_dove:'',utente:'import'},
+  {data:'2025-03-03',importo:14000,oggetto:'rogito terenzi',descrizione:'rogito terenzi',classe:'acquisto',categoria:'acquisto',come:'bonifico ISP',note:'',da_dove:'',utente:'import'},
+  {data:'2025-03-03',importo:1000,oggetto:'notaio',descrizione:'notaio',classe:'acquisto',categoria:'acquisto',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2025-03-03',importo:2700,oggetto:'notaio',descrizione:'notaio',classe:'acquisto',categoria:'acquisto',come:'bonifico ISP',note:'',da_dove:'',utente:'import'},
+  {data:'2025-03-03',importo:3000,oggetto:"iacovacci allatto notarile",descrizione:"iacovacci allatto notarile",classe:'geometra',categoria:'geometra',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2025-03-03',importo:2000,oggetto:'iacovacci anticipo',descrizione:'iacovacci anticipo',classe:'geometra',categoria:'geometra',come:'contanti',note:"della presentazione della pratica al comune di terracina",da_dove:'',utente:'import'},
+  {data:'2025-04-30',importo:300,oggetto:'alberi misto',descrizione:'alberi misto',classe:'flora',categoria:'flora',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2025-04-30',importo:400,oggetto:'attrezzi',descrizione:'attrezzi',classe:'attrezzi',categoria:'attrezzi',come:'carta',note:'',da_dove:'',utente:'import'},
+  {data:'2025-04-30',importo:60,oggetto:'concime',descrizione:'concime',classe:'flora',categoria:'flora',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2025-05-10',importo:290,oggetto:'contanti iacovacci tasse',descrizione:'contanti iacovacci tasse',classe:'concessione',categoria:'concessione',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2025-05-10',importo:350,oggetto:'decespugliatore',descrizione:'decespugliatore',classe:'attrezzi',categoria:'attrezzi',come:'carta',note:'',da_dove:'',utente:'import'},
+  {data:'2025-06-13',importo:370,oggetto:'generatore',descrizione:'generatore',classe:'attrezzi',categoria:'attrezzi',come:'carta',note:"vale su AMEX",da_dove:'',utente:'import'},
+  {data:'2025-06-20',importo:2500,oggetto:'pozzarolo pozzo',descrizione:'pozzarolo pozzo',classe:'utilities',categoria:'utilities',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2025-06-20',importo:700,oggetto:'pompa pozzo',descrizione:'pompa pozzo',classe:'attrezzi',categoria:'attrezzi',come:'contanti',note:"350 vale 350 anto",da_dove:'',utente:'import'},
+  {data:'2025-07-10',importo:500,oggetto:"comune di terracina diritti di segreteria",descrizione:"comune di terracina diritti di segreteria",classe:'concessione',categoria:'concessione',come:'bonifico ISP',note:"intesa attraverso pagoPA",da_dove:'',utente:'import'},
+  {data:'2025-07-18',importo:4000,oggetto:'sal iacovacci',descrizione:'sal iacovacci',classe:'geometra',categoria:'geometra',come:'contanti',note:"intesa bancomat",da_dove:'',utente:'import'},
+  {data:'2025-07-18',importo:800,oggetto:'accatastamento pozzo',descrizione:'accatastamento pozzo',classe:'utilities',categoria:'utilities',come:'contanti',note:"intesa san paolo bancomat dati iacovacci",da_dove:'',utente:'import'},
+  {data:'2025-09-25',importo:120,oggetto:'fertilizzanti e disserbante',descrizione:'fertilizzanti e disserbante',classe:'flora',categoria:'flora',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2025-10-20',importo:570,oggetto:"alberi piantati il 20 10 + acconto prossimi alberi",descrizione:"alberi piantati il 20 10 + acconto prossimi alberi",classe:'flora',categoria:'flora',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2026-02-28',importo:33,oggetto:'concime',descrizione:'concime',classe:'flora',categoria:'flora',come:'',note:'',da_dove:'',utente:'import'},
+  {data:'2026-02-27',importo:350,oggetto:"opere murarie per contatore enel",descrizione:"opere murarie per contatore enel",classe:'utilities',categoria:'utilities',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2026-03-27',importo:37,oggetto:"scatole plastica per stivali e guanti",descrizione:"scatole plastica per stivali e guanti",classe:'attrezzi',categoria:'attrezzi',come:'',note:'',da_dove:'',utente:'import'},
+  {data:'2026-03-28',importo:3000,oggetto:"Iacovacci convocazione conferenza dei servizi",descrizione:"Iacovacci convocazione conferenza dei servizi",classe:'geometra',categoria:'geometra',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2026-04-10',importo:90,oggetto:"operaio decespugliatore",descrizione:"operaio decespugliatore",classe:'manutenzione',categoria:'manutenzione',come:'contanti',note:'',da_dove:'',utente:'import'},
+  {data:'2026-05-22',importo:50,oggetto:"pali legacci e mazzetta per alberi",descrizione:"pali legacci e mazzetta per alberi",classe:'flora',categoria:'flora',come:'bancomat',note:'',da_dove:'',utente:'import'},
+  {data:'2026-05-22',importo:15,oggetto:'zappa',descrizione:'zappa',classe:'attrezzi',categoria:'attrezzi',come:'bancomat',note:'',da_dove:'',utente:'import'},
+];
+
+  // Data default spesa
+  document.getElementById('spData').value = new Date().toISOString().split('T')[0];
 })();
+
+// ══════════════════════════════════════════
+// METEO
+// ══════════════════════════════════════════
+function initMeteoPanel() {
+  const defaultOwmKey = '4fa7ded1927c5e2c6b7ad5bcf439aa25';
+  const defaultOwmCity = 'Terracina';
+  if (!localStorage.getItem('owmKey')) localStorage.setItem('owmKey', defaultOwmKey);
+  if (!localStorage.getItem('owmCitta')) localStorage.setItem('owmCitta', defaultOwmCity);
+  const savedKey = localStorage.getItem('owmKey') || defaultOwmKey;
+  const savedCity = localStorage.getItem('owmCitta') || defaultOwmCity;
+  document.getElementById('owmKey').value = savedKey;
+  document.getElementById('owmCitta').value = savedCity;
+  loadMeteo();
+}
+
+const meteoIcon = code => {
+  if (code >= 200 && code < 300) return '⛈️';
+  if (code >= 300 && code < 400) return '🌦️';
+  if (code >= 500 && code < 600) return '🌧️';
+  if (code >= 600 && code < 700) return '❄️';
+  if (code >= 700 && code < 800) return '🌫️';
+  if (code === 800) return '☀️';
+  if (code === 801) return '🌤️';
+  if (code <= 804) return '☁️';
+  return '🌡️';
+};
+
+window.loadMeteo = async function() {
+  const key = document.getElementById('owmKey').value.trim();
+  const city = document.getElementById('owmCitta').value.trim();
+  if (!key || !city) { showToast('Inserisci chiave API e città'); return; }
+  localStorage.setItem('owmKey', key);
+  localStorage.setItem('owmCitta', city);
+
+  document.getElementById('meteoResult').innerHTML = '<div class="ai-loading" style="padding:1rem"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Caricamento meteo...</span></div>';
+
+  try {
+    const [curRes, prevRes] = await Promise.all([
+      fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(city)}&appid=${key}&units=metric&lang=it`),
+      fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${key}&units=metric&lang=it&cnt=40`)
+    ]);
+    const cur = await curRes.json();
+    const prev = await prevRes.json();
+    if (cur.cod !== 200) throw new Error(cur.message);
+
+    const icon = meteoIcon(cur.weather[0].id);
+    const temp = Math.round(cur.main.temp);
+    const feels = Math.round(cur.main.feels_like);
+    const desc = cur.weather[0].description;
+    const umidita = cur.main.humidity;
+    const vento = Math.round(cur.wind.speed * 3.6);
+    const pioggia = cur.rain ? cur.rain['1h'] || 0 : 0;
+
+    // Consiglio giardino
+    let consiglio = '';
+    if (cur.weather[0].id >= 500 && cur.weather[0].id < 600) consiglio = "🚿 Piove — evita di irrigare oggi!";
+    else if (temp > 30) consiglio = '🌡️ Caldo intenso — irrriga mattina presto o sera';
+    else if (temp < 5) consiglio = '🥶 Freddo — proteggi le piante sensibili al gelo';
+    else consiglio = '✅ Condizioni ideali per lavorare in giardino';
+
+    document.getElementById('meteoResult').innerHTML = `
+      <div class="meteo-box">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:#0c4a6e;margin-bottom:4px">${cur.name}</div>
+            <div class="meteo-temp">${icon} ${temp}°</div>
+            <div class="meteo-desc">${desc}</div>
+          </div>
+          <div style="text-align:right;font-size:12px;color:#0369a1">
+            <div>Percepita ${feels}°</div>
+            <div style="margin-top:4px">${new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})}</div>
+          </div>
+        </div>
+        <div class="meteo-grid">
+          <div class="meteo-stat"><div class="meteo-stat-val">${umidita}%</div><div class="meteo-stat-label">Umidità</div></div>
+          <div class="meteo-stat"><div class="meteo-stat-val">${vento} km/h</div><div class="meteo-stat-label">Vento</div></div>
+          <div class="meteo-stat"><div class="meteo-stat-val">${pioggia} mm</div><div class="meteo-stat-label">Pioggia</div></div>
+        </div>
+        <div style="margin-top:1rem;padding:8px 12px;background:rgba(255,255,255,.7);border-radius:var(--rads);font-size:13px;color:#0c4a6e;font-weight:500">${consiglio}</div>
+      </div>`;
+
+    // Previsioni 5 giorni
+    const giorni = {};
+    prev.list.forEach(item => {
+      const d = item.dt_txt.split(' ')[0];
+      if (!giorni[d]) giorni[d] = [];
+      giorni[d].push(item);
+    });
+    const keys = Object.keys(giorni).slice(0,5);
+    const prevHtml = keys.map(k => {
+      const items = giorni[k];
+      const maxT = Math.round(Math.max(...items.map(i => i.main.temp_max)));
+      const minT = Math.round(Math.min(...items.map(i => i.main.temp_min)));
+      const ic = meteoIcon(items[Math.floor(items.length/2)].weather[0].id);
+      const nome = new Date(k).toLocaleDateString('it-IT',{weekday:'short'});
+      return `<div class="prev-day">
+        <div class="prev-day-name">${nome}</div>
+        <div class="prev-day-icon">${ic}</div>
+        <div class="prev-day-temp">${maxT}°</div>
+        <div style="font-size:10px;color:var(--muted)">${minT}°</div>
+      </div>`;
+    }).join('');
+    document.getElementById('meteoPrev').innerHTML = `<div class="prev-grid">${prevHtml}</div>`;
+
+  } catch(e) {
+    document.getElementById('meteoResult').innerHTML = `<div class="notice notice-amber">❌ Errore: ${e.message}. Controlla chiave API e nome città.</div>`;
+  }
+};
+
+// ══════════════════════════════════════════
+// SPESE
+// ══════════════════════════════════════════
+let spese = [];
+let editingSpesaId = null;
+const spesaCatEmoji = {'Concimi':'🌱','Antiparassitari':'🧪','Attrezzatura':'🔧','Sementi':'🌰','Irrigazione':'💧','Altro':'📦'};
+
+async function loadSpese() {
+  if (!db) return;
+  const snap = await getDocs(query(collection(db,'spese'), orderBy('data','desc')));
+  spese = snap.docs.map(d => ({id:d.id, ...d.data()}));
+  renderSpese();
+}
+
+function renderSpese() {
+  const tot = spese.reduce((s,x) => s + parseFloat(x.importo||0), 0);
+  const anno = new Date().getFullYear();
+  const totAnno = spese.filter(x => x.data && x.data.startsWith(String(anno))).reduce((s,x) => s + parseFloat(x.importo||0), 0);
+  document.getElementById('speseStats').innerHTML = `
+    <div class="stat-box"><div class="stat-num" style="font-size:22px">€ ${tot.toFixed(2)}</div><div class="stat-label">Totale</div></div>
+    <div class="stat-box"><div class="stat-num" style="font-size:22px">€ ${totAnno.toFixed(2)}</div><div class="stat-label">Anno ${anno}</div></div>`;
+
+  const el = document.getElementById('speseList');
+  if (!spese.length) { el.innerHTML = '<div class="empty-state"><i class="ti ti-coins"></i><p>Nessuna spesa registrata</p></div>'; return; }
+
+  const classeEmoji = {'acquisto':'🏡','geometra':'📐','concessione':'📋','utilities':'🔌','attrezzi':'🔧','flora':'🌿','manutenzione':'🛠️','altro':'📦','uyilities':'🔌'};
+
+  el.innerHTML = spese.map(s => {
+    const emoji = classeEmoji[s.categoria] || classeEmoji[s.classe] || '📦';
+    const classe = s.classe || s.categoria || '';
+    const come = s.come ? ' · ' + s.come : '';
+    const dadove = s.da_dove ? ' · ' + s.da_dove : '';
+    let d = '—';
+    if (s.data) {
+      if (s.data.includes('/')) {
+        const parts = s.data.split('/');
+        if (parts.length === 3) {
+          let y = parts[2]; if (y.length === 2) y = '20'+y;
+          d = new Date(y+'-'+parts[1].padStart(2,'0')+'-'+parts[0].padStart(2,'0')).toLocaleDateString('it-IT');
+        }
+      } else {
+        d = new Date(s.data).toLocaleDateString('it-IT');
+      }
+    }
+    return `<div class="spesa-item" onclick="openEditSpesa('${s.id}')">
+      <div class="spesa-cat">${emoji}</div>
+      <div class="spesa-body">
+        <div class="spesa-desc">${s.descrizione || s.oggetto || ''}</div>
+        <div class="spesa-meta">${classe}${come}${dadove} · ${d}${s.note?' · '+String(s.note).substring(0,40):''}</div>
+      </div>
+      <div class="spesa-importo">€ ${parseFloat(s.importo||0).toFixed(2)}</div>
+    </div>`;
+  }).join('');
+}
+
+
+
+window.saveSpesa = async function() {
+  const desc  = document.getElementById('spDesc').value.trim();
+  const cat   = document.getElementById('spCat').value;
+  const imp   = document.getElementById('spImporto').value;
+  const data  = document.getElementById('spData').value;
+  const note  = document.getElementById('spNote').value.trim();
+  const come  = document.getElementById('spCome').value;
+  const dadove= document.getElementById('spDaDove').value.trim();
+  if (!desc || !imp || !data) { showToast('Compila oggetto, importo e data'); return; }
+  const rec = {descrizione:desc,oggetto:desc,classe:cat,categoria:cat,importo:parseFloat(imp),data,note,come,da_dove:dadove,utente:currentUser};
+  const ref = await addDoc(collection(db,'spese'), rec);
+  spese.unshift({id:ref.id,...rec});
+  closeModal('modalSpesa');
+  ['spDesc','spImporto','spNote','spDaDove'].forEach(id => document.getElementById(id).value='');
+  document.getElementById('spData').value = new Date().toISOString().split('T')[0];
+  // Ripristina btn
+  document.getElementById('modalSpesa').querySelector('.btn-row').innerHTML = `
+    <button class="btn btn-primary" style="flex:1" onclick="saveSpesa()"><i class="ti ti-device-floppy"></i> Salva</button>
+    <button class="btn btn-secondary" onclick="closeModal('modalSpesa')">Annulla</button>`;
+  renderSpese();
+  showToast('✅ Spesa salvata');
+};
+
+window.openEditSpesa = function(id) {
+  if (currentRole === 'user') { showToast('👁 Modalità sola lettura'); return; }
+  const s = spese.find(x => x.id===id); if (!s) return;
+  editingSpesaId = id;
+  // riusa modal con valori precompilati
+  document.getElementById('spDesc').value = s.descrizione||'';
+  document.getElementById('spCat').value  = s.categoria||'Altro';
+  document.getElementById('spImporto').value = s.importo||'';
+  document.getElementById('spData').value = s.data||'';
+  document.getElementById('spNote').value = s.note||'';
+  // Cambia pulsante salva in aggiorna
+  const box = document.getElementById('modalSpesa').querySelector('.btn-row');
+  box.innerHTML = `<button class="btn btn-primary" style="flex:1" onclick="updateSpesa()"><i class="ti ti-device-floppy"></i> Aggiorna</button>
+    <button class="btn btn-secondary" onclick="closeModal('modalSpesa')">Annulla</button>
+    <button class="btn btn-danger" onclick="deleteSpesa()"><i class="ti ti-trash"></i></button>`;
+  openModal('modalSpesa');
+};
+
+window.updateSpesa = async function() {
+  const s = spese.find(x => x.id===editingSpesaId); if (!s) return;
+  const desc = document.getElementById('spDesc').value.trim();
+  const cat  = document.getElementById('spCat').value;
+  const imp  = parseFloat(document.getElementById('spImporto').value);
+  const data = document.getElementById('spData').value;
+  const note = document.getElementById('spNote').value.trim();
+  await updateDoc(doc(db,'spese',editingSpesaId), {descrizione:desc,categoria:cat,importo:imp,data,note});
+  Object.assign(s, {descrizione:desc,categoria:cat,importo:imp,data,note});
+  closeModal('modalSpesa');
+  // Ripristina pulsante salva
+  document.getElementById('modalSpesa').querySelector('.btn-row').innerHTML = `
+    <button class="btn btn-primary" style="flex:1" onclick="saveSpesa()"><i class="ti ti-device-floppy"></i> Salva</button>
+    <button class="btn btn-secondary" onclick="closeModal('modalSpesa')">Annulla</button>`;
+  renderSpese(); showToast('✅ Spesa aggiornata');
+};
+
+window.deleteSpesa = async function() {
+  if (!confirm('Eliminare questa spesa?')) return;
+  await deleteDoc(doc(db,'spese',editingSpesaId));
+  spese = spese.filter(x => x.id!==editingSpesaId);
+  closeModal('modalSpesa');
+  document.getElementById('modalSpesa').querySelector('.btn-row').innerHTML = `
+    <button class="btn btn-primary" style="flex:1" onclick="saveSpesa()"><i class="ti ti-device-floppy"></i> Salva</button>
+    <button class="btn btn-secondary" onclick="closeModal('modalSpesa')">Annulla</button>`;
+  renderSpese(); showToast('Spesa eliminata');
+};
+
+// ══════════════════════════════════════════
+// EXPORT PDF
+// ══════════════════════════════════════════
+window.exportPDF = function() {
+  const anno = new Date().getFullYear();
+  const tot = spese.reduce((s,x) => s + parseFloat(x.importo||0), 0);
+  const totAnno = spese.filter(x => x.data?.startsWith(String(anno))).reduce((s,x) => s + parseFloat(x.importo||0), 0);
+
+  // Raggruppa per categoria
+  const perCat = {};
+  spese.forEach(s => { perCat[s.categoria] = (perCat[s.categoria]||0) + parseFloat(s.importo||0); });
+
+  const rows = spese.map(s => `
+    <tr>
+      <td>${s.data ? new Date(s.data).toLocaleDateString('it-IT') : '—'}</td>
+      <td>${spesaCatEmoji[s.categoria]||''} ${s.categoria}</td>
+      <td>${s.descrizione}</td>
+      <td>${s.note||''}</td>
+      <td style="text-align:right;font-weight:600">€ ${parseFloat(s.importo||0).toFixed(2)}</td>
+    </tr>`).join('');
+
+  const catRows = Object.entries(perCat).map(([k,v]) =>
+    `<tr><td>${spesaCatEmoji[k]||''} ${k}</td><td style="text-align:right;font-weight:600">€ ${v.toFixed(2)}</td></tr>`).join('');
+
+  const attRows = [...attivita].slice(0,30).map(a => {
+    const p = piante.find(x => x.id===a.pianta_id);
+    return `<tr>
+      <td>${a.data_eseguita ? new Date(a.data_eseguita).toLocaleDateString('it-IT') : '—'}</td>
+      <td>${p ? p.nome : '—'}</td>
+      <td>${a.tipo}</td>
+      <td>${a.note||''}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>Report Giardino di Quintilina</title>
+  <style>
+    body{font-family:Georgia,serif;color:#1a1a1a;max-width:900px;margin:0 auto;padding:2rem}
+    h1{color:#1a7a3e;font-size:24px;border-bottom:2px solid #1a7a3e;padding-bottom:.5rem}
+    h2{color:#1a7a3e;font-size:16px;margin-top:2rem}
+    table{width:100%;border-collapse:collapse;margin-top:.5rem;font-size:13px}
+    th{background:#1a7a3e;color:#fff;padding:8px 10px;text-align:left}
+    td{padding:7px 10px;border-bottom:1px solid #dde8dc}
+    tr:nth-child(even){background:#f2fdf6}
+    .totale{font-size:18px;color:#1a7a3e;font-weight:bold;margin-top:1rem}
+    .footer{margin-top:3rem;font-size:11px;color:#888;text-align:center}
+    @media print{body{padding:0}}
+  </style></head><body>
+  <h1>🌿 Report Giardino di Quintilina</h1>
+  <p>Generato il ${new Date().toLocaleDateString('it-IT',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
+  <div class="totale">Totale spese anno ${anno}: € ${totAnno.toFixed(2)} &nbsp;|&nbsp; Totale storico: € ${tot.toFixed(2)}</div>
+
+  <h2>📊 Riepilogo per categoria</h2>
+  <table><tr><th>Categoria</th><th>Totale</th></tr>${catRows}</table>
+
+  <h2>💰 Dettaglio spese</h2>
+  <table><tr><th>Data</th><th>Categoria</th><th>Descrizione</th><th>Note</th><th>Importo</th></tr>${rows}</table>
+
+  <h2>📋 Ultime attività in giardino</h2>
+  <table><tr><th>Data</th><th>Pianta</th><th>Attività</th><th>Note</th></tr>${attRows}</table>
+
+  <div class="footer">Giardino di Quintilina — Report generato automaticamente</div>
+  </body></html>`;
+
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(() => w.print(), 500);
+};
 </script>
 
 <script>
+// Funzioni globali accessibili da HTML (fuori dal modulo ES)
+function reloadUtenti() {
+  // Chiama la versione interna del modulo tramite evento custom
+  window.dispatchEvent(new CustomEvent('reloadUtenti'));
+}
+function switchSetupTabGlobal(tab) {
+  window.dispatchEvent(new CustomEvent('switchSetupTab', {detail: tab}));
+}
+</script>
+<script>
+// Pulisci tutto e registra SW aggiornato
 if ('serviceWorker' in navigator) {
+  // Prima deregistra tutti i SW vecchi
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(r => r.unregister());
+  });
+  // Pulisci tutte le cache
+  if (window.caches) {
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+  }
+  // Registra nuovo SW
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log('SW registrato'))
+    navigator.serviceWorker.register('sw.js?v=4')
+      .then(() => console.log('SW v4 registrato'))
       .catch(e => console.log('SW errore:', e));
   });
 }
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
