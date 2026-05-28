@@ -298,10 +298,7 @@ canvas{max-width:100%}
     </div>
 
     <!-- FIREBASE CONFIG -->
-    bash
-
-cd /mnt/user-data/outputs && sed -n '301,600p' index.html
-Output
+   
 
     <div id="setupFirebase" class="setup-panel">
       <div class="notice notice-amber" style="margin-bottom:1rem">
@@ -603,10 +600,7 @@ Output
 
   <button class="fab" onclick="fabClick()" aria-label="Aggiungi">
     <i class="ti ti-plus"></i>
-bash
 
-cd /mnt/user-data/outputs && sed -n '601,900p' index.html
-Output
 
   </button>
 </div>
@@ -908,10 +902,6 @@ function showToast(msg, dur=2500) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), dur);
-bash
-
-cd /mnt/user-data/outputs && sed -n '901,1200p' index.html
-Output
 
 }
 
@@ -1213,10 +1203,6 @@ const EMAILJS_TEMPLATE = 'template_c0a34pc';
 const MAKE_WEBHOOK = 'https://hook.eu1.make.com/kad6otco6fk4pgqs1gv6vxaaa6mb3gs9';
 
 async function checkAndNotify() {
-bash
-
-cd /mnt/user-data/outputs && sed -n '1201,1500p' index.html
-Output
 
   // Controlla se abbiamo già notificato oggi
   const oggi = new Date().toISOString().split('T')[0];
@@ -1518,10 +1504,7 @@ window.openEditAtt = function(id) {
 window.updateAttivita = async function() {
   const a = attivita.find(x => x.id===editingAttId); if (!a) return;
   const pId   = document.getElementById('eaPianta').value;
-bash
 
-cd /mnt/user-data/outputs && sed -n '1501,1800p' index.html
-Output
 
   const tipo  = document.getElementById('eaTipo').value;
   const dataEs= document.getElementById('eaDataEs').value;
@@ -1823,10 +1806,6 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
 
     document.getElementById('aiResult').innerHTML = `
       <div class="ai-box">
-bash
-
-cd /mnt/user-data/outputs && sed -n '1801,2262p' index.html
-Output
 
         <div class="ai-box-header">
           <span style="font-size:20px">✨</span>
