@@ -530,7 +530,13 @@ canvas{max-width:100%}
           <div id="mappaMarkers" style="position:absolute;inset:0"></div>
         </div>
         <div style="margin-top:.75rem;font-size:12px;color:var(--muted);text-align:center">
-          Tocca la mappa per posizionare una pianta · Trascina per spostarla
+          Premi "📍 Posiziona" sotto → poi tocca la mappa · Trascina i marker per spostarli
+        </div>
+        <div id="mappaChangeBtn" style="display:none;margin-top:.5rem">
+          <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--g1);border:1.5px solid var(--g2);border-radius:var(--rads);color:var(--g7);font-size:13px;cursor:pointer;font-weight:600">
+            <i class="ti ti-photo"></i> Cambia immagine mappa
+            <input type="file" id="mappaFileInput" accept="image/*" style="display:none" onchange="changeMappa(this)">
+          </label>
         </div>
       </div>
       <div class="card">
@@ -997,6 +1003,11 @@ window.doLogout = function() {
 let mappaPositions = {}; // {pianta_id: {x_pct, y_pct}}
 
 async function initMappa() {
+  // Carica mappa custom se presente
+  const mappaCustom = localStorage.getItem('mappaCustom');
+  const mappaImg = document.getElementById('mappaImg');
+  if (mappaCustom && mappaImg) mappaImg.src = mappaCustom;
+
   // Carica posizioni salvate da Firebase
   try {
     const snap = await getDocs(collection(db,'mappa'));
@@ -1021,7 +1032,7 @@ function renderMappa() {
     marker.className = 'mappa-marker';
     marker.style.left = pos.x_pct + '%';
     marker.style.top  = pos.y_pct + '%';
-    marker.innerHTML = emoji + '<div class="mappa-marker-label">' + p.nome + '</div>';
+    marker.innerHTML = '<div class="mappa-marker-emoji">' + emoji + '</div><div class="mappa-marker-label">' + p.nome + '</div>';
     marker.title = p.nome;
     // Drag
     if (currentRole === 'admin') makeDraggable(marker, p.id);
@@ -1154,6 +1165,23 @@ function renderMappaPianteList() {
   }
   el.innerHTML = html || '<div style="color:var(--muted)">Nessuna pianta trovata</div>';
 }
+
+window.changeMappa = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    // Salva la nuova mappa in localStorage
+    try {
+      localStorage.setItem('mappaCustom', e.target.result);
+      document.getElementById('mappaImg').src = e.target.result;
+      showToast('✅ Mappa aggiornata! Le posizioni esistenti sono state mantenute.');
+    } catch(err) {
+      showToast('❌ Immagine troppo grande. Usa una foto più piccola.');
+    }
+  };
+  reader.readAsDataURL(file);
+};
 
 window.removeMappaPosition = async function(piantaId) {
   delete mappaPositions[piantaId];
@@ -1384,6 +1412,9 @@ function applyRoleUI() {
   // Nascondi tab Spese per utenti User
   const navSpese = document.getElementById('navSpese');
   if (navSpese) navSpese.style.display = isUser ? 'none' : 'flex';
+  // Mostra pulsante cambia mappa solo admin
+  const mappaChangeBtn = document.getElementById('mappaChangeBtn');
+  if (mappaChangeBtn) mappaChangeBtn.style.display = isUser ? 'none' : 'block';
 
 }
 
