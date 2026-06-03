@@ -1008,6 +1008,10 @@ async function initMappa() {
   const mappaImg = document.getElementById('mappaImg');
   if (mappaCustom && mappaImg) mappaImg.src = mappaCustom;
 
+  // Mostra/nascondi pulsante cambia mappa
+  const mappaChangeBtn = document.getElementById('mappaChangeBtn');
+  if (mappaChangeBtn) mappaChangeBtn.style.display = currentRole === 'admin' ? 'block' : 'none';
+
   // Carica posizioni salvate da Firebase
   try {
     const snap = await getDocs(collection(db,'mappa'));
@@ -1071,10 +1075,9 @@ function makeDraggable(el, piantaId) {
     e.stopPropagation();
     const t = e.touches[0];
     const rect = container.getBoundingClientRect();
-    const dx = ((t.clientX - startX) / rect.width) * 100;
-    const dy = ((t.clientY - startY) / rect.height) * 100;
-    const newX = Math.max(2, Math.min(98, startLeft + dx));
-    const newY = Math.max(2, Math.min(98, startTop  + dy));
+    // Calcola posizione assoluta rispetto al container
+    const newX = Math.max(2, Math.min(98, ((t.clientX - rect.left) / rect.width) * 100));
+    const newY = Math.max(2, Math.min(98, ((t.clientY - rect.top) / rect.height) * 100));
     el.style.left = newX + '%';
     el.style.top  = newY + '%';
   }, {passive:false});
@@ -1103,10 +1106,11 @@ function makeDraggable(el, piantaId) {
     const onMove = ev => {
       if (!dragging) return;
       const rect = container.getBoundingClientRect();
-      const dx = ((ev.clientX - startX) / rect.width) * 100;
-      const dy = ((ev.clientY - startY) / rect.height) * 100;
-      el.style.left = Math.max(2, Math.min(98, startLeft + dx)) + '%';
-      el.style.top  = Math.max(2, Math.min(98, startTop  + dy)) + '%';
+      // Posizione assoluta rispetto al container
+      const newX = Math.max(2, Math.min(98, ((ev.clientX - rect.left) / rect.width) * 100));
+      const newY = Math.max(2, Math.min(98, ((ev.clientY - rect.top) / rect.height) * 100));
+      el.style.left = newX + '%';
+      el.style.top  = newY + '%';
     };
     const onUp = async () => {
       dragging = false;
@@ -1199,6 +1203,13 @@ window.posizionaPrimaLibera = function(piantaId) {
   container.style.cursor = 'crosshair';
   showToast('📍 Tocca il punto della mappa dove vuoi posizionare la pianta');
 
+  const getCoords = (clientX, clientY) => {
+    const rect = container.getBoundingClientRect();
+    const x = Math.max(2, Math.min(98, ((clientX - rect.left) / rect.width) * 100));
+    const y = Math.max(2, Math.min(98, ((clientY - rect.top) / rect.height) * 100));
+    return {x, y};
+  };
+
   const placeAt = async (x, y) => {
     container.style.border = '2px solid var(--border)';
     container.style.cursor = '';
@@ -1211,9 +1222,7 @@ window.posizionaPrimaLibera = function(piantaId) {
   const clickHandler = (e) => {
     e.preventDefault();
     e.stopPropagation();
-    const rect = container.getBoundingClientRect();
-    const x = ((e.clientX - rect.left) / rect.width) * 100;
-    const y = ((e.clientY - rect.top) / rect.height) * 100;
+    const {x, y} = getCoords(e.clientX, e.clientY);
     container.removeEventListener('click', clickHandler);
     container.removeEventListener('touchend', touchHandler);
     placeAt(x, y);
@@ -1224,9 +1233,7 @@ window.posizionaPrimaLibera = function(piantaId) {
     e.preventDefault();
     e.stopPropagation();
     const t = e.changedTouches[0];
-    const rect = container.getBoundingClientRect();
-    const x = ((t.clientX - rect.left) / rect.width) * 100;
-    const y = ((t.clientY - rect.top) / rect.height) * 100;
+    const {x, y} = getCoords(t.clientX, t.clientY);
     container.removeEventListener('click', clickHandler);
     container.removeEventListener('touchend', touchHandler);
     placeAt(x, y);
