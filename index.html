@@ -27,6 +27,28 @@
   --rad:14px; --rads:8px; --shadow:0 1px 4px rgba(0,0,0,0.07);
   --shadow-md:0 4px 16px rgba(0,0,0,0.09);
 }
+body.dark {
+  --bg:#0d1f0f; --surf:#132a16; --border:#1e3d22; --text:#e2f0e4; --muted:#7aaa80;
+  --g0:#0d1f0f; --g1:#152d18; --g2:#1e3d22;
+  --a0:#1f1500; --a1:#2a1e00;
+  --r0:#1f0808; --r1:#2a0f0f;
+  --b1:#0c1a3a;
+  --t1:#081f1d;
+  --shadow:0 1px 4px rgba(0,0,0,0.3);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.4);
+}
+body.dark .setup-card { background:var(--surf); }
+body.dark .meteo-box { background:linear-gradient(135deg,#0c2233,#0a1a2e); border-color:#1e3d5a; }
+body.dark .meteo-temp { color:#60b4e8; }
+body.dark .meteo-desc { color:#90c8e8; }
+body.dark .meteo-stat { background:rgba(255,255,255,.05); }
+body.dark .meteo-stat-val { color:#60b4e8; }
+body.dark .meteo-stat-label { color:#90c8e8; }
+body.dark .ai-box { background:linear-gradient(135deg,#152d18,#081f1d); }
+body.dark input, body.dark select, body.dark textarea { background:var(--surf); color:var(--text); border-color:var(--border); }
+body.dark .pill { background:var(--surf); color:var(--muted); border-color:var(--border); }
+body.dark .pill.active { background:var(--g7); color:#fff; }
+body.dark #screenSetup { background:linear-gradient(155deg,#0a1f0c 0%,#0d1f0f 60%,#081a14 100%); }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 h1,h2,h3{font-family:'Lora',serif}
@@ -364,10 +386,13 @@ canvas{max-width:100%}
         <div class="top-brand-sub" id="headerSub">Caricamento...</div>
       </div>
     </div>
-    <div class="user-chip" onclick="doLogout()">
-      <i class="ti ti-user" style="font-size:14px"></i>
-      <span id="headerUser">—</span>
-      <i class="ti ti-logout" style="font-size:13px"></i>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onclick="toggleDark()" id="darkBtn" style="background:transparent;border:1.5px solid var(--border);border-radius:20px;padding:5px 10px;cursor:pointer;font-size:16px;color:var(--muted);transition:all .15s" title="Modalità scura">🌙</button>
+      <div class="user-chip" onclick="doLogout()">
+        <i class="ti ti-user" style="font-size:14px"></i>
+        <span id="headerUser">—</span>
+        <i class="ti ti-logout" style="font-size:13px"></i>
+      </div>
     </div>
   </div>
 
@@ -890,6 +915,13 @@ window.switchTab = function(name) {
 };
 
 // ── MODALS ─────────────────────────────────────────────
+window.toggleDark = function() {
+  const isDark = document.body.classList.toggle('dark');
+  localStorage.setItem('darkMode', isDark ? '1' : '0');
+  const btn = document.getElementById('darkBtn');
+  if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+};
+
 window.fabClick = function() {
   if (currentTab === 'Spese') openModal('modalSpesa');
   else if (currentTab === 'Piante') openModal('modalPianta');
@@ -1893,6 +1925,13 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
 
   // Tasto Enter sul PIN
   document.getElementById('loginPin').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+
+  // Carica preferenza dark mode
+  if (localStorage.getItem('darkMode') === '1') {
+    document.body.classList.add('dark');
+    const btn = document.getElementById('darkBtn');
+    if (btn) btn.textContent = '☀️';
+  }
 
   // Listener per funzioni chiamate dall'HTML
   window.addEventListener('reloadUtenti', () => window.reloadUtenti());
