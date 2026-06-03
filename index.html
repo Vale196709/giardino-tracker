@@ -298,8 +298,6 @@ canvas{max-width:100%}
     </div>
 
     <!-- FIREBASE CONFIG -->
-   
-
     <div id="setupFirebase" class="setup-panel">
       <div class="notice notice-amber" style="margin-bottom:1rem">
         Crea un progetto gratuito su <strong>console.firebase.google.com</strong>, abilita Firestore e copia la config qui sotto.
@@ -600,9 +598,7 @@ canvas{max-width:100%}
 
   <button class="fab" onclick="fabClick()" aria-label="Aggiungi">
     <i class="ti ti-plus"></i>
-
-
-  </button>
+</button>
 </div>
 
 <!-- MODAL: Nuova attività -->
@@ -874,6 +870,10 @@ window.switchTab = function(name) {
     if (nav) nav.classList.toggle('active', t===name);
   });
   currentTab = name;
+  // Mostra/nascondi FAB in base al tab
+  const fab = document.querySelector('.fab');
+  const tabsConFab = ['Scadenze','Piante','Spese','AI','Storico'];
+  if (fab) fab.style.display = (currentRole!=='user' && tabsConFab.includes(name)) ? 'flex' : 'none';
   if (name==='Calendario') renderCalendar();
   if (name==='Stats') renderCharts();
   if (name==='AI') fillAiPianteSel();
@@ -887,6 +887,7 @@ window.switchTab = function(name) {
 window.fabClick = function() {
   if (currentTab === 'Spese') openModal('modalSpesa');
   else if (currentTab === 'Piante') openModal('modalPianta');
+  else if (currentTab === 'Mappa' || currentTab === 'Bacheca' || currentTab === 'Meteo' || currentTab === 'Stats' || currentTab === 'Calendario') return;
   else openModal('modalAtt');
 };
 
@@ -902,7 +903,6 @@ function showToast(msg, dur=2500) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), dur);
-
 }
 
 // ── UTENTI ─────────────────────────────────────────────
@@ -1028,46 +1028,88 @@ function renderMappa() {
     markers.appendChild(marker);
   });
 
-  // Click su mappa per posizionare pianta
+  // Su PC: click su mappa per posizionare pianta (solo se non ci sono marker)
   if (currentRole === 'admin') {
     const img = document.getElementById('mappaImg');
-    img.onclick = (e) => {
-      const rect = container.getBoundingClientRect();
-      const x = ((e.clientX - rect.left) / rect.width) * 100;
-      const y = ((e.clientY - rect.top) / rect.height) * 100;
-      openMappaModal(x, y);
-    };
+    img.onclick = null; // disabilita click diretto, usa pulsante Posiziona
   }
 
   renderMappaPianteList();
 }
 
 function makeDraggable(el, piantaId) {
-  let startX, startY, startLeft, startTop;
+  let dragging = false, startX, startY, startLeft, startTop;
   const container = document.getElementById('mappaContainer');
 
+  // TOUCH
   el.addEventListener('touchstart', e => {
     e.stopPropagation();
+    e.preventDefault();
+    dragging = true;
     const t = e.touches[0];
     startX = t.clientX; startY = t.clientY;
     startLeft = parseFloat(el.style.left);
     startTop  = parseFloat(el.style.top);
-  }, {passive:true});
+    el.style.filter = 'drop-shadow(0 6px 12px rgba(0,0,0,.8))';
+    el.style.zIndex = '99';
+  }, {passive:false});
 
   el.addEventListener('touchmove', e => {
+    if (!dragging) return;
     e.preventDefault();
+    e.stopPropagation();
     const t = e.touches[0];
     const rect = container.getBoundingClientRect();
     const dx = ((t.clientX - startX) / rect.width) * 100;
     const dy = ((t.clientY - startY) / rect.height) * 100;
-    el.style.left = Math.max(0, Math.min(100, startLeft + dx)) + '%';
-    el.style.top  = Math.max(0, Math.min(100, startTop  + dy)) + '%';
+    const newX = Math.max(2, Math.min(98, startLeft + dx));
+    const newY = Math.max(2, Math.min(98, startTop  + dy));
+    el.style.left = newX + '%';
+    el.style.top  = newY + '%';
   }, {passive:false});
 
-  el.addEventListener('touchend', async () => {
+  el.addEventListener('touchend', async e => {
+    if (!dragging) return;
+    dragging = false;
+    e.stopPropagation();
+    el.style.filter = '';
+    el.style.zIndex = '10';
     const x = parseFloat(el.style.left);
     const y = parseFloat(el.style.top);
     await saveMappaPosition(piantaId, x, y);
+    showToast('📍 Posizione salvata');
+  }, {passive:false});
+
+  // MOUSE (per PC)
+  el.addEventListener('mousedown', e => {
+    e.stopPropagation();
+    dragging = true;
+    startX = e.clientX; startY = e.clientY;
+    startLeft = parseFloat(el.style.left);
+    startTop  = parseFloat(el.style.top);
+    el.style.cursor = 'grabbing';
+    el.style.zIndex = '99';
+    const onMove = ev => {
+      if (!dragging) return;
+      const rect = container.getBoundingClientRect();
+      const dx = ((ev.clientX - startX) / rect.width) * 100;
+      const dy = ((ev.clientY - startY) / rect.height) * 100;
+      el.style.left = Math.max(2, Math.min(98, startLeft + dx)) + '%';
+      el.style.top  = Math.max(2, Math.min(98, startTop  + dy)) + '%';
+    };
+    const onUp = async () => {
+      dragging = false;
+      el.style.cursor = 'grab';
+      el.style.zIndex = '10';
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      const x = parseFloat(el.style.left);
+      const y = parseFloat(el.style.top);
+      await saveMappaPosition(piantaId, x, y);
+      showToast('📍 Posizione salvata');
+    };
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
   });
 }
 
@@ -1203,7 +1245,6 @@ const EMAILJS_TEMPLATE = 'template_c0a34pc';
 const MAKE_WEBHOOK = 'https://hook.eu1.make.com/kad6otco6fk4pgqs1gv6vxaaa6mb3gs9';
 
 async function checkAndNotify() {
-
   // Controlla se abbiamo già notificato oggi
   const oggi = new Date().toISOString().split('T')[0];
   const lastCheck = localStorage.getItem('lastNotifyCheck');
@@ -1504,8 +1545,6 @@ window.openEditAtt = function(id) {
 window.updateAttivita = async function() {
   const a = attivita.find(x => x.id===editingAttId); if (!a) return;
   const pId   = document.getElementById('eaPianta').value;
-
-
   const tipo  = document.getElementById('eaTipo').value;
   const dataEs= document.getElementById('eaDataEs').value;
   const dataP = document.getElementById('eaDataProx').value;
@@ -1759,7 +1798,6 @@ window.getAiSuggestion = async function() {
 
 Storico attività recenti:
 ${storicoStr}
-
 Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il testo più leggibile. Massimo 250 parole. Includi: cosa fare ora, quando farlo e come farlo.`;
 
   const btn = document.getElementById('aiBtnChiedi');
@@ -1806,7 +1844,6 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
 
     document.getElementById('aiResult').innerHTML = `
       <div class="ai-box">
-
         <div class="ai-box-header">
           <span style="font-size:20px">✨</span>
           <div class="ai-box-title">Consiglio AI per ${pianta.nome}</div>
@@ -2222,44 +2259,14 @@ window.exportPDF = function() {
   <div class="footer">Giardino di Quintilina — Report generato automaticamente</div>
   </body></html>`;
 
-  const w = window.open('','_blank');
-  w.document.write(html);
-  w.document.close();
-  setTimeout(() => w.print(), 500);
-};
-</script>
 
-<script>
-// Funzioni globali accessibili da HTML (fuori dal modulo ES)
-function reloadUtenti() {
-  // Chiama la versione interna del modulo tramite evento custom
-  window.dispatchEvent(new CustomEvent('reloadUtenti'));
-}
-function switchSetupTabGlobal(tab) {
-  window.dispatchEvent(new CustomEvent('switchSetupTab', {detail: tab}));
-}
-</script>
-<script>
-// Pulisci tutto e registra SW aggiornato
-if ('serviceWorker' in navigator) {
-  // Prima deregistra tutti i SW vecchi
-  navigator.serviceWorker.getRegistrations().then(regs => {
-    regs.forEach(r => r.unregister());
-  });
-  // Pulisci tutte le cache
-  if (window.caches) {
-    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-  }
-  // Registra nuovo SW
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js?v=4')
-      .then(() => console.log('SW v4 registrato'))
-      .catch(e => console.log('SW errore:', e));
-  });
-}
-</script>
-</body>
-</html>
+
+
+
+
+
+
+
 
 
 
