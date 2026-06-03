@@ -598,7 +598,7 @@ canvas{max-width:100%}
 
   <button class="fab" onclick="fabClick()" aria-label="Aggiungi">
     <i class="ti ti-plus"></i>
-</button>
+  </button>
 </div>
 
 <!-- MODAL: Nuova attività -->
@@ -1163,27 +1163,49 @@ window.removeMappaPosition = async function(piantaId) {
 };
 
 window.posizionaPrimaLibera = function(piantaId) {
-  showToast('Tocca la mappa per posizionare la pianta');
-  const img = document.getElementById('mappaImg');
   const container = document.getElementById('mappaContainer');
-  const handler = (e) => {
+  if (!container) return;
+
+  // Evidenzia la mappa per indicare che è in attesa di click
+  container.style.border = '3px solid var(--g5)';
+  container.style.cursor = 'crosshair';
+  showToast('📍 Tocca il punto della mappa dove vuoi posizionare la pianta');
+
+  const placeAt = async (x, y) => {
+    container.style.border = '2px solid var(--border)';
+    container.style.cursor = '';
+    await saveMappaPosition(piantaId, x, y);
+    renderMappa();
+    showToast('✅ Pianta posizionata!');
+  };
+
+  // Handler click (PC)
+  const clickHandler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
     const rect = container.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
-    saveMappaPosition(piantaId, x, y).then(() => { renderMappa(); showToast('✅ Pianta posizionata!'); });
-    img.removeEventListener('click', handler);
+    container.removeEventListener('click', clickHandler);
+    container.removeEventListener('touchend', touchHandler);
+    placeAt(x, y);
   };
-  img.addEventListener('click', handler);
-  // Touch
-  const thandler = (e) => {
-    const t = e.touches[0];
+
+  // Handler touch (mobile)
+  const touchHandler = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const t = e.changedTouches[0];
     const rect = container.getBoundingClientRect();
     const x = ((t.clientX - rect.left) / rect.width) * 100;
     const y = ((t.clientY - rect.top) / rect.height) * 100;
-    saveMappaPosition(piantaId, x, y).then(() => { renderMappa(); showToast('✅ Pianta posizionata!'); });
-    img.removeEventListener('touchstart', thandler);
+    container.removeEventListener('click', clickHandler);
+    container.removeEventListener('touchend', touchHandler);
+    placeAt(x, y);
   };
-  img.addEventListener('touchstart', thandler, {passive:true});
+
+  container.addEventListener('click', clickHandler);
+  container.addEventListener('touchend', touchHandler, {passive:false});
 };
 
 // ══════════════════════════════════════════
@@ -1798,6 +1820,7 @@ window.getAiSuggestion = async function() {
 
 Storico attività recenti:
 ${storicoStr}
+
 Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il testo più leggibile. Massimo 250 parole. Includi: cosa fare ora, quando farlo e come farlo.`;
 
   const btn = document.getElementById('aiBtnChiedi');
@@ -2259,28 +2282,35 @@ window.exportPDF = function() {
   <div class="footer">Giardino di Quintilina — Report generato automaticamente</div>
   </body></html>`;
 
-const w = window.open('','_blank');
+  const w = window.open('','_blank');
   w.document.write(html);
   w.document.close();
   setTimeout(() => w.print(), 500);
 };
-
 </script>
+
 <script>
 // Funzioni globali accessibili da HTML (fuori dal modulo ES)
 function reloadUtenti() {
+  // Chiama la versione interna del modulo tramite evento custom
   window.dispatchEvent(new CustomEvent('reloadUtenti'));
+}
+function switchSetupTabGlobal(tab) {
+  window.dispatchEvent(new CustomEvent('switchSetupTab', {detail: tab}));
 }
 </script>
 <script>
 // Pulisci tutto e registra SW aggiornato
 if ('serviceWorker' in navigator) {
+  // Prima deregistra tutti i SW vecchi
   navigator.serviceWorker.getRegistrations().then(regs => {
     regs.forEach(r => r.unregister());
   });
+  // Pulisci tutte le cache
   if (window.caches) {
     caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
   }
+  // Registra nuovo SW
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js?v=4')
       .then(() => console.log('SW v4 registrato'))
@@ -2290,22 +2320,3 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
