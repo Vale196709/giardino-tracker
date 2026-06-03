@@ -530,7 +530,7 @@ canvas{max-width:100%}
           <div id="mappaMarkers" style="position:absolute;inset:0"></div>
         </div>
         <div style="margin-top:.75rem;font-size:12px;color:var(--muted);text-align:center">
-          Premi "📍 Posiziona" sotto → poi tocca la mappa · Trascina i marker per spostarli
+          Premi "📍 Posiziona" → tocca la mappa · Tocca un marker per spostarlo
         </div>
         <div id="mappaChangeBtn" style="display:none;margin-top:.5rem">
           <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--g1);border:1.5px solid var(--g2);border-radius:var(--rads);color:var(--g7);font-size:13px;cursor:pointer;font-weight:600">
@@ -1053,79 +1053,17 @@ function renderMappa() {
 }
 
 function makeDraggable(el, piantaId) {
-  let dragging = false, startX, startY, startLeft, startTop;
-  const container = document.getElementById('mappaContainer');
-
-  // TOUCH
-  el.addEventListener('touchstart', e => {
+  // Click/tap sul marker per riposizionarlo
+  el.addEventListener('click', e => {
     e.stopPropagation();
-    e.preventDefault();
-    dragging = true;
-    const t = e.touches[0];
-    startX = t.clientX; startY = t.clientY;
-    startLeft = parseFloat(el.style.left);
-    startTop  = parseFloat(el.style.top);
-    el.style.filter = 'drop-shadow(0 6px 12px rgba(0,0,0,.8))';
-    el.style.zIndex = '99';
-  }, {passive:false});
-
-  el.addEventListener('touchmove', e => {
-    if (!dragging) return;
-    e.preventDefault();
-    e.stopPropagation();
-    const t = e.touches[0];
-    const rect = container.getBoundingClientRect();
-    // Calcola posizione assoluta rispetto al container
-    const newX = Math.max(2, Math.min(98, ((t.clientX - rect.left) / rect.width) * 100));
-    const newY = Math.max(2, Math.min(98, ((t.clientY - rect.top) / rect.height) * 100));
-    el.style.left = newX + '%';
-    el.style.top  = newY + '%';
-  }, {passive:false});
-
-  el.addEventListener('touchend', async e => {
-    if (!dragging) return;
-    dragging = false;
-    e.stopPropagation();
-    el.style.filter = '';
-    el.style.zIndex = '10';
-    const x = parseFloat(el.style.left);
-    const y = parseFloat(el.style.top);
-    await saveMappaPosition(piantaId, x, y);
-    showToast('📍 Posizione salvata');
-  }, {passive:false});
-
-  // MOUSE (per PC)
-  el.addEventListener('mousedown', e => {
-    e.stopPropagation();
-    dragging = true;
-    startX = e.clientX; startY = e.clientY;
-    startLeft = parseFloat(el.style.left);
-    startTop  = parseFloat(el.style.top);
-    el.style.cursor = 'grabbing';
-    el.style.zIndex = '99';
-    const onMove = ev => {
-      if (!dragging) return;
-      const rect = container.getBoundingClientRect();
-      // Posizione assoluta rispetto al container
-      const newX = Math.max(2, Math.min(98, ((ev.clientX - rect.left) / rect.width) * 100));
-      const newY = Math.max(2, Math.min(98, ((ev.clientY - rect.top) / rect.height) * 100));
-      el.style.left = newX + '%';
-      el.style.top  = newY + '%';
-    };
-    const onUp = async () => {
-      dragging = false;
-      el.style.cursor = 'grab';
-      el.style.zIndex = '10';
-      document.removeEventListener('mousemove', onMove);
-      document.removeEventListener('mouseup', onUp);
-      const x = parseFloat(el.style.left);
-      const y = parseFloat(el.style.top);
-      await saveMappaPosition(piantaId, x, y);
-      showToast('📍 Posizione salvata');
-    };
-    document.addEventListener('mousemove', onMove);
-    document.addEventListener('mouseup', onUp);
+    if (confirm('Vuoi spostare "' + el.title + '"? Premi OK poi tocca il nuovo punto sulla mappa.')) {
+      window.posizionaPrimaLibera(piantaId);
+    }
   });
+  el.addEventListener('touchend', e => {
+    e.stopPropagation();
+    e.preventDefault();
+  }, {passive:false});
 }
 
 async function saveMappaPosition(piantaId, x, y) {
