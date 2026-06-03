@@ -2259,7 +2259,37 @@ window.exportPDF = function() {
   <div class="footer">Giardino di Quintilina — Report generato automaticamente</div>
   </body></html>`;
 
+const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(() => w.print(), 500);
+};
 
+</script>
+<script>
+// Funzioni globali accessibili da HTML (fuori dal modulo ES)
+function reloadUtenti() {
+  window.dispatchEvent(new CustomEvent('reloadUtenti'));
+}
+</script>
+<script>
+// Pulisci tutto e registra SW aggiornato
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(r => r.unregister());
+  });
+  if (window.caches) {
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+  }
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js?v=4')
+      .then(() => console.log('SW v4 registrato'))
+      .catch(e => console.log('SW errore:', e));
+  });
+}
+</script>
+</body>
+</html>
 
 
 
