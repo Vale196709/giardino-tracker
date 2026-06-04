@@ -541,18 +541,30 @@ canvas{max-width:100%}
     <div id="panelSpese" class="tab-panel">
       <div id="speseStats" class="stats-row" style="grid-template-columns:repeat(2,1fr);margin-bottom:1rem"></div>
       <div class="card">
+        <div class="card-title">📈 Andamento spese mensile</div>
+        <div class="chart-container" style="height:180px"><canvas id="chartSpeseMesi"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🏷️ Spese per categoria</div>
+        <div class="chart-container" style="height:160px"><canvas id="chartSpeseCategorie"></canvas></div>
+        <div class="chart-legend" id="chartSpeseCatLegend"></div>
+      </div>
+      <div class="card">
         <div class="section-header">
           <div class="section-title">Registro spese</div>
           <button class="btn btn-sm btn-primary" onclick="openModal('modalSpesa')"><i class="ti ti-plus"></i> Aggiungi</button>
         </div>
         <div id="speseList"></div>
       </div>
-      <div style="display:flex;gap:8px;margin-top:.5rem">
-        <button class="btn" style="flex:1;background:var(--g1);color:var(--g8);border:1.5px solid var(--g2)" onclick="exportPDF()">
-          <i class="ti ti-file-type-pdf"></i> Esporta PDF
+      <div style="display:flex;gap:8px;margin-top:.5rem;flex-wrap:wrap">
+        <button class="btn" style="flex:1;background:var(--g1);color:var(--g8);border:1.5px solid var(--g2);min-width:120px" onclick="exportPDF()">
+          <i class="ti ti-file-type-pdf"></i> PDF
         </button>
-        <button class="btn" style="flex:1;background:var(--b1);color:var(--b6);border:1.5px solid #bfdbfe" onclick="importStorico()">
-          <i class="ti ti-cloud-download"></i> Importa storico
+        <button class="btn" style="flex:1;background:#e8f5e9;color:#2e7d32;border:1.5px solid #a5d6a7;min-width:120px" onclick="exportExcel()">
+          <i class="ti ti-file-spreadsheet"></i> Excel
+        </button>
+        <button class="btn" style="flex:1;background:var(--b1);color:var(--b6);border:1.5px solid #bfdbfe;min-width:120px" onclick="importStorico()">
+          <i class="ti ti-cloud-download"></i> Importa
         </button>
       </div>
     </div>
@@ -2248,6 +2260,9 @@ function renderSpese() {
   const el = document.getElementById('speseList');
   if (!spese.length) { el.innerHTML = '<div class="empty-state"><i class="ti ti-coins"></i><p>Nessuna spesa registrata</p></div>'; return; }
 
+  // Grafici spese
+  renderChartSpese();
+
   const classeEmoji = {'acquisto':'🏡','geometra':'📐','concessione':'📋','utilities':'🔌','attrezzi':'🔧','flora':'🌿','manutenzione':'🛠️','altro':'📦','uyilities':'🔌'};
 
   el.innerHTML = spese.map(s => {
@@ -2352,6 +2367,89 @@ window.deleteSpesa = async function() {
 // ══════════════════════════════════════════
 // EXPORT PDF
 // ══════════════════════════════════════════
+function renderChartSpese() {
+  if (!window.Chart) {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+    s.onload = () => { renderChartSpese(); };
+    document.head.appendChild(s);
+    return;
+  }
+  const C = window.Chart;
+
+  // Grafico mensile
+  const now = new Date();
+  const mesiLabels = [], mesiData = [];
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    const label = d.toLocaleDateString('it-IT',{month:'short',year:'2-digit'});
+    mesiLabels.push(label);
+    const tot = spese.filter(s => {
+      if (!s.data) return false;
+      const sd = new Date(s.data);
+      return sd.getFullYear()===d.getFullYear() && sd.getMonth()===d.getMonth();
+    }).reduce((sum,s) => sum+parseFloat(s.importo||0), 0);
+    mesiData.push(tot);
+  }
+  const ctx1 = document.getElementById('chartSpeseMesi');
+  if (ctx1) {
+    if (ctx1._chartInst) ctx1._chartInst.destroy();
+    ctx1._chartInst = new C(ctx1.getContext('2d'), {
+      type:'bar',
+      data:{labels:mesiLabels,datasets:[{label:'€',data:mesiData,backgroundColor:'rgba(46,198,106,.7)',borderColor:'rgba(26,122,62,1)',borderWidth:1.5,borderRadius:6}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'€'+v},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false}}}}
+    });
+  }
+
+  // Grafico categorie
+  const catColors = {'acquisto':'#1565c0','geometra':'#6a1b9a','concessione':'#e65100','utilities':'#00838f','attrezzi':'#558b2f','flora':'#2e7d32','manutenzione':'#4e342e','altro':'#546e7a'};
+  const catTot = {};
+  spese.forEach(s => {
+    const k = s.classe || s.categoria || 'altro';
+    catTot[k] = (catTot[k]||0) + parseFloat(s.importo||0);
+  });
+  const catKeys = Object.keys(catTot).sort((a,b)=>catTot[b]-catTot[a]);
+  const ctx2 = document.getElementById('chartSpeseCategorie');
+  if (ctx2) {
+    if (ctx2._chartInst) ctx2._chartInst.destroy();
+    ctx2._chartInst = new C(ctx2.getContext('2d'), {
+      type:'doughnut',
+      data:{labels:catKeys,datasets:[{data:catKeys.map(k=>catTot[k]),backgroundColor:catKeys.map(k=>catColors[k]||'#546e7a'),borderWidth:2,borderColor:'var(--surf)'}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'60%'}
+    });
+    const legend = document.getElementById('chartSpeseCatLegend');
+    if (legend) legend.innerHTML = catKeys.map(k =>
+      `<div class="legend-item"><div class="legend-dot" style="background:${catColors[k]||'#546e7a'}"></div><span>${k}: € ${catTot[k].toFixed(0)}</span></div>`).join('');
+  }
+}
+
+window.exportExcel = function() {
+  // Crea CSV compatibile con Excel
+  const bom = '\uFEFF'; // BOM per UTF-8
+  const header = ['Data','Importo (€)','Oggetto','Classe','Come','Note','Da dove'].join(';');
+  const rows = spese.map(s => {
+    const d = s.data ? new Date(s.data).toLocaleDateString('it-IT') : '';
+    return [
+      d,
+      parseFloat(s.importo||0).toFixed(2).replace('.',','),
+      (s.oggetto||s.descrizione||'').replace(/;/g,' '),
+      (s.classe||s.categoria||'').replace(/;/g,' '),
+      (s.come||'').replace(/;/g,' '),
+      (s.note||'').replace(/;/g,' '),
+      (s.da_dove||'').replace(/;/g,' ')
+    ].join(';');
+  });
+  const csv = bom + header + '\n' + rows.join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'spese-giardino-' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ File Excel scaricato!');
+};
+
 window.exportPDF = function() {
   const anno = new Date().getFullYear();
   const tot = spese.reduce((s,x) => s + parseFloat(x.importo||0), 0);
