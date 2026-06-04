@@ -254,6 +254,20 @@ canvas{max-width:100%}
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--g8);color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;font-family:'DM Sans',sans-serif;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);opacity:0;transition:opacity .25s;pointer-events:none}
 .toast.show{opacity:1}
 
+/* RICERCA */
+.search-bar{position:relative;margin-bottom:1rem}
+.search-input{width:100%;padding:10px 40px 10px 40px;border:1.5px solid var(--border);border-radius:25px;font-size:14px;background:var(--surf);color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--g5)}
+.search-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;pointer-events:none}
+.search-clear{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:16px;cursor:pointer;background:none;border:none;padding:0;display:none}
+.search-results{display:flex;flex-direction:column;gap:6px}
+.search-result-item{background:var(--surf);border:1px solid var(--border);border-radius:var(--rad);padding:10px 14px;cursor:pointer;box-shadow:var(--shadow);transition:all .15s}
+.search-result-item:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.search-result-type{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin-bottom:3px}
+.search-result-title{font-size:14px;font-weight:600;color:var(--text)}
+.search-result-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.search-empty{text-align:center;padding:2rem;color:var(--muted);font-size:14px}
+
 /* RESPONSIVE */
 @media(max-width:400px){.stats-row{grid-template-columns:repeat(2,1fr)}}
 
@@ -594,6 +608,18 @@ canvas{max-width:100%}
       <div id="bachecaList"></div>
     </div>
 
+    <!-- RICERCA -->
+    <div id="panelRicerca" class="tab-panel">
+      <div class="search-bar">
+        <i class="ti ti-search search-icon"></i>
+        <input type="text" class="search-input" id="searchInput" placeholder="Cerca piante, attività, spese..." oninput="doSearch(this.value)" autocomplete="off">
+        <button class="search-clear" id="searchClear" onclick="clearSearch()"><i class="ti ti-x"></i></button>
+      </div>
+      <div id="searchResults" class="search-results">
+        <div class="search-empty">🔍 Scrivi per cercare in tutto il giardino</div>
+      </div>
+    </div>
+
   <nav class="nav-tabs">
     <button class="nav-tab active" id="navScadenze" onclick="switchTab('Scadenze')">
       <span class="badge-dot"><i class="ti ti-calendar-due"></i></span>Scadenze
@@ -624,6 +650,9 @@ canvas{max-width:100%}
     </button>
     <button class="nav-tab" id="navBacheca" onclick="switchTab('Bacheca')">
       <i class="ti ti-message-circle"></i>Bacheca
+    </button>
+    <button class="nav-tab" id="navRicerca" onclick="switchTab('Ricerca')">
+      <i class="ti ti-search"></i>Cerca
     </button>
   </nav>
 
@@ -894,7 +923,7 @@ function showScreen(id) {
 }
 
 window.switchTab = function(name) {
-  const panels = ['Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese','Mappa','Bacheca'];
+  const panels = ['Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese','Mappa','Bacheca','Ricerca'];
   panels.forEach(t => {
     document.getElementById('panel'+t)?.classList.toggle('active', t===name);
     const nav = document.getElementById('nav'+t);
@@ -912,6 +941,7 @@ window.switchTab = function(name) {
   if (name==='Meteo') initMeteoPanel();
   if (name==='Mappa') initMappa();
   if (name==='Bacheca') loadBacheca();
+  if (name==='Ricerca') { document.getElementById('searchInput').focus(); }
 };
 
 // ── MODALS ─────────────────────────────────────────────
@@ -1261,6 +1291,92 @@ window.deleteNota = async function(id) {
   note = note.filter(n => n.id !== id);
   renderBacheca();
   showToast('Nota eliminata');
+};
+
+// ══════════════════════════════════════════
+// RICERCA GLOBALE
+// ══════════════════════════════════════════
+window.doSearch = function(q) {
+  const btn = document.getElementById('searchClear');
+  if (btn) btn.style.display = q ? 'block' : 'none';
+  const el = document.getElementById('searchResults');
+  if (!q || q.length < 2) {
+    el.innerHTML = '<div class="search-empty">🔍 Scrivi almeno 2 caratteri</div>';
+    return;
+  }
+  const ql = q.toLowerCase();
+  const results = [];
+
+  // Cerca nelle piante
+  piante.forEach(p => {
+    if ((p.nome||'').toLowerCase().includes(ql) ||
+        (p.tipo||'').toLowerCase().includes(ql) ||
+        (p.posizione||'').toLowerCase().includes(ql) ||
+        (p.note||'').toLowerCase().includes(ql)) {
+      results.push({
+        type:'🌱 Pianta', title: p.nome,
+        sub: [p.tipo, p.posizione].filter(Boolean).join(' · '),
+        action: () => { switchTab('Piante'); setTimeout(() => openEditPianta(p.id), 300); }
+      });
+    }
+  });
+
+  // Cerca nelle attività
+  attivita.forEach(a => {
+    const p = piante.find(x => x.id === a.pianta_id);
+    const nome = p ? p.nome : '';
+    if ((a.tipo||'').toLowerCase().includes(ql) ||
+        (nome).toLowerCase().includes(ql) ||
+        (a.note||'').toLowerCase().includes(ql)) {
+      const d = a.data_eseguita ? new Date(a.data_eseguita).toLocaleDateString('it-IT') : '—';
+      results.push({
+        type:'📋 Attività', title: a.tipo + ' — ' + nome,
+        sub: d + (a.note ? ' · ' + String(a.note).substring(0,40) : ''),
+        action: () => { switchTab('Scadenze'); setTimeout(() => openEditAtt(a.id), 300); }
+      });
+    }
+  });
+
+  // Cerca nelle spese
+  spese.forEach(s => {
+    if ((s.oggetto||s.descrizione||'').toLowerCase().includes(ql) ||
+        (s.classe||s.categoria||'').toLowerCase().includes(ql) ||
+        (s.note||'').toLowerCase().includes(ql)) {
+      const d = s.data ? new Date(s.data).toLocaleDateString('it-IT') : '—';
+      results.push({
+        type:'💰 Spesa', title: s.oggetto || s.descrizione || '—',
+        sub: d + ' · € ' + parseFloat(s.importo||0).toFixed(2) + ' · ' + (s.classe||''),
+        action: () => { switchTab('Spese'); setTimeout(() => openEditSpesa(s.id), 300); }
+      });
+    }
+  });
+
+  if (!results.length) {
+    el.innerHTML = '<div class="search-empty">😔 Nessun risultato per "' + q + '"</div>';
+    return;
+  }
+
+  el.innerHTML = results.slice(0,20).map((r,i) => `
+    <div class="search-result-item" onclick="searchResultClick(${i})">
+      <div class="search-result-type">${r.type}</div>
+      <div class="search-result-title">${r.title}</div>
+      ${r.sub ? '<div class="search-result-sub">' + r.sub + '</div>' : ''}
+    </div>`).join('');
+
+  // Salva le action per il click
+  window._searchResults = results;
+};
+
+window.searchResultClick = function(i) {
+  if (window._searchResults && window._searchResults[i]) {
+    window._searchResults[i].action();
+  }
+};
+
+window.clearSearch = function() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').style.display = 'none';
+  document.getElementById('searchResults').innerHTML = '<div class="search-empty">🔍 Scrivi per cercare in tutto il giardino</div>';
 };
 
 // ══════════════════════════════════════════
