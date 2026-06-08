@@ -1,3 +1,11 @@
+
+index.txt
+
+Pagina
+1
+/
+1
+100%
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -2013,7 +2021,7 @@ function drawCharts() {
 function fillAiPianteSel() {
   const sel = document.getElementById('aiPianta');
   sel.innerHTML = piante.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
-  const defaultGeminiKey = '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';
+  const defaultGeminiKey = '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';
   if (!localStorage.getItem('geminiApiKey')) localStorage.setItem('geminiApiKey', defaultGeminiKey);
   document.getElementById('aiApiKey').value = localStorage.getItem('geminiApiKey') || defaultGeminiKey;
 }
@@ -2625,3 +2633,4 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+Visualizzazione di index.txt.
