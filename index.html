@@ -254,6 +254,17 @@ canvas{max-width:100%}
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--g8);color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;font-family:'DM Sans',sans-serif;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);opacity:0;transition:opacity .25s;pointer-events:none}
 .toast.show{opacity:1}
 
+.log-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.log-item:last-child{border-bottom:none}
+.log-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.log-body{flex:1}
+.log-azione{font-weight:600;color:var(--text)}
+.log-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.log-badge{display:inline-flex;align-items:center;padding:1px 7px;border-radius:10px;font-size:10px;font-weight:700;margin-right:4px}
+.lb-add{background:var(--g1);color:var(--g7)}
+.lb-edit{background:var(--b1);color:var(--b6)}
+.lb-delete{background:var(--r1);color:var(--r6)}
+
 /* RICERCA */
 .search-bar{position:relative;margin-bottom:1rem}
 .search-input{width:100%;padding:10px 40px 10px 40px;border:1.5px solid var(--border);border-radius:25px;font-size:14px;background:var(--surf);color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
@@ -480,12 +491,12 @@ canvas{max-width:100%}
           <div class="ai-box-title">Consigli AI con Gemini (Google)</div>
         </div>
         <div style="font-size:13px;color:var(--g8);margin-bottom:1rem;line-height:1.6">
-          Scegli una pianta e ricevi suggerimenti personalizzati su irrigazione, concimatura, potatura e cure stagionali. Powered by <strong>Google Gemini</strong> — gratuito!
+          Scegli una pianta e ricevi suggerimenti personalizzati su irrigazione, concimatura, potatura e cure stagionali. Powered by <strong>Groq + Llama 3</strong> — gratuito e veloce!
         </div>
         <div class="form-group">
-          <label class="form-label">Chiave API Google Gemini</label>
-          <input type="password" class="form-control" id="aiApiKey" placeholder="AIza..." style="font-size:13px">
-          <div class="ai-api-notice">La chiave è salvata solo nel browser. Ottienila gratuitamente su <strong>aistudio.google.com</strong></div>
+          <label class="form-label">Chiave API Groq (gratuita)</label>
+          <input type="password" class="form-control" id="aiApiKey" placeholder="gsk_..." style="font-size:13px">
+          <div class="ai-api-notice">La chiave è salvata solo nel browser. Gratuita su <strong>console.groq.com</strong></div>
         </div>
         <div class="ai-select-row">
           <select id="aiPianta" class="form-control" style="flex:1"></select>
@@ -499,7 +510,7 @@ canvas{max-width:100%}
           </select>
         </div>
         <button class="btn btn-ai" onclick="getAiSuggestion()" id="aiBtnChiedi">
-          <i class="ti ti-sparkles"></i> Chiedi consiglio a Gemini
+          <i class="ti ti-sparkles"></i> Chiedi consiglio a Groq
         </button>
       </div>
       <div id="aiResult"></div>
@@ -632,6 +643,19 @@ canvas{max-width:100%}
       </div>
     </div>
 
+    <!-- LOG MODIFICHE -->
+    <div id="panelLog" class="tab-panel">
+      <div class="card">
+        <div class="section-header">
+          <div class="section-title">📝 Log attività</div>
+          <button class="btn btn-sm btn-danger" onclick="clearLog()" id="btnClearLog" style="display:none">
+            <i class="ti ti-trash"></i> Svuota
+          </button>
+        </div>
+        <div id="logList"></div>
+      </div>
+    </div>
+
   <nav class="nav-tabs">
     <button class="nav-tab active" id="navScadenze" onclick="switchTab('Scadenze')">
       <span class="badge-dot"><i class="ti ti-calendar-due"></i></span>Scadenze
@@ -665,6 +689,9 @@ canvas{max-width:100%}
     </button>
     <button class="nav-tab" id="navRicerca" onclick="switchTab('Ricerca')">
       <i class="ti ti-search"></i>Cerca
+    </button>
+    <button class="nav-tab" id="navLog" onclick="switchTab('Log')">
+      <i class="ti ti-history"></i>Log
     </button>
   </nav>
 
@@ -935,7 +962,7 @@ function showScreen(id) {
 }
 
 window.switchTab = function(name) {
-  const panels = ['Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese','Mappa','Bacheca','Ricerca'];
+  const panels = ['Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese','Mappa','Bacheca','Ricerca','Log'];
   panels.forEach(t => {
     document.getElementById('panel'+t)?.classList.toggle('active', t===name);
     const nav = document.getElementById('nav'+t);
@@ -954,6 +981,7 @@ window.switchTab = function(name) {
   if (name==='Mappa') initMappa();
   if (name==='Bacheca') loadBacheca();
   if (name==='Ricerca') { document.getElementById('searchInput').focus(); }
+  if (name==='Log') loadLog();
 };
 
 // ── MODALS ─────────────────────────────────────────────
@@ -1392,6 +1420,58 @@ window.clearSearch = function() {
 };
 
 // ══════════════════════════════════════════
+// LOG MODIFICHE
+// ══════════════════════════════════════════
+function addLog(tipo, icon, azione, utente) {
+  try {
+    const logs = JSON.parse(localStorage.getItem('giardinoLog') || '[]');
+    logs.unshift({
+      tipo, icon, azione, utente,
+      ts: new Date().toISOString()
+    });
+    // Mantieni solo ultimi 200
+    localStorage.setItem('giardinoLog', JSON.stringify(logs.slice(0, 200)));
+  } catch(e) { console.log('Log error:', e); }
+}
+
+function loadLog() {
+  const el = document.getElementById('logList');
+  const btnClear = document.getElementById('btnClearLog');
+  if (btnClear) btnClear.style.display = currentRole === 'admin' ? 'flex' : 'none';
+
+  try {
+    const logs = JSON.parse(localStorage.getItem('giardinoLog') || '[]');
+    if (!logs.length) {
+      el.innerHTML = '<div class="empty-state"><i class="ti ti-history"></i><p>Nessuna modifica registrata ancora</p></div>';
+      return;
+    }
+    el.innerHTML = logs.map(l => {
+      const d = new Date(l.ts).toLocaleDateString('it-IT', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+      const badgeClass = {add:'lb-add', edit:'lb-edit', delete:'lb-delete'}[l.tipo] || 'lb-add';
+      const badgeText = {add:'Aggiunta', edit:'Modifica', delete:'Eliminazione'}[l.tipo] || l.tipo;
+      return `<div class="log-item">
+        <div class="log-icon">${l.icon}</div>
+        <div class="log-body">
+          <div class="log-azione">
+            <span class="log-badge ${badgeClass}">${badgeText}</span>${l.azione}
+          </div>
+          <div class="log-meta">👤 ${l.utente||'—'} · ${d}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="empty-state"><p>Errore caricamento log</p></div>';
+  }
+}
+
+window.clearLog = function() {
+  if (!confirm('Svuotare tutto il log?')) return;
+  localStorage.removeItem('giardinoLog');
+  loadLog();
+  showToast('Log svuotato');
+};
+
+// ══════════════════════════════════════════
 // NOTIFICHE EMAIL
 // ══════════════════════════════════════════
 const EMAILJS_SERVICE  = 'service_3rupcwg';
@@ -1680,6 +1760,7 @@ window.saveAttivita = async function() {
   if (!pId||!tipo||!dataEs) { showToast('Compila pianta, tipo e data'); return; }
   const ref = await addDoc(collection(db,'attivita'), {pianta_id:pId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,utente:currentUser});
   attivita.unshift({id:ref.id,pianta_id:pId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,utente:currentUser});
+  addLog('add', '📋', `Aggiunta attività: ${tipo} per ${piante.find(p=>p.id===pId)?.nome||'pianta'}`, currentUser);
   closeModal('modalAtt');
   document.getElementById('attNote').value = '';
   document.getElementById('attDataProx').value = '';
@@ -1709,6 +1790,7 @@ window.updateAttivita = async function() {
   const note  = document.getElementById('eaNote').value;
   await updateDoc(doc(db,'attivita',editingAttId), {pianta_id:pId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,utente:a.utente||currentUser});
   Object.assign(a, {pianta_id:pId,tipo,data_eseguita:dataEs,data_prossima:dataP,note});
+  addLog('edit', '✏️', `Modificata attività: ${tipo} per ${piante.find(p=>p.id===pId)?.nome||'pianta'}`, currentUser);
   closeModal('modalEditAtt'); renderAll(); showToast('✅ Attività aggiornata');
 };
 
@@ -1716,6 +1798,7 @@ window.deleteAttivita = async function() {
   if (!confirm('Eliminare questa attività?')) return;
   await deleteDoc(doc(db,'attivita',editingAttId));
   attivita = attivita.filter(x => x.id!==editingAttId);
+  addLog('delete', '🗑️', `Eliminata attività`, currentUser);
   closeModal('modalEditAtt'); renderAll(); showToast('Attività eliminata');
 };
 
@@ -1729,6 +1812,7 @@ window.savePianta = async function() {
   const ref = await addDoc(collection(db,'piante'), {nome,tipo,posizione:pos,note});
   piante.push({id:ref.id,nome,tipo,posizione:pos,note});
   piante.sort((a,b) => a.nome.localeCompare(b.nome));
+  addLog('add', '🌱', `Aggiunta pianta: ${nome}`, currentUser);
   closeModal('modalPianta');
   ['npNome','npPos','npNote'].forEach(id => document.getElementById(id).value='');
   renderAll(); showToast('✅ Pianta aggiunta');
@@ -1754,13 +1838,16 @@ window.updatePianta = async function() {
   if (!nome) { showToast('Il nome non può essere vuoto'); return; }
   await updateDoc(doc(db,'piante',editingPiantaId), {nome,tipo,posizione:pos,note});
   Object.assign(p, {nome,tipo,posizione:pos,note});
+  addLog('edit', '✏️', `Modificata pianta: ${nome}`, currentUser);
   closeModal('modalEditPianta'); renderAll(); showToast('✅ Pianta aggiornata');
 };
 
 window.deletePianta = async function() {
   if (!confirm('Eliminare questa pianta? Le attività collegate verranno mantenute.')) return;
   await deleteDoc(doc(db,'piante',editingPiantaId));
+  const pNome = piante.find(x=>x.id===editingPiantaId)?.nome||'pianta';
   piante = piante.filter(x => x.id!==editingPiantaId);
+  addLog('delete', '🗑️', `Eliminata pianta: ${pNome}`, currentUser);
   closeModal('modalEditPianta'); renderAll(); showToast('Pianta eliminata');
 };
 
@@ -1926,7 +2013,7 @@ function drawCharts() {
 function fillAiPianteSel() {
   const sel = document.getElementById('aiPianta');
   sel.innerHTML = piante.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
-  const defaultGeminiKey = 'AIzaSyAjlBkiAzSBvTtr032zKtvZLNvZe-d4JW4';
+  const defaultGeminiKey = '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';
   if (!localStorage.getItem('geminiApiKey')) localStorage.setItem('geminiApiKey', defaultGeminiKey);
   document.getElementById('aiApiKey').value = localStorage.getItem('geminiApiKey') || defaultGeminiKey;
 }
@@ -1934,7 +2021,7 @@ function fillAiPianteSel() {
 window.getAiSuggestion = async function() {
   const apiKey = document.getElementById('aiApiKey').value.trim();
   if (!apiKey) { showToast('Inserisci la chiave API Gemini'); return; }
-  localStorage.setItem('geminiApiKey', apiKey);
+  localStorage.setItem('geminiApiKey', apiKey); // ora usato per Groq
 
   const pId = document.getElementById('aiPianta').value;
   const arg = document.getElementById('aiArgomento').value;
@@ -1967,40 +2054,28 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
     <div class="ai-box">
       <div class="ai-loading">
         <div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
-        <span>Gemini sta elaborando il consiglio...</span>
+        <span>Groq sta elaborando il consiglio...</span>
       </div>
     </div>`;
 
   try {
-    // 1. Recupera i modelli disponibili con questa chiave
-    const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`);
-    const listData = await listRes.json();
-    if (listData.error) throw new Error('Chiave non valida: ' + listData.error.message);
-
-    // 2. Filtra solo quelli che supportano generateContent
-    const disponibili = (listData.models || [])
-      .filter(m => m.supportedGenerationMethods?.includes('generateContent'))
-      .map(m => m.name.replace('models/',''));
-
-    if (!disponibili.length) throw new Error('Nessun modello disponibile con questa chiave API.');
-
-    // 3. Prova in ordine i modelli trovati
-    let text = null, usedModel = '', lastError = '';
-    for (const modello of disponibili) {
-      try {
-        const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${modello}:generateContent?key=${apiKey}`, {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({contents:[{parts:[{text:prompt}]}]})
-        });
-        const data = await res.json();
-        if (data.error) { lastError = data.error.message; continue; }
-        const t = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (t) { text = t; usedModel = modello; break; }
-      } catch(e2) { lastError = e2.message; }
-    }
-    if (!text) throw new Error('Tutti i modelli hanno fallito. Ultimo errore: ' + lastError);
-
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'llama3-8b-8192',
+        messages: [{role: 'user', content: prompt}],
+        max_tokens: 1000,
+        temperature: 0.7
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.choices?.[0]?.message?.content;
+    if (!text) throw new Error('Nessuna risposta ricevuta');
     document.getElementById('aiResult').innerHTML = `
       <div class="ai-box">
         <div class="ai-box-header">
@@ -2008,13 +2083,13 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
           <div class="ai-box-title">Consiglio AI per ${pianta.nome}</div>
         </div>
         <div class="ai-response">${text}</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:.5rem">Modello: ${usedModel}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:.5rem">Powered by Groq · Llama 3</div>
       </div>`;
   } catch(e) {
     document.getElementById('aiResult').innerHTML = `<div class="notice notice-amber">❌ Errore: ${e.message}. Controlla la chiave API.</div>`;
   }
   btn.disabled = false;
-  btn.innerHTML = '<i class="ti ti-sparkles"></i> Chiedi consiglio a Gemini';
+  btn.innerHTML = '<i class="ti ti-sparkles"></i> Chiedi consiglio a Groq';
 };
 
 // ── INIT ───────────────────────────────────────────────
@@ -2314,6 +2389,7 @@ window.saveSpesa = async function() {
   document.getElementById('modalSpesa').querySelector('.btn-row').innerHTML = `
     <button class="btn btn-primary" style="flex:1" onclick="saveSpesa()"><i class="ti ti-device-floppy"></i> Salva</button>
     <button class="btn btn-secondary" onclick="closeModal('modalSpesa')">Annulla</button>`;
+  addLog('add', '💰', `Aggiunta spesa: ${desc} € ${parseFloat(imp).toFixed(2)}`, currentUser);
   renderSpese();
   showToast('✅ Spesa salvata');
 };
