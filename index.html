@@ -250,6 +250,31 @@ canvas{max-width:100%}
 .utente-name{flex:1;font-weight:500}
 .utente-pin{color:var(--muted);font-size:13px;font-family:monospace}
 
+.kanban-board{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem}
+@media(max-width:500px){.kanban-board{grid-template-columns:1fr}}
+.kanban-col{background:var(--bg);border-radius:var(--rad);padding:.75rem}
+.kanban-col-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.75rem;display:flex;align-items:center;gap:6px}
+.kanban-col-count{background:var(--border);color:var(--muted);border-radius:20px;padding:1px 7px;font-size:10px}
+.kanban-card{background:var(--surf);border:1px solid var(--border);border-radius:var(--rads);padding:10px;margin-bottom:6px;cursor:pointer;box-shadow:var(--shadow);transition:all .15s}
+.kanban-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px)}
+.kanban-card.urgente{border-left:3px solid var(--r6)}
+.kanban-card.presto{border-left:3px solid var(--a6)}
+.kanban-card-title{font-size:13px;font-weight:600;color:var(--text)}
+.kanban-card-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.kanban-card-badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;margin-top:5px;display:inline-block}
+.kanban-actions{display:flex;gap:6px;margin-top:6px}
+.kanban-btn{flex:1;padding:5px;border:1px solid var(--border);border-radius:var(--rads);background:var(--bg);cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;color:var(--muted);transition:all .15s}
+.kanban-btn:hover{background:var(--g1);color:var(--g7);border-color:var(--g2)}
+.sugg-box{background:linear-gradient(135deg,var(--a0),var(--g0));border:1px solid var(--a1);border-radius:var(--rad);padding:1rem;margin-bottom:.75rem}
+.sugg-item{display:flex;gap:10px;align-items:flex-start;padding:6px 0;border-bottom:1px solid rgba(0,0,0,.05);font-size:13px}
+.sugg-item:last-child{border-bottom:none}
+.sugg-icon{font-size:20px;flex-shrink:0}
+.sugg-text{flex:1;color:var(--text);line-height:1.5}
+.sugg-urgency{font-size:10px;font-weight:700;padding:2px 6px;border-radius:20px}
+.su-alta{background:var(--r1);color:var(--r6)}
+.su-media{background:var(--a1);color:var(--a6)}
+.su-bassa{background:var(--g1);color:var(--g7)}
+
 /* TOAST */
 .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--g8);color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;font-family:'DM Sans',sans-serif;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,.2);opacity:0;transition:opacity .25s;pointer-events:none}
 .toast.show{opacity:1}
@@ -545,6 +570,22 @@ canvas{max-width:100%}
           <i class="ti ti-refresh"></i> Aggiorna meteo
         </button>
       </div>
+      <div class="card" style="margin-top:.75rem">
+        <div class="card-title">📱 Notifiche WhatsApp</div>
+        <div class="form-group">
+          <label class="form-label">Numero WhatsApp (con prefisso, es: 39333...)</label>
+          <input type="tel" class="form-control" id="waPhone" placeholder="39333123456">
+        </div>
+        <div class="form-group">
+          <label class="form-label">API Key CallMeBot</label>
+          <input type="text" class="form-control" id="waApiKey" placeholder="123456">
+          <div class="ai-api-notice">Manda "I allow callmebot to send me messages" a +34 644 82 80 93 su WhatsApp per ottenere la key</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" style="flex:1" onclick="saveWaConfig()"><i class="ti ti-device-floppy"></i> Salva</button>
+          <button class="btn btn-secondary" onclick="testWhatsApp()">📱 Test</button>
+        </div>
+      </div>
       <div id="meteoResult"></div>
       <div id="meteoPrev"></div>
     </div>
@@ -657,6 +698,26 @@ canvas{max-width:100%}
       </div>
     </div>
 
+    <!-- KANBAN -->
+    <div id="panelKanban" class="tab-panel">
+      <div id="suggBox"></div>
+      <div id="alertMeteoBox"></div>
+      <div class="kanban-board">
+        <div class="kanban-col">
+          <div class="kanban-col-title">🔴 Scadute <span class="kanban-col-count" id="kCountScad">0</span></div>
+          <div id="kColScad"></div>
+        </div>
+        <div class="kanban-col">
+          <div class="kanban-col-title">🟡 In arrivo <span class="kanban-col-count" id="kCountArr">0</span></div>
+          <div id="kColArr"></div>
+        </div>
+        <div class="kanban-col">
+          <div class="kanban-col-title">🟢 Completate <span class="kanban-col-count" id="kCountOk">0</span></div>
+          <div id="kColOk"></div>
+        </div>
+      </div>
+    </div>
+
   <nav class="nav-tabs">
     <button class="nav-tab active" id="navScadenze" onclick="switchTab('Scadenze')">
       <span class="badge-dot"><i class="ti ti-calendar-due"></i></span>Scadenze
@@ -693,6 +754,9 @@ canvas{max-width:100%}
     </button>
     <button class="nav-tab" id="navLog" onclick="switchTab('Log')">
       <i class="ti ti-history"></i>Log
+    </button>
+    <button class="nav-tab" id="navKanban" onclick="switchTab('Kanban')">
+      <i class="ti ti-layout-kanban"></i>Kanban
     </button>
   </nav>
 
@@ -972,7 +1036,7 @@ function showScreen(id) {
 }
 
 window.switchTab = function(name) {
-  const panels = ['Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese','Mappa','Bacheca','Ricerca','Log'];
+  const panels = ['Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese','Mappa','Bacheca','Ricerca','Log','Kanban'];
   panels.forEach(t => {
     document.getElementById('panel'+t)?.classList.toggle('active', t===name);
     const nav = document.getElementById('nav'+t);
@@ -992,6 +1056,7 @@ window.switchTab = function(name) {
   if (name==='Bacheca') loadBacheca();
   if (name==='Ricerca') { document.getElementById('searchInput').focus(); }
   if (name==='Log') loadLog();
+  if (name==='Kanban') initKanban();
 };
 
 // ── MODALS ─────────────────────────────────────────────
@@ -1482,6 +1547,199 @@ window.clearLog = function() {
 };
 
 // ══════════════════════════════════════════
+// KANBAN
+// ══════════════════════════════════════════
+function initKanban() {
+  renderSuggerimenti();
+  renderAlertMeteo();
+  renderKanban();
+}
+
+function renderKanban() {
+  const oggi = new Date(); oggi.setHours(0,0,0,0);
+  const scadute = [], arrivo = [], completate = [];
+
+  attivita.forEach(a => {
+    const p = piante.find(x => x.id===a.pianta_id);
+    const nome = p ? p.nome : 'Pianta';
+    const emoji = p ? (emojiTipo[p.tipo]||'🪴') : '🪴';
+    const days = a.data_prossima ? Math.round((new Date(a.data_prossima)-oggi)/86400000) : null;
+    const card = {a, nome, emoji, days};
+
+    if (days === null || days > 30) completate.push(card);
+    else if (days < 0) scadute.push(card);
+    else arrivo.push(card);
+  });
+
+  document.getElementById('kCountScad').textContent = scadute.length;
+  document.getElementById('kCountArr').textContent = arrivo.length;
+  document.getElementById('kCountOk').textContent = completate.length;
+
+  const makeCard = ({a, nome, emoji, days}) => {
+    const tc = tipoPillClass[a.tipo]||'tp-altro';
+    const daysStr = days===null ? '' : days<0 ? 'Scaduta '+Math.abs(days)+'gg fa' : 'Fra '+days+'gg';
+    const badgeCls = days===null ? 'badge-green' : days<0 ? 'badge-red' : 'badge-amber';
+    const cardCls = days!==null && days<0 ? 'urgente' : days!==null && days<=14 ? 'presto' : '';
+    return `<div class="kanban-card ${cardCls}" onclick="openEditAtt('${a.id}')">
+      <div class="kanban-card-title">${emoji} ${nome}</div>
+      <div class="kanban-card-sub"><span class="tipo-pill ${tc}">${a.tipo}</span></div>
+      ${daysStr?`<div class="kanban-card-badge scad-badge ${badgeCls}">${daysStr}</div>`:''}
+      ${currentRole==='admin'?`<div class="kanban-actions" onclick="event.stopPropagation()">
+        <button class="kanban-btn" onclick="segnaFatta('${a.id}')">✅ Fatta</button>
+        <button class="kanban-btn" onclick="posticipa('${a.id}')">📅 +7gg</button>
+      </div>`:''}
+    </div>`;
+  };
+
+  document.getElementById('kColScad').innerHTML = scadute.map(makeCard).join('') || '<div style="font-size:12px;color:var(--muted);text-align:center;padding:.5rem">Nessuna scaduta 🎉</div>';
+  document.getElementById('kColArr').innerHTML = arrivo.map(makeCard).join('') || '<div style="font-size:12px;color:var(--muted);text-align:center;padding:.5rem">Nessuna in arrivo</div>';
+  document.getElementById('kColOk').innerHTML = completate.slice(0,5).map(makeCard).join('') || '<div style="font-size:12px;color:var(--muted);text-align:center;padding:.5rem">Nessuna</div>';
+}
+
+window.segnaFatta = async function(id) {
+  const a = attivita.find(x=>x.id===id); if (!a) return;
+  const oggi = new Date().toISOString().split('T')[0];
+  let newProx = null;
+  if (a.ripeti && a.ripeti > 0) {
+    const d = new Date(); d.setDate(d.getDate()+a.ripeti);
+    newProx = d.toISOString().split('T')[0];
+  }
+  await updateDoc(doc(db,'attivita',id), {data_eseguita:oggi, data_prossima:newProx||''});
+  Object.assign(a, {data_eseguita:oggi, data_prossima:newProx||''});
+  renderAll(); renderKanban();
+  showToast('✅ Attività segnata come fatta!');
+  addLog('edit','✅','Attività completata: '+a.tipo, currentUser);
+};
+
+window.posticipa = async function(id) {
+  const a = attivita.find(x=>x.id===id); if (!a) return;
+  const d = new Date(a.data_prossima||new Date());
+  d.setDate(d.getDate()+7);
+  const newDate = d.toISOString().split('T')[0];
+  await updateDoc(doc(db,'attivita',id), {data_prossima:newDate});
+  a.data_prossima = newDate;
+  renderAll(); renderKanban();
+  showToast('📅 Posticipata di 7 giorni');
+};
+
+// ══════════════════════════════════════════
+// SUGGERIMENTI STAGIONALI
+// ══════════════════════════════════════════
+function renderSuggerimenti() {
+  const el = document.getElementById('suggBox');
+  if (!el) return;
+  const mese = new Date().getMonth(); // 0-11
+  const stagione = mese <= 1 || mese === 11 ? 'inverno' : mese <= 4 ? 'primavera' : mese <= 7 ? 'estate' : 'autunno';
+
+  const suggerimenti = {
+    inverno: [
+      {icon:'✂️', text:"Potatura invernale: periodo ideale per olivi e alberi da frutto a riposo vegetativo", urgency:'alta'},
+      {icon:'🌱', text:"Pianifica le semine primaverili e prepara il terreno con concime organico", urgency:'media'},
+      {icon:'🛡️', text:"Proteggi le piante sensibili al gelo con teli o pacciamatura", urgency:'alta'},
+    ],
+    primavera: [
+      {icon:'💧', text:"Riprendi irrigazione regolare con il caldo — controlla impianto", urgency:'alta'},
+      {icon:'🌱', text:"Periodo ideale per concimazione azotata su tutti gli alberi", urgency:'alta'},
+      {icon:'🐛', text:"Monitora i parassiti: la primavera e il momento di maggiore diffusione", urgency:'media'},
+      {icon:'✂️', text:"Potatura di ritorno dopo la fioritura per arbusti e rose", urgency:'media'},
+    ],
+    estate: [
+      {icon:'💧', text:"Irrigazione frequente nelle ore fresche (mattina presto o sera)", urgency:'alta'},
+      {icon:'🌡️', text:"Attenzione ai colpi di calore: ombreggia le piante in vaso", urgency:'alta'},
+      {icon:'🍎', text:"Periodo di raccolta per molti frutti — controlla la maturazione", urgency:'media'},
+      {icon:'🌿', text:"Concimazione estiva con prodotti a rilascio lento", urgency:'bassa'},
+    ],
+    autunno: [
+      {icon:'🫒', text:"Raccolta olive: monitora il grado di maturazione", urgency:'alta'},
+      {icon:'🍂', text:"Concimazione autunnale con potassio per rafforzare le radici", urgency:'media'},
+      {icon:'✂️', text:"Potatura leggera dopo la caduta delle foglie", urgency:'media'},
+      {icon:'🌱', text:"Semina ortaggi autunnali: radicchio, spinaci, cavoli", urgency:'bassa'},
+    ],
+  };
+
+  const emoji = {inverno:'❄️', primavera:'🌸', estate:'☀️', autunno:'🍂'}[stagione];
+  const items = suggerimenti[stagione] || [];
+  const html = `<div class="sugg-box">
+    <div style="font-size:13px;font-weight:700;color:var(--a6);margin-bottom:.75rem">${emoji} Suggerimenti per ${stagione}</div>
+    ${items.map(s => `<div class="sugg-item">
+      <span class="sugg-icon">${s.icon}</span>
+      <div style="flex:1">
+        <div class="sugg-text">${s.text}</div>
+        <span class="sugg-urgency su-${s.urgency}">${s.urgency === 'alta' ? '⚡ Urgente' : s.urgency === 'media' ? '📌 Consigliato' : '💡 Suggerito'}</span>
+      </div>
+    </div>`).join('')}
+  </div>`;
+  el.innerHTML = html;
+}
+
+// ══════════════════════════════════════════
+// ALERT METEO AUTOMATICO
+// ══════════════════════════════════════════
+async function renderAlertMeteo() {
+  const el = document.getElementById('alertMeteoBox');
+  if (!el) return;
+  const key = localStorage.getItem('owmKey');
+  const city = localStorage.getItem('owmCitta') || 'Terracina';
+  if (!key) return;
+
+  try {
+    const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${key}&units=metric&lang=it&cnt=8`);
+    const data = await res.json();
+    if (data.cod !== '200') return;
+
+    const alerts = [];
+    data.list.forEach(item => {
+      const ora = new Date(item.dt*1000).getHours();
+      const temp = Math.round(item.main.temp);
+      const code = item.weather[0].id;
+      const desc = item.weather[0].description;
+
+      if (code >= 500 && code < 600) alerts.push({icon:'🌧️', msg:`Pioggia prevista (${desc}) — evita irrigazione oggi`, cls:'notice-blue'});
+      if (temp > 35) alerts.push({icon:'🌡️', msg:`Caldo estremo ${temp}° previsto — irrriga abbondantemente al mattino presto`, cls:'notice-amber'});
+      if (temp < 3) alerts.push({icon:'🥶', msg:`Rischio gelo (${temp}°) — proteggi le piante sensibili stanotte`, cls:'badge-red'});
+    });
+
+    if (!alerts.length) { el.innerHTML = ''; return; }
+    const unique = alerts.filter((a,i,arr) => arr.findIndex(b=>b.msg===a.msg)===i);
+    el.innerHTML = unique.map(a => `<div class="notice ${a.cls}" style="margin-bottom:.5rem;display:flex;gap:8px;align-items:center">
+      <span style="font-size:18px">${a.icon}</span><span>${a.msg}</span>
+    </div>`).join('');
+  } catch(e) { console.log('Alert meteo:', e); }
+}
+
+// ══════════════════════════════════════════
+// WHATSAPP (CallMeBot)
+// ══════════════════════════════════════════
+const WA_PHONE_KEY = 'waPhone';
+const WA_APIKEY_KEY = 'waApiKey';
+
+async function sendWhatsApp(msg) {
+  const phone = localStorage.getItem(WA_PHONE_KEY);
+  const apiKey = localStorage.getItem(WA_APIKEY_KEY);
+  if (!phone || !apiKey) return;
+  try {
+    const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(msg)}&apikey=${apiKey}`;
+    await fetch(url, {mode:'no-cors'});
+    console.log('WhatsApp inviato');
+  } catch(e) { console.log('WhatsApp error:', e); }
+}
+
+// Configura WhatsApp nelle impostazioni
+window.saveWaConfig = function() {
+  const phone = document.getElementById('waPhone').value.trim();
+  const apiKey = document.getElementById('waApiKey').value.trim();
+  if (!phone || !apiKey) { showToast('Inserisci numero e API key'); return; }
+  localStorage.setItem(WA_PHONE_KEY, phone);
+  localStorage.setItem(WA_APIKEY_KEY, apiKey);
+  showToast('✅ WhatsApp configurato!');
+};
+
+window.testWhatsApp = async function() {
+  await sendWhatsApp('🌿 Test da Giardino di Quintilina! WhatsApp configurato correttamente.');
+  showToast('📱 Messaggio WhatsApp inviato!');
+};
+
+// ══════════════════════════════════════════
 // NOTIFICHE EMAIL
 // ══════════════════════════════════════════
 const EMAILJS_SERVICE  = 'service_3rupcwg';
@@ -1547,6 +1805,10 @@ async function checkAndNotify() {
 
   localStorage.setItem('lastNotifyCheck', oggi);
   showToast('📧 Inviate ' + urgenti.length + ' notifiche email');
+
+  // Invia anche su WhatsApp se configurato
+  const waMsgs = scadenzeData.map(s => `🌿 ${s.pianta} - ${s.tipo}: ${s.stato}`).join('\n');
+  if (waMsgs) await sendWhatsApp('🌿 Giardino di Quintilina - Scadenze:\n' + waMsgs);
 }
 
 window.resetNotify = function() {
@@ -1558,16 +1820,13 @@ window.resetNotify = function() {
 // REPORT MENSILE
 // ══════════════════════════════════════════
 async function checkAndSendMonthlyReport(force=false) {
-  console.log('checkAndSendMonthlyReport START, force=', force);
   const oggi = new Date();
   const primoDelMese = oggi.getDate() === 1;
-  console.log('primoDelMese:', primoDelMese, 'giorno:', oggi.getDate());
-  if (!primoDelMese && !force) { console.log('Non primo del mese, esco'); return; }
+  if (!primoDelMese && !force) return;
 
   const meseKey = oggi.getFullYear() + '-' + String(oggi.getMonth()).padStart(2,'0');
   const lastReport = localStorage.getItem('lastMonthlyReport');
-  console.log('meseKey:', meseKey, 'lastReport:', lastReport);
-  if (lastReport === meseKey && !force) { console.log('Gia inviato questo mese, esco'); return; }
+  if (lastReport === meseKey && !force) return;
 
   // Calcola mese precedente
   const mesePrecTS = new Date(oggi.getFullYear(), oggi.getMonth()-1, 1);
@@ -1639,9 +1898,6 @@ Totale: €${totSpese.toFixed(2)}`
 
 window.sendTestReport = async function() {
   localStorage.removeItem('lastMonthlyReport');
-  // Forza la data come se fosse il 1° del mese
-  const oggi = new Date();
-  const meseKey = oggi.getFullYear() + '-' + String(oggi.getMonth()-1).padStart(2,'0');
   await checkAndSendMonthlyReport(true);
 };
 
@@ -2333,6 +2589,11 @@ function initMeteoPanel() {
   const savedCity = localStorage.getItem('owmCitta') || defaultOwmCity;
   document.getElementById('owmKey').value = savedKey;
   document.getElementById('owmCitta').value = savedCity;
+  // Carica config WhatsApp
+  const waPhone = localStorage.getItem(WA_PHONE_KEY);
+  const waKey = localStorage.getItem(WA_APIKEY_KEY);
+  if (waPhone) document.getElementById('waPhone').value = waPhone;
+  if (waKey) document.getElementById('waApiKey').value = waKey;
   loadMeteo();
 }
 
