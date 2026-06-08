@@ -1557,14 +1557,14 @@ window.resetNotify = function() {
 // ══════════════════════════════════════════
 // REPORT MENSILE
 // ══════════════════════════════════════════
-async function checkAndSendMonthlyReport() {
+async function checkAndSendMonthlyReport(force=false) {
   const oggi = new Date();
   const primoDelMese = oggi.getDate() === 1;
-  if (!primoDelMese) return;
+  if (!primoDelMese && !force) return;
 
   const meseKey = oggi.getFullYear() + '-' + String(oggi.getMonth()).padStart(2,'0');
   const lastReport = localStorage.getItem('lastMonthlyReport');
-  if (lastReport === meseKey) return;
+  if (lastReport === meseKey && !force) return;
 
   // Calcola mese precedente
   const mesePrecTS = new Date(oggi.getFullYear(), oggi.getMonth()-1, 1);
@@ -1616,37 +1616,30 @@ Totale: €${totSpese.toFixed(2)}`
     : 'Nessuna scadenza nei prossimi 30 giorni';
 
   try {
-    await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
-      pianta: `📊 Report mensile: ${mesePrec}`,
-      tipo: `Attività: ${attMese.length} | Spese: €${totSpese.toFixed(2)} | Scadenze: ${scadProssime.length}`,
+    console.log('Invio report:', mesePrec, 'Att:', attMese.length, 'Spese:', speseMese.length, 'Scad:', scadProssime.length);
+    const result = await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+      pianta: 'Report mensile: ' + mesePrec,
+      tipo: 'Attivita: ' + attMese.length + ' | Spese: EUR ' + totSpese.toFixed(2) + ' | Scadenze: ' + scadProssime.length,
       data: oggi.toLocaleDateString('it-IT'),
-      stato: `Attività svolte:
-${attSommario}
-
-Spese:
-${speseSommario}
-
-Scadenze prossime:
-${scadSommario}`,
-      note: `Report automatico Giardino di Quintilina`
+      stato: 'Attivita: ' + attSommario + ' | Spese: ' + speseSommario + ' | Scadenze: ' + scadSommario,
+      note: 'Report automatico Giardino di Quintilina'
     });
+    console.log('Report inviato:', result.status, result.text);
     localStorage.setItem('lastMonthlyReport', meseKey);
     showToast('📊 Report mensile inviato!', 4000);
-    console.log('Report mensile inviato per', mesePrec);
   } catch(e) {
-    console.error('Errore report mensile:', e);
+    console.error('Errore report mensile completo:', e);
+    const errMsg = typeof e === 'object' ? JSON.stringify(e) : String(e);
+    showToast('❌ Report: ' + errMsg, 5000);
   }
 }
 
 window.sendTestReport = async function() {
-  // Forza invio report anche se non è il primo del mese
   localStorage.removeItem('lastMonthlyReport');
-  await checkAndSendMonthlyReport();
-  if (localStorage.getItem('lastMonthlyReport')) {
-    showToast('📊 Report di test inviato!');
-  } else {
-    showToast('❌ Errore invio report. Controlla la console.');
-  }
+  // Forza la data come se fosse il 1° del mese
+  const oggi = new Date();
+  const meseKey = oggi.getFullYear() + '-' + String(oggi.getMonth()-1).padStart(2,'0');
+  await checkAndSendMonthlyReport(true);
 };
 
 window.sendTestEmail = async function() {
@@ -2749,3 +2742,4 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
+Visualizzazione di index.txt.
