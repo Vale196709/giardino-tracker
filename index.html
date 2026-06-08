@@ -1558,13 +1558,16 @@ window.resetNotify = function() {
 // REPORT MENSILE
 // ══════════════════════════════════════════
 async function checkAndSendMonthlyReport(force=false) {
+  console.log('checkAndSendMonthlyReport START, force=', force);
   const oggi = new Date();
   const primoDelMese = oggi.getDate() === 1;
-  if (!primoDelMese && !force) return;
+  console.log('primoDelMese:', primoDelMese, 'giorno:', oggi.getDate());
+  if (!primoDelMese && !force) { console.log('Non primo del mese, esco'); return; }
 
   const meseKey = oggi.getFullYear() + '-' + String(oggi.getMonth()).padStart(2,'0');
   const lastReport = localStorage.getItem('lastMonthlyReport');
-  if (lastReport === meseKey && !force) return;
+  console.log('meseKey:', meseKey, 'lastReport:', lastReport);
+  if (lastReport === meseKey && !force) { console.log('Gia inviato questo mese, esco'); return; }
 
   // Calcola mese precedente
   const mesePrecTS = new Date(oggi.getFullYear(), oggi.getMonth()-1, 1);
