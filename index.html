@@ -1,3 +1,11 @@
+
+index.txt
+
+Pagina
+1
+/
+1
+100%
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -732,6 +740,11 @@ canvas{max-width:100%}
       <label class="form-label">Note (prodotti, quantità, osservazioni…)</label>
       <textarea class="form-control" id="attNote" placeholder="Es: 200g concime granulare, potatura di ritorno..."></textarea>
     </div>
+    <div class="form-group">
+      <label class="form-label">🔔 Ripeti automaticamente ogni (giorni)</label>
+      <input type="number" class="form-control" id="attRipeti" placeholder="Es: 30 = ripeti ogni mese" min="1" max="365">
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">Se impostato, la prossima scadenza viene calcolata automaticamente</div>
+    </div>
     <div class="btn-row">
       <button class="btn btn-primary" style="flex:1" onclick="saveAttivita()"><i class="ti ti-device-floppy"></i> Salva</button>
       <button class="btn btn-secondary" onclick="closeModal('modalAtt')">Annulla</button>
@@ -787,6 +800,10 @@ canvas{max-width:100%}
     <div class="form-group"><label class="form-label">Data eseguita</label><input type="date" class="form-control" id="eaDataEs"></div>
     <div class="form-group"><label class="form-label">Prossima scadenza</label><input type="date" class="form-control" id="eaDataProx"></div>
     <div class="form-group"><label class="form-label">Note</label><textarea class="form-control" id="eaNote"></textarea></div>
+    <div class="form-group">
+      <label class="form-label">🔔 Ripeti ogni (giorni)</label>
+      <input type="number" class="form-control" id="eaRipeti" placeholder="Es: 30" min="1" max="365">
+    </div>
     <div class="modal-actions">
       <button class="btn btn-primary" onclick="updateAttivita()"><i class="ti ti-device-floppy"></i> Salva</button>
       <button class="btn btn-secondary" onclick="closeModal('modalEditAtt')">Annulla</button>
@@ -1681,7 +1698,7 @@ function renderScad() {
       <div class="scad-icon">${emoji}</div>
       <div class="scad-body">
         <div class="scad-plant">${nome}</div>
-        <div class="scad-meta"><span class="tipo-pill ${tc}">${a.tipo}</span><span>${nota}</span></div>
+        <div class="scad-meta"><span class="tipo-pill ${tc}">${a.tipo}</span>${a.ripeti?'<span style="font-size:10px;color:var(--muted)">🔔 ogni '+a.ripeti+'gg</span>':''}<span>${nota}</span></div>
       </div>
       <span class="scad-badge ${info.cls}">${info.text}</span>
     </div>`;
@@ -1755,15 +1772,23 @@ window.saveAttivita = async function() {
   const pId   = document.getElementById('attPianta').value;
   const tipo  = document.getElementById('attTipo').value;
   const dataEs= document.getElementById('attDataEs').value;
-  const dataP = document.getElementById('attDataProx').value;
+  let dataP   = document.getElementById('attDataProx').value;
   const note  = document.getElementById('attNote').value;
+  const ripeti= parseInt(document.getElementById('attRipeti').value) || 0;
   if (!pId||!tipo||!dataEs) { showToast('Compila pianta, tipo e data'); return; }
-  const ref = await addDoc(collection(db,'attivita'), {pianta_id:pId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,utente:currentUser});
-  attivita.unshift({id:ref.id,pianta_id:pId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,utente:currentUser});
+  // Calcola automaticamente la prossima scadenza se ripeti è impostato
+  if (ripeti > 0 && dataEs) {
+    const d = new Date(dataEs);
+    d.setDate(d.getDate() + ripeti);
+    dataP = d.toISOString().split('T')[0];
+  }
+  const ref = await addDoc(collection(db,'attivita'), {pianta_id:pId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,ripeti,utente:currentUser});
+  attivita.unshift({id:ref.id,pianta_id:pId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,ripeti,utente:currentUser});
   addLog('add', '📋', `Aggiunta attività: ${tipo} per ${piante.find(p=>p.id===pId)?.nome||'pianta'}`, currentUser);
   closeModal('modalAtt');
   document.getElementById('attNote').value = '';
   document.getElementById('attDataProx').value = '';
+  document.getElementById('attRipeti').value = '';
   renderAll(); showToast('✅ Attività salvata');
 };
 
@@ -1778,6 +1803,7 @@ window.openEditAtt = function(id) {
   document.getElementById('eaDataEs').value  = a.data_eseguita||'';
   document.getElementById('eaDataProx').value= a.data_prossima||'';
   document.getElementById('eaNote').value    = a.note||'';
+  document.getElementById('eaRipeti').value  = a.ripeti||'';
   openModal('modalEditAtt');
 };
 
@@ -1786,9 +1812,15 @@ window.updateAttivita = async function() {
   const pId   = document.getElementById('eaPianta').value;
   const tipo  = document.getElementById('eaTipo').value;
   const dataEs= document.getElementById('eaDataEs').value;
-  const dataP = document.getElementById('eaDataProx').value;
+  let dataP   = document.getElementById('eaDataProx').value;
   const note  = document.getElementById('eaNote').value;
-  await updateDoc(doc(db,'attivita',editingAttId), {pianta_id:pId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,utente:a.utente||currentUser});
+  const ripeti= parseInt(document.getElementById('eaRipeti').value) || 0;
+  if (ripeti > 0 && dataEs) {
+    const d = new Date(dataEs);
+    d.setDate(d.getDate() + ripeti);
+    dataP = d.toISOString().split('T')[0];
+  }
+  await updateDoc(doc(db,'attivita',editingAttId), {pianta_id:pId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,ripeti,utente:a.utente||currentUser});
   Object.assign(a, {pianta_id:pId,tipo,data_eseguita:dataEs,data_prossima:dataP,note});
   addLog('edit', '✏️', `Modificata attività: ${tipo} per ${piante.find(p=>p.id===pId)?.nome||'pianta'}`, currentUser);
   closeModal('modalEditAtt'); renderAll(); showToast('✅ Attività aggiornata');
