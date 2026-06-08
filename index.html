@@ -433,6 +433,7 @@ canvas{max-width:100%}
         <button class="pill" onclick="filterScad('prossime',this)">🟡 Entro 30gg</button>
         <button class="pill" onclick="filterScad('ok',this)">🟢 In regola</button>
         <button class="pill" onclick="sendTestEmail()" style="background:var(--g1);color:var(--g7);border-color:var(--g2)">📧 Test mail</button>
+        <button class="pill" onclick="sendTestReport()" style="background:var(--b1);color:var(--b6);border-color:#bfdbfe">📊 Test report</button>
 
       </div>
       <div id="scadList" class="scad-list">
@@ -1485,6 +1486,7 @@ window.clearLog = function() {
 // ══════════════════════════════════════════
 const EMAILJS_SERVICE  = 'service_3rupcwg';
 const EMAILJS_TEMPLATE = 'template_c0a34pc';
+const EMAILJS_TEMPLATE_REPORT = 'template_c0a34pc'; // stesso template, parametri diversi
 
 const MAKE_WEBHOOK = 'https://hook.eu1.make.com/kad6otco6fk4pgqs1gv6vxaaa6mb3gs9';
 
@@ -1550,6 +1552,104 @@ async function checkAndNotify() {
 window.resetNotify = function() {
   localStorage.removeItem('lastNotifyCheck');
   showToast('🔄 Reset eseguito — ricarica la pagina per inviare le notifiche');
+};
+
+// ══════════════════════════════════════════
+// REPORT MENSILE
+// ══════════════════════════════════════════
+async function checkAndSendMonthlyReport() {
+  const oggi = new Date();
+  const primoDelMese = oggi.getDate() === 1;
+  if (!primoDelMese) return;
+
+  const meseKey = oggi.getFullYear() + '-' + String(oggi.getMonth()).padStart(2,'0');
+  const lastReport = localStorage.getItem('lastMonthlyReport');
+  if (lastReport === meseKey) return;
+
+  // Calcola mese precedente
+  const mesePrecTS = new Date(oggi.getFullYear(), oggi.getMonth()-1, 1);
+  const mesePrec = mesePrecTS.toLocaleDateString('it-IT',{month:'long',year:'numeric'});
+  const meseStart = new Date(oggi.getFullYear(), oggi.getMonth()-1, 1);
+  const meseEnd   = new Date(oggi.getFullYear(), oggi.getMonth(), 0);
+
+  // Attività del mese precedente
+  const attMese = attivita.filter(a => {
+    if (!a.data_eseguita) return false;
+    const d = new Date(a.data_eseguita);
+    return d >= meseStart && d <= meseEnd;
+  });
+
+  // Spese del mese precedente
+  const speseMese = spese.filter(s => {
+    if (!s.data) return false;
+    const d = new Date(s.data);
+    return d >= meseStart && d <= meseEnd;
+  });
+  const totSpese = speseMese.reduce((sum,s) => sum+parseFloat(s.importo||0), 0);
+
+  // Scadenze prossimi 30 giorni
+  const scadProssime = attivita.filter(a => {
+    if (!a.data_prossima) return false;
+    const days = Math.round((new Date(a.data_prossima) - oggi) / 86400000);
+    return days >= 0 && days <= 30;
+  });
+
+  // Componi il report
+  const attSommario = attMese.length > 0
+    ? attMese.map(a => {
+        const p = piante.find(x=>x.id===a.pianta_id);
+        return `- ${a.tipo} su ${p?p.nome:'pianta'} (${a.data_eseguita})`;
+      }).join('
+')
+    : 'Nessuna attività registrata';
+
+  const speseSommario = speseMese.length > 0
+    ? speseMese.map(s => `- ${s.oggetto||s.descrizione}: €${parseFloat(s.importo||0).toFixed(2)}`).join('
+') + `
+Totale: €${totSpese.toFixed(2)}`
+    : 'Nessuna spesa registrata';
+
+  const scadSommario = scadProssime.length > 0
+    ? scadProssime.map(a => {
+        const p = piante.find(x=>x.id===a.pianta_id);
+        const days = Math.round((new Date(a.data_prossima) - oggi) / 86400000);
+        return `- ${a.tipo} su ${p?p.nome:'pianta'} (fra ${days} giorni)`;
+      }).join('
+')
+    : 'Nessuna scadenza nei prossimi 30 giorni';
+
+  try {
+    await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, {
+      pianta: `📊 Report mensile: ${mesePrec}`,
+      tipo: `Attività: ${attMese.length} | Spese: €${totSpese.toFixed(2)} | Scadenze: ${scadProssime.length}`,
+      data: oggi.toLocaleDateString('it-IT'),
+      stato: `Attività svolte:
+${attSommario}
+
+Spese:
+${speseSommario}
+
+Scadenze prossime:
+${scadSommario}`,
+      note: `Report automatico Giardino di Quintilina`
+    });
+    localStorage.setItem('lastMonthlyReport', meseKey);
+    showToast('📊 Report mensile inviato!', 4000);
+    console.log('Report mensile inviato per', mesePrec);
+  } catch(e) {
+    console.error('Errore report mensile:', e);
+  }
+}
+
+window.sendTestReport = async function() {
+  // Forza invio report anche se non è il primo del mese
+  localStorage.removeItem('lastMonthlyReport');
+  await checkAndSendMonthlyReport();
+  if (localStorage.getItem('lastMonthlyReport')) {
+    showToast('📊 Report di test inviato!');
+  } else {
+    showToast('❌ Errore invio report. Controlla la console.');
+  }
 };
 
 window.sendTestEmail = async function() {
@@ -2166,7 +2266,10 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
 
   // Controlla scadenze e invia mail all'apertura (solo admin)
   if (currentRole === 'admin') {
-    setTimeout(() => checkAndNotify(), 4000);
+    setTimeout(() => {
+      checkAndNotify();
+      checkAndSendMonthlyReport();
+    }, 4000);
   }
 
 window.importStorico = async function() {
