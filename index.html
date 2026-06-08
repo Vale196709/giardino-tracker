@@ -1599,13 +1599,11 @@ async function checkAndSendMonthlyReport() {
     ? attMese.map(a => {
         const p = piante.find(x=>x.id===a.pianta_id);
         return `- ${a.tipo} su ${p?p.nome:'pianta'} (${a.data_eseguita})`;
-      }).join('
-')
+      }).join(' | ')
     : 'Nessuna attività registrata';
 
   const speseSommario = speseMese.length > 0
-    ? speseMese.map(s => `- ${s.oggetto||s.descrizione}: €${parseFloat(s.importo||0).toFixed(2)}`).join('
-') + `
+    ? speseMese.map(s => `- ${s.oggetto||s.descrizione}: €${parseFloat(s.importo||0).toFixed(2)}`).join(' | ') + `
 Totale: €${totSpese.toFixed(2)}`
     : 'Nessuna spesa registrata';
 
@@ -1614,8 +1612,7 @@ Totale: €${totSpese.toFixed(2)}`
         const p = piante.find(x=>x.id===a.pianta_id);
         const days = Math.round((new Date(a.data_prossima) - oggi) / 86400000);
         return `- ${a.tipo} su ${p?p.nome:'pianta'} (fra ${days} giorni)`;
-      }).join('
-')
+      }).join(' | ')
     : 'Nessuna scadenza nei prossimi 30 giorni';
 
   try {
@@ -2752,4 +2749,3 @@ if ('serviceWorker' in navigator) {
 </script>
 </body>
 </html>
-Visualizzazione di index.txt.
