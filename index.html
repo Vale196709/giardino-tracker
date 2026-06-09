@@ -58,6 +58,29 @@ h1,h2,h3{font-family:'Lora',serif}
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:var(--g2);border-radius:2px}
 
+/* DRAWER */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:100;pointer-events:none;transition:background .3s}
+.drawer-overlay.open{background:rgba(0,0,0,.4);pointer-events:all}
+.drawer{position:fixed;left:-280px;top:0;bottom:0;width:280px;background:var(--surf);z-index:101;transition:left .3s cubic-bezier(.4,0,.2,1);box-shadow:4px 0 20px rgba(0,0,0,.15);display:flex;flex-direction:column;overflow:hidden}
+.drawer.open{left:0}
+.drawer-header{padding:1.25rem 1rem 1rem;background:linear-gradient(135deg,var(--g8),var(--g7));color:#fff}
+.drawer-brand{display:flex;align-items:center;gap:10px;margin-bottom:.5rem}
+.drawer-brand-icon{font-size:32px}
+.drawer-brand-name{font-size:17px;font-family:'Lora',serif;font-weight:600}
+.drawer-brand-sub{font-size:11px;opacity:.8}
+.drawer-user{display:flex;align-items:center;gap:8px;margin-top:.75rem;padding-top:.75rem;border-top:1px solid rgba(255,255,255,.2);font-size:13px}
+.drawer-nav{flex:1;overflow-y:auto;padding:.5rem 0}
+.drawer-section{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.75rem 1rem .25rem}
+.drawer-item{display:flex;align-items:center;gap:12px;padding:11px 1rem;cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);border:none;background:transparent;width:100%;text-align:left;transition:all .15s;border-left:3px solid transparent}
+.drawer-item:hover{background:var(--g0);color:var(--g7)}
+.drawer-item.active{background:var(--g1);color:var(--g7);border-left-color:var(--g7);font-weight:600}
+.drawer-item i{font-size:20px;width:24px;text-align:center;flex-shrink:0}
+.drawer-item .badge-urgente{background:var(--r6);color:#fff;border-radius:20px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:auto}
+.drawer-footer{padding:.75rem 1rem;border-top:1px solid var(--border)}
+.drawer-footer .btn{width:100%;justify-content:flex-start;gap:10px;color:var(--muted);font-size:13px}
+.hamburger{background:transparent;border:none;cursor:pointer;padding:6px;color:var(--g7);font-size:24px;display:flex;align-items:center;transition:transform .2s}
+.hamburger:hover{transform:scale(1.1)}
+
 /* ── SETUP ── */
 #screenSetup{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;background:linear-gradient(155deg,#e9f7ee 0%,#f2fdf6 60%,#e6f5f0 100%)}
 .setup-card{background:var(--surf);border-radius:24px;box-shadow:0 12px 40px rgba(22,90,46,0.13);padding:2.5rem 2rem;width:100%;max-width:420px}
@@ -428,20 +451,62 @@ canvas{max-width:100%}
 
 <!-- ===== MAIN APP ===== -->
 <div id="screenMain">
+  <!-- DRAWER -->
+  <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <div class="drawer-brand">
+        <span class="drawer-brand-icon">🌿</span>
+        <div>
+          <div class="drawer-brand-name">Giardino di Quintilina</div>
+          <div class="drawer-brand-sub">Verde e non solo</div>
+        </div>
+      </div>
+      <div class="drawer-user">
+        <i class="ti ti-user" style="font-size:16px"></i>
+        <span id="drawerUser">—</span>
+        <span id="drawerRole" style="margin-left:4px;font-size:11px;opacity:.8"></span>
+      </div>
+    </div>
+    <div class="drawer-nav">
+      <div class="drawer-section">Gestione</div>
+      <button class="drawer-item active" id="dnavScadenze" onclick="drawerNav('Scadenze')"><i class="ti ti-calendar-due"></i>Scadenze<span id="dnavBadge" style="display:none" class="badge-urgente">!</span></button>
+      <button class="drawer-item" id="dnavKanban" onclick="drawerNav('Kanban')"><i class="ti ti-layout-kanban"></i>Kanban</button>
+      <button class="drawer-item" id="dnavPiante" onclick="drawerNav('Piante')"><i class="ti ti-trees"></i>Piante</button>
+      <button class="drawer-item" id="dnavCalendario" onclick="drawerNav('Calendario')"><i class="ti ti-calendar-month"></i>Calendario</button>
+      <button class="drawer-item" id="dnavMappa" onclick="drawerNav('Mappa')"><i class="ti ti-map"></i>Mappa</button>
+
+      <div class="drawer-section">Analisi</div>
+      <button class="drawer-item" id="dnavStats" onclick="drawerNav('Stats')"><i class="ti ti-chart-bar"></i>Statistiche</button>
+      <button class="drawer-item" id="dnavSpese" onclick="drawerNav('Spese')"><i class="ti ti-coins"></i>Spese</button>
+      <button class="drawer-item" id="dnavStorico" onclick="drawerNav('Storico')"><i class="ti ti-clock-hour-4"></i>Storico</button>
+      <button class="drawer-item" id="dnavLog" onclick="drawerNav('Log')"><i class="ti ti-history"></i>Log modifiche</button>
+
+      <div class="drawer-section">Strumenti</div>
+      <button class="drawer-item" id="dnavAI" onclick="drawerNav('AI')"><i class="ti ti-sparkles"></i>AI Consigli</button>
+      <button class="drawer-item" id="dnavMeteo" onclick="drawerNav('Meteo')"><i class="ti ti-cloud"></i>Meteo</button>
+      <button class="drawer-item" id="dnavBacheca" onclick="drawerNav('Bacheca')"><i class="ti ti-message-circle"></i>Bacheca</button>
+      <button class="drawer-item" id="dnavRicerca" onclick="drawerNav('Ricerca')"><i class="ti ti-search"></i>Ricerca</button>
+    </div>
+    <div class="drawer-footer">
+      <button onclick="toggleDark()" id="darkBtnDrawer" class="btn btn-secondary" style="margin-bottom:6px">🌙 Modalità scura</button>
+      <button onclick="doLogout()" class="btn btn-secondary"><i class="ti ti-logout"></i> Esci</button>
+    </div>
+  </div>
+
   <div class="top-bar">
-    <div class="top-brand">
-      <span class="top-brand-icon">🌿</span>
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="hamburger" onclick="openDrawer()" aria-label="Menu"><i class="ti ti-menu-2"></i></button>
       <div>
-        <div class="top-brand-name">Giardino di Quintilina</div>
-        <div class="top-brand-sub" id="headerSub">Caricamento...</div>
+        <div class="top-brand-name" style="font-size:15px;color:var(--g8);font-family:'Lora',serif">Giardino di Quintilina</div>
+        <div class="top-brand-sub" id="headerSub" style="font-size:11px;color:var(--muted)">Caricamento...</div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
-      <button onclick="toggleDark()" id="darkBtn" style="background:transparent;border:1.5px solid var(--border);border-radius:20px;padding:5px 10px;cursor:pointer;font-size:16px;color:var(--muted);transition:all .15s" title="Modalità scura">🌙</button>
-      <div class="user-chip" onclick="doLogout()">
+      <button onclick="toggleDark()" id="darkBtn" style="background:transparent;border:1.5px solid var(--border);border-radius:20px;padding:5px 10px;cursor:pointer;font-size:16px;color:var(--muted)" title="Modalità scura">🌙</button>
+      <div class="user-chip" onclick="openDrawer()">
         <i class="ti ti-user" style="font-size:14px"></i>
         <span id="headerUser">—</span>
-        <i class="ti ti-logout" style="font-size:13px"></i>
       </div>
     </div>
   </div>
@@ -506,6 +571,11 @@ canvas{max-width:100%}
       <div class="card">
         <div class="card-title">Attività per pianta</div>
         <div class="chart-container"><canvas id="chartPiante"></canvas></div>
+      </div>
+      <div class="prev-box">
+        <div class="prev-label">📊 Previsione spese anno corrente</div>
+        <div class="prev-amount" id="prevAmount">—</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:.5rem" id="prevDetail"></div>
       </div>
     </div>
 
@@ -834,6 +904,17 @@ canvas{max-width:100%}
       <label class="form-label">Note</label>
       <textarea class="form-control" id="npNote" placeholder="Varietà, anno di impianto, particolarità..."></textarea>
     </div>
+    <div class="form-group">
+      <label class="form-label">Etichette (separate da virgola)</label>
+      <input type="text" class="form-control" id="npTags" placeholder="Es: biologico, in vaso, nuovo impianto">
+      <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
+        <span class="tag-pill" style="background:#fee2e2;color:#c92828" onclick="addTag('urgente')">+ urgente</span>
+        <span class="tag-pill" style="background:#dcfce7;color:#16a34a" onclick="addTag('biologico')">+ biologico</span>
+        <span class="tag-pill" style="background:#dbeafe;color:#1d4ed8" onclick="addTag('in vaso')">+ in vaso</span>
+        <span class="tag-pill" style="background:#fef9c3;color:#854d0e" onclick="addTag('nuovo')">+ nuovo</span>
+        <span class="tag-pill" style="background:#f3e8ff;color:#7e22ce" onclick="addTag('ornamentale')">+ ornamentale</span>
+      </div>
+    </div>
     <div class="btn-row">
       <button class="btn btn-primary" style="flex:1" onclick="savePianta()"><i class="ti ti-plus"></i> Aggiungi</button>
       <button class="btn btn-secondary" onclick="closeModal('modalPianta')">Annulla</button>
@@ -884,6 +965,10 @@ canvas{max-width:100%}
     </div>
     <div class="form-group"><label class="form-label">Posizione</label><input type="text" class="form-control" id="epPos"></div>
     <div class="form-group"><label class="form-label">Note</label><textarea class="form-control" id="epNote"></textarea></div>
+    <div class="form-group">
+      <label class="form-label">Etichette (separate da virgola)</label>
+      <input type="text" class="form-control" id="epTags" placeholder="Es: biologico, in vaso, nuovo impianto">
+    </div>
     <div class="modal-actions">
       <button class="btn btn-primary" onclick="updatePianta()"><i class="ti ti-device-floppy"></i> Salva</button>
       <button class="btn btn-secondary" onclick="closeModal('modalEditPianta')">Annulla</button>
@@ -1063,8 +1148,56 @@ window.switchTab = function(name) {
 window.toggleDark = function() {
   const isDark = document.body.classList.toggle('dark');
   localStorage.setItem('darkMode', isDark ? '1' : '0');
-  const btn = document.getElementById('darkBtn');
-  if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+  ['darkBtn','darkBtnDrawer'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.innerHTML = isDark ? '☀️ Modalità chiara' : '🌙 Modalità scura';
+  });
+};
+
+window.openDrawer = function() {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+};
+
+window.closeDrawer = function() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+};
+
+window.drawerNav = function(name) {
+  closeDrawer();
+  switchTab(name);
+  // Aggiorna active state nel drawer
+  document.querySelectorAll('.drawer-item').forEach(b => b.classList.remove('active'));
+  const btn = document.getElementById('dnav'+name);
+  if (btn) btn.classList.add('active');
+};
+
+function launchConfetti() {
+  const colors = ['#1a7a3e','#2ec66a','#b8f0cb','#a3e635','#fbbf24','#f87171'];
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.cssText = `
+      left:${Math.random()*100}vw;
+      top:-20px;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+      width:${6+Math.random()*8}px;
+      height:${6+Math.random()*8}px;
+      animation-delay:${Math.random()*0.5}s;
+      animation-duration:${1.5+Math.random()}s;
+      transform:rotate(${Math.random()*360}deg)
+    `;
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 2500);
+  }
+}
+
+window.addTag = function(tag) {
+  const input = document.getElementById('npTags');
+  if (!input) return;
+  const current = input.value.trim();
+  input.value = current ? current + ', ' + tag : tag;
 };
 
 window.fabClick = function() {
@@ -1162,7 +1295,11 @@ window.doLogin = function() {
   const uObj = utenti.find(x => x.nome===nome);
   currentUser = nome;
   currentRole = uObj ? (uObj.ruolo || 'admin') : 'admin';
-  document.getElementById('headerUser').textContent = nome + (currentRole==='user' ? ' 👁' : ' 🔑');
+  document.getElementById('headerUser').textContent = nome;
+  const drawerUserEl = document.getElementById('drawerUser');
+  const drawerRoleEl = document.getElementById('drawerRole');
+  if (drawerUserEl) drawerUserEl.textContent = nome;
+  if (drawerRoleEl) drawerRoleEl.textContent = currentRole==='admin' ? '🔑 Admin' : '👁 User';
   showScreen('screenMain');
   applyRoleUI();
   loadAll();
@@ -1609,6 +1746,7 @@ window.segnaFatta = async function(id) {
   renderAll(); renderKanban();
   showToast('✅ Attività segnata come fatta!');
   addLog('edit','✅','Attività completata: '+a.tipo, currentUser);
+  launchConfetti();
 };
 
 window.posticipa = async function(id) {
@@ -1955,6 +2093,8 @@ function applyRoleUI() {
   // Nascondi tab Spese per utenti User
   const navSpese = document.getElementById('navSpese');
   if (navSpese) navSpese.style.display = isUser ? 'none' : 'flex';
+  const dnavSpese = document.getElementById('dnavSpese');
+  if (dnavSpese) dnavSpese.style.display = isUser ? 'none' : 'flex';
   // Mostra pulsante cambia mappa solo admin
   const mappaChangeBtn = document.getElementById('mappaChangeBtn');
   if (mappaChangeBtn) mappaChangeBtn.style.display = isUser ? 'none' : 'block';
@@ -2069,10 +2209,16 @@ function renderPiante() {
       else if (prossimaGiorni<=14){tagCls='badge-amber';tagTxt='Fra '+prossimaGiorni+'gg';}
       else{tagCls='badge-green';tagTxt='Fra '+prossimaGiorni+'gg';}
     }
+    const tagColors = {'urgente':'#fee2e2,#c92828','biologico':'#dcfce7,#16a34a','in vaso':'#dbeafe,#1d4ed8','nuovo':'#fef9c3,#854d0e','ornamentale':'#f3e8ff,#7e22ce'};
+    const tagsHtml = (p.tags||[]).map(t => {
+      const [bg,col] = (tagColors[t]||'#f1f5f9,#64748b').split(',');
+      return `<span class="tag-pill" style="background:${bg};color:${col}">${t}</span>`;
+    }).join('');
     return `<div class="plant-card" onclick="openEditPianta('${p.id}')">
       <div class="plant-emoji">${emoji}</div>
       <div class="plant-name">${p.nome}</div>
       <div class="plant-type">${p.tipo||''}${p.posizione?' · '+p.posizione:''}</div>
+      ${tagsHtml ? '<div class="plant-tags">'+tagsHtml+'</div>' : ''}
       <span class="plant-scad-tag scad-badge ${tagCls}">${tagTxt}</span>
     </div>`;
   });
@@ -2181,13 +2327,14 @@ window.savePianta = async function() {
   const tipo = document.getElementById('npTipo').value;
   const pos  = document.getElementById('npPos').value.trim();
   const note = document.getElementById('npNote').value.trim();
+  const tags = document.getElementById('npTags').value.split(',').map(t=>t.trim()).filter(Boolean);
   if (!nome) { showToast('Inserisci il nome della pianta'); return; }
-  const ref = await addDoc(collection(db,'piante'), {nome,tipo,posizione:pos,note});
-  piante.push({id:ref.id,nome,tipo,posizione:pos,note});
+  const ref = await addDoc(collection(db,'piante'), {nome,tipo,posizione:pos,note,tags});
+  piante.push({id:ref.id,nome,tipo,posizione:pos,note,tags});
   piante.sort((a,b) => a.nome.localeCompare(b.nome));
   addLog('add', '🌱', `Aggiunta pianta: ${nome}`, currentUser);
   closeModal('modalPianta');
-  ['npNome','npPos','npNote'].forEach(id => document.getElementById(id).value='');
+  ['npNome','npPos','npNote','npTags'].forEach(id => document.getElementById(id).value='');
   renderAll(); showToast('✅ Pianta aggiunta');
 };
 
@@ -2199,6 +2346,7 @@ window.openEditPianta = function(id) {
   document.getElementById('epTipo').value = p.tipo||'';
   document.getElementById('epPos').value  = p.posizione||'';
   document.getElementById('epNote').value = p.note||'';
+  document.getElementById('epTags').value = (p.tags||[]).join(', ');
   openModal('modalEditPianta');
 };
 
@@ -2209,8 +2357,9 @@ window.updatePianta = async function() {
   const pos  = document.getElementById('epPos').value.trim();
   const note = document.getElementById('epNote').value.trim();
   if (!nome) { showToast('Il nome non può essere vuoto'); return; }
-  await updateDoc(doc(db,'piante',editingPiantaId), {nome,tipo,posizione:pos,note});
-  Object.assign(p, {nome,tipo,posizione:pos,note});
+  const tags = document.getElementById('epTags').value.split(',').map(t=>t.trim()).filter(Boolean);
+  await updateDoc(doc(db,'piante',editingPiantaId), {nome,tipo,posizione:pos,note,tags});
+  Object.assign(p, {nome,tipo,posizione:pos,note,tags});
   addLog('edit', '✏️', `Modificata pianta: ${nome}`, currentUser);
   closeModal('modalEditPianta'); renderAll(); showToast('✅ Pianta aggiornata');
 };
@@ -2380,6 +2529,18 @@ function drawCharts() {
     data:{labels:pKeys,datasets:[{label:'Attività',data:pVals,backgroundColor:'rgba(13,148,136,.7)',borderColor:'rgba(13,148,136,1)',borderWidth:1.5,borderRadius:6}]},
     options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(0,0,0,.04)'}},y:{grid:{display:false}}}}
   });
+
+  // Previsione spese
+  const annoCorrente = new Date().getFullYear();
+  const meseCorrente = new Date().getMonth() + 1; // 1-12
+  const speseAnno = spese.filter(s => s.data && s.data.startsWith(String(annoCorrente)));
+  const totaleFinora = speseAnno.reduce((sum,s) => sum+parseFloat(s.importo||0), 0);
+  const mediaAl = totaleFinora / meseCorrente;
+  const previsione = mediaAl * 12;
+  const el = document.getElementById('prevAmount');
+  const elDetail = document.getElementById('prevDetail');
+  if (el) el.textContent = '€ ' + previsione.toFixed(2);
+  if (elDetail) elDetail.textContent = `Speso finora: € ${totaleFinora.toFixed(2)} in ${meseCorrente} mesi · Media mensile: € ${mediaAl.toFixed(2)}`;
 }
 
 // ── AI SUGGERIMENTI ────────────────────────────────────
@@ -2505,8 +2666,10 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
   // Carica preferenza dark mode
   if (localStorage.getItem('darkMode') === '1') {
     document.body.classList.add('dark');
-    const btn = document.getElementById('darkBtn');
-    if (btn) btn.textContent = '☀️';
+    ['darkBtn','darkBtnDrawer'].forEach(id => {
+      const btn = document.getElementById(id);
+      if (btn) btn.innerHTML = '☀️ Modalità chiara';
+    });
   }
 
   // Listener per funzioni chiamate dall'HTML
