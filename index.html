@@ -126,16 +126,10 @@ code{background:#f1f5f9;padding:2px 7px;border-radius:4px;font-family:monospace;
 .top-brand-sub{font-size:11px;color:var(--muted)}
 .user-chip{display:flex;align-items:center;gap:6px;background:var(--g1);border:1px solid var(--g2);border-radius:20px;padding:5px 12px;cursor:pointer;font-size:13px;color:var(--g8);transition:background .15s}
 .user-chip:hover{background:var(--g2)}
-.content{flex:1;padding:1rem;padding-bottom:88px;max-width:800px;margin:0 auto;width:100%}
+.content{flex:1;padding:1rem;padding-bottom:1.5rem;max-width:800px;margin:0 auto;width:100%}
 
 /* TABS NAV */
-.nav-tabs{display:flex;background:var(--surf);border-top:1px solid var(--border);position:fixed;bottom:0;left:0;right:0;z-index:50;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.nav-tabs::-webkit-scrollbar{display:none}
-.nav-tab{flex:0 0 auto;min-width:64px;display:flex;flex-direction:column;align-items:center;padding:10px 8px 8px;cursor:pointer;font-size:9px;font-family:'DM Sans',sans-serif;color:var(--muted);border:none;background:transparent;gap:3px;text-transform:uppercase;letter-spacing:.06em;font-weight:600;transition:color .15s}
-.nav-tab i{font-size:22px}
-.nav-tab.active{color:var(--g7)}
-.nav-tab .badge-dot{position:relative}
-.nav-tab .badge-dot::after{content:'';position:absolute;top:-2px;right:-2px;width:7px;height:7px;background:var(--r6);border-radius:50%;border:1.5px solid var(--surf)}
+/* nav-tabs rimossa */
 
 /* PANELS */
 .tab-panel{display:none}.tab-panel.active{display:block}
@@ -697,29 +691,28 @@ canvas{max-width:100%}
       <div class="card" style="padding:.75rem">
         <div class="section-header">
           <div class="section-title">🗺️ Mappa del giardino</div>
-          <div style="font-size:11px;color:var(--muted)">Trascina le piante sulla mappa</div>
+          <div id="mappaChangeBtn" style="display:none">
+            <label style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--g1);border:1.5px solid var(--g2);border-radius:var(--rads);color:var(--g7);font-size:12px;cursor:pointer;font-weight:600">
+              <i class="ti ti-photo"></i> Cambia foto
+              <input type="file" id="mappaFileInput" accept="image/*" style="display:none" onchange="changeMappa(this)">
+            </label>
+          </div>
         </div>
-        <div id="mappaContainer" style="position:relative;width:100%;max-width:380px;margin:0 auto;border-radius:10px;overflow:hidden;border:2px solid var(--border)">
-          <img src="mappa.jpg" style="width:100%;display:block;user-select:none" draggable="false" id="mappaImg">
-          <div id="mappaMarkers" style="position:absolute;inset:0"></div>
+        <div id="mappaContainer" style="position:relative;width:100%;max-width:420px;margin:0 auto;border-radius:10px;overflow:hidden;border:2px solid var(--border);touch-action:none">
+          <img src="mappa.jpg" style="width:100%;display:block;user-select:none;pointer-events:none" draggable="false" id="mappaImg">
+          <canvas id="mappaCanvas" style="position:absolute;inset:0;width:100%;height:100%"></canvas>
         </div>
-        <div style="margin-top:.75rem;font-size:12px;color:var(--muted);text-align:center">
-          Premi "📍 Posiziona" → tocca la mappa · Tocca un marker per spostarlo
-        </div>
-        <div id="mappaChangeBtn" style="display:none;margin-top:.5rem">
-          <label style="display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--g1);border:1.5px solid var(--g2);border-radius:var(--rads);color:var(--g7);font-size:13px;cursor:pointer;font-weight:600">
-            <i class="ti ti-photo"></i> Cambia immagine mappa
-            <input type="file" id="mappaFileInput" accept="image/*" style="display:none" onchange="changeMappa(this)">
-          </label>
+        <div style="margin-top:.75rem;font-size:12px;color:var(--muted);text-align:center" id="mappaInstr">
+          Seleziona una pianta sotto e tocca la mappa per posizionarla
         </div>
       </div>
       <div class="card">
-        <div class="section-title" style="margin-bottom:.75rem">Piante posizionate</div>
-        <div id="mappaPianteList" style="font-size:13px;color:var(--muted)">Caricamento...</div>
+        <div class="section-title" style="margin-bottom:.75rem">Piante</div>
+        <div id="mappaPianteList"></div>
       </div>
     </div>
 
-    <!-- BACHECA -->
+    <!-- BACHECA -->    <!-- BACHECA -->
     <div id="panelBacheca" class="tab-panel">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
         <div class="section-title">💬 Bacheca condivisa</div>
@@ -788,47 +781,7 @@ canvas{max-width:100%}
       </div>
     </div>
 
-  <nav class="nav-tabs">
-    <button class="nav-tab active" id="navScadenze" onclick="switchTab('Scadenze')">
-      <span class="badge-dot"><i class="ti ti-calendar-due"></i></span>Scadenze
-    </button>
-    <button class="nav-tab" id="navPiante" onclick="switchTab('Piante')">
-      <i class="ti ti-trees"></i>Piante
-    </button>
-    <button class="nav-tab" id="navCalendario" onclick="switchTab('Calendario')">
-      <i class="ti ti-calendar-month"></i>Calendario
-    </button>
-    <button class="nav-tab" id="navStats" onclick="switchTab('Stats')">
-      <i class="ti ti-chart-bar"></i>Statistiche
-    </button>
-    <button class="nav-tab" id="navAI" onclick="switchTab('AI')">
-      <i class="ti ti-sparkles"></i>AI
-    </button>
-    <button class="nav-tab" id="navStorico" onclick="switchTab('Storico')">
-      <i class="ti ti-clock-hour-4"></i>Storico
-    </button>
-    <button class="nav-tab" id="navMeteo" onclick="switchTab('Meteo')">
-      <i class="ti ti-cloud"></i>Meteo
-    </button>
-    <button class="nav-tab" id="navSpese" onclick="switchTab('Spese')">
-      <i class="ti ti-coins"></i>Spese
-    </button>
-    <button class="nav-tab" id="navMappa" onclick="switchTab('Mappa')">
-      <i class="ti ti-map"></i>Mappa
-    </button>
-    <button class="nav-tab" id="navBacheca" onclick="switchTab('Bacheca')">
-      <i class="ti ti-message-circle"></i>Bacheca
-    </button>
-    <button class="nav-tab" id="navRicerca" onclick="switchTab('Ricerca')">
-      <i class="ti ti-search"></i>Cerca
-    </button>
-    <button class="nav-tab" id="navLog" onclick="switchTab('Log')">
-      <i class="ti ti-history"></i>Log
-    </button>
-    <button class="nav-tab" id="navKanban" onclick="switchTab('Kanban')">
-      <i class="ti ti-layout-kanban"></i>Kanban
-    </button>
-  </nav>
+
 
   <button class="fab" onclick="fabClick()" aria-label="Aggiungi">
     <i class="ti ti-plus"></i>
@@ -1314,185 +1267,184 @@ window.doLogout = function() {
 // ══════════════════════════════════════════
 // MAPPA GIARDINO
 // ══════════════════════════════════════════
-let mappaPositions = {}; // {pianta_id: {x_pct, y_pct}}
+let mappaPositions = {};
+let selectedPiantaId = null;
 
 async function initMappa() {
-  // Carica mappa custom se presente
   const mappaCustom = localStorage.getItem('mappaCustom');
   const mappaImg = document.getElementById('mappaImg');
   if (mappaCustom && mappaImg) mappaImg.src = mappaCustom;
-
-  // Mostra/nascondi pulsante cambia mappa
   const mappaChangeBtn = document.getElementById('mappaChangeBtn');
   if (mappaChangeBtn) mappaChangeBtn.style.display = currentRole === 'admin' ? 'block' : 'none';
-
-  // Carica posizioni salvate da Firebase
   try {
     const snap = await getDocs(collection(db,'mappa'));
     mappaPositions = {};
     snap.docs.forEach(d => { mappaPositions[d.id] = d.data(); });
   } catch(e) { console.log('Mappa:', e); }
-  renderMappa();
+  renderMappaPiante();
+  // Attendi che l'immagine sia caricata prima di disegnare
+  const img = document.getElementById('mappaImg');
+  if (img.complete) { setupMappaCanvas(); }
+  else { img.onload = setupMappaCanvas; }
 }
 
-function renderMappa() {
+function setupMappaCanvas() {
   const container = document.getElementById('mappaContainer');
-  const markers = document.getElementById('mappaMarkers');
-  if (!markers) return;
-  markers.innerHTML = '';
+  const img = document.getElementById('mappaImg');
+  const canvas = document.getElementById('mappaCanvas');
+  if (!canvas || !img) return;
+  canvas.width = img.offsetWidth;
+  canvas.height = img.offsetHeight;
+  disegnaMarker();
 
-  // Mostra marker per piante con posizione
-  piante.forEach(p => {
-    const pos = mappaPositions[p.id];
-    if (!pos) return;
-    const emoji = emojiTipo[p.tipo] || '🪴';
-    const marker = document.createElement('div');
-    marker.className = 'mappa-marker';
-    marker.style.left = pos.x_pct + '%';
-    marker.style.top  = pos.y_pct + '%';
-    marker.innerHTML = '<div class="mappa-marker-emoji">' + emoji + '</div><div class="mappa-marker-label">' + p.nome + '</div>';
-    marker.title = p.nome;
-    // Drag
-    if (currentRole === 'admin') makeDraggable(marker, p.id);
-    markers.appendChild(marker);
-  });
+  // Click/touch sul canvas
+  canvas.onclick = (e) => {
+    if (!selectedPiantaId || currentRole !== 'admin') return;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = Math.round((e.clientX - rect.left) * scaleX);
+    const y = Math.round((e.clientY - rect.top) * scaleY);
+    const xPct = parseFloat((x / canvas.width * 100).toFixed(2));
+    const yPct = parseFloat((y / canvas.height * 100).toFixed(2));
+    salvaPosizioneEDisegna(selectedPiantaId, xPct, yPct);
+  };
 
-  // Su PC: click su mappa per posizionare pianta (solo se non ci sono marker)
-  if (currentRole === 'admin') {
-    const img = document.getElementById('mappaImg');
-    img.onclick = null; // disabilita click diretto, usa pulsante Posiziona
-  }
-
-  renderMappaPianteList();
-}
-
-function makeDraggable(el, piantaId) {
-  // Click/tap sul marker per riposizionarlo
-  el.addEventListener('click', e => {
-    e.stopPropagation();
-    if (confirm('Vuoi spostare "' + el.title + '"? Premi OK poi tocca il nuovo punto sulla mappa.')) {
-      window.posizionaPrimaLibera(piantaId);
-    }
-  });
-  el.addEventListener('touchend', e => {
-    e.stopPropagation();
+  canvas.addEventListener('touchend', e => {
     e.preventDefault();
-  }, {passive:false});
+    if (!selectedPiantaId || currentRole !== 'admin') return;
+    const t = e.changedTouches[0];
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const x = Math.round((t.clientX - rect.left) * scaleX);
+    const y = Math.round((t.clientY - rect.top) * scaleY);
+    const xPct = parseFloat((x / canvas.width * 100).toFixed(2));
+    const yPct = parseFloat((y / canvas.height * 100).toFixed(2));
+    salvaPosizioneEDisegna(selectedPiantaId, xPct, yPct);
+  }, {passive: false});
 }
 
-async function saveMappaPosition(piantaId, x, y) {
-  mappaPositions[piantaId] = {x_pct: x, y_pct: y};
-  await setDoc(doc(db,'mappa',piantaId), {x_pct: x, y_pct: y});
+function disegnaMarker() {
+  const canvas = document.getElementById('mappaCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  Object.entries(mappaPositions).forEach(([pId, pos]) => {
+    const p = piante.find(x => x.id === pId);
+    if (!p) return;
+    const x = pos.x_pct / 100 * canvas.width;
+    const y = pos.y_pct / 100 * canvas.height;
+    const isSelected = pId === selectedPiantaId;
+
+    // Cerchio sfondo
+    ctx.beginPath();
+    ctx.arc(x, y, isSelected ? 20 : 16, 0, Math.PI * 2);
+    ctx.fillStyle = isSelected ? 'rgba(26,122,62,0.9)' : 'rgba(255,255,255,0.85)';
+    ctx.fill();
+    ctx.strokeStyle = isSelected ? '#fff' : '#1a7a3e';
+    ctx.lineWidth = isSelected ? 3 : 2;
+    ctx.stroke();
+
+    // Emoji
+    ctx.font = isSelected ? '18px serif' : '14px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(emojiTipo[p.tipo]||'🪴', x, y);
+
+    // Label
+    ctx.font = 'bold 10px DM Sans, sans-serif';
+    ctx.fillStyle = '#fff';
+    ctx.strokeStyle = 'rgba(0,0,0,0.6)';
+    ctx.lineWidth = 3;
+    const nome = p.nome.length > 12 ? p.nome.substring(0,11)+'…' : p.nome;
+    const tw = ctx.measureText(nome).width;
+    // Background label
+    ctx.fillStyle = isSelected ? 'rgba(26,122,62,0.95)' : 'rgba(0,0,0,0.7)';
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(x - tw/2 - 4, y + 18, tw + 8, 16, 4) :
+      ctx.rect(x - tw/2 - 4, y + 18, tw + 8, 16);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.fillText(nome, x, y + 26);
+  });
 }
 
-function openMappaModal(x, y) {
-  const sel = '<select id="mappaPiantaSel" class="form-control" style="margin-bottom:.75rem">' +
-    piante.map(p => '<option value="' + p.id + '">' + (emojiTipo[p.tipo]||'🪴') + ' ' + p.nome + '</option>').join('') +
-    '</select>';
-  const confirmed = confirm('Posiziona pianta qui. Scegli dalla lista dopo aver chiuso questo dialog.');
-  if (!confirmed) return;
-  // Usa la prima pianta non ancora posizionata
-  const nonPos = piante.filter(p => !mappaPositions[p.id]);
-  if (!nonPos.length) { showToast('Tutte le piante sono già posizionate!'); return; }
-  const pianta = nonPos[0];
-  saveMappaPosition(pianta.id, x, y).then(() => { renderMappa(); showToast('✅ ' + pianta.nome + ' posizionata!'); });
+async function salvaPosizioneEDisegna(piantaId, xPct, yPct) {
+  mappaPositions[piantaId] = {x_pct: xPct, y_pct: yPct};
+  await setDoc(doc(db,'mappa',piantaId), {x_pct: xPct, y_pct: yPct});
+  disegnaMarker();
+  renderMappaPiante();
+  const p = piante.find(x => x.id === piantaId);
+  showToast('📍 ' + (p?p.nome:'Pianta') + ' posizionata!');
 }
 
-function renderMappaPianteList() {
+function renderMappaPiante() {
   const el = document.getElementById('mappaPianteList');
+  if (!el) return;
   const posizionate = piante.filter(p => mappaPositions[p.id]);
-  const nonPosizionate = piante.filter(p => !mappaPositions[p.id]);
+  const nonPos = piante.filter(p => !mappaPositions[p.id]);
+
   let html = '';
+  if (nonPos.length && currentRole === 'admin') {
+    html += '<div style="font-size:12px;color:var(--muted);margin-bottom:.5rem">Seleziona una pianta poi tocca la mappa:</div>';
+    html += nonPos.map(p => `
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--rads);cursor:pointer;border:1.5px solid ${selectedPiantaId===p.id?'var(--g5)':'var(--border)'};background:${selectedPiantaId===p.id?'var(--g1)':'var(--surf)'};margin-bottom:4px;transition:all .15s" onclick="selectPiantaMappa('${p.id}')">
+        <span style="font-size:20px">${emojiTipo[p.tipo]||'🪴'}</span>
+        <span style="font-size:13px;font-weight:${selectedPiantaId===p.id?'700':'400'};color:${selectedPiantaId===p.id?'var(--g7)':'var(--text)'}">${p.nome}</span>
+        ${selectedPiantaId===p.id?'<span style="margin-left:auto;font-size:11px;color:var(--g7);font-weight:700">👆 Tocca la mappa</span>':''}
+      </div>`).join('');
+  }
+
   if (posizionate.length) {
-    html += '<div style="margin-bottom:.5rem"><strong>✅ Posizionate (' + posizionate.length + ')</strong></div>';
-    html += posizionate.map(p => `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border)">
-      <span style="font-size:18px">${emojiTipo[p.tipo]||'🪴'}</span>
-      <span style="flex:1;font-size:13px">${p.nome}</span>
-      ${currentRole==='admin'?`<button class="btn btn-sm btn-danger" onclick="removeMappaPosition('${p.id}')"><i class="ti ti-x"></i></button>`:''}
-    </div>`).join('');
+    html += '<div style="font-size:12px;color:var(--muted);margin-top:.75rem;margin-bottom:.5rem">✅ Posizionate:</div>';
+    html += posizionate.map(p => `
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--rads);border:1px solid var(--border);margin-bottom:4px;background:var(--surf)">
+        <span style="font-size:20px">${emojiTipo[p.tipo]||'🪴'}</span>
+        <span style="font-size:13px;flex:1">${p.nome}</span>
+        ${currentRole==='admin'?`<button class="btn btn-sm" style="padding:4px 8px;background:var(--g1);color:var(--g7);border:1px solid var(--g2)" onclick="selectPiantaMappa('${p.id}')">✏️ Sposta</button>
+        <button class="btn btn-sm btn-danger" style="padding:4px 8px" onclick="removeMappaPos('${p.id}')"><i class="ti ti-x"></i></button>`:''}
+      </div>`).join('');
   }
-  if (nonPosizionate.length) {
-    html += '<div style="margin-top:.75rem;margin-bottom:.5rem"><strong>📍 Da posizionare (' + nonPosizionate.length + ')</strong></div>';
-    html += nonPosizionate.map(p => `<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);opacity:.6">
-      <span style="font-size:18px">${emojiTipo[p.tipo]||'🪴'}</span>
-      <span style="font-size:13px">${p.nome}</span>
-      ${currentRole==='admin'?`<button class="btn btn-sm" style="background:var(--g1);color:var(--g7);border:1px solid var(--g2)" onclick="posizionaPrimaLibera('${p.id}')">📍 Posiziona</button>`:''}
-    </div>`).join('');
-  }
-  el.innerHTML = html || '<div style="color:var(--muted)">Nessuna pianta trovata</div>';
+  el.innerHTML = html || '<div style="font-size:13px;color:var(--muted)">Nessuna pianta da posizionare</div>';
 }
+
+window.selectPiantaMappa = function(piantaId) {
+  selectedPiantaId = selectedPiantaId === piantaId ? null : piantaId;
+  renderMappaPiante();
+  disegnaMarker();
+  if (selectedPiantaId) {
+    const p = piante.find(x=>x.id===piantaId);
+    showToast('Selezionato: ' + (p?p.nome:'') + ' — tocca la mappa!');
+  }
+};
+
+window.removeMappaPos = async function(piantaId) {
+  delete mappaPositions[piantaId];
+  try { await deleteDoc(doc(db,'mappa',piantaId)); } catch(e) {}
+  if (selectedPiantaId === piantaId) selectedPiantaId = null;
+  disegnaMarker();
+  renderMappaPiante();
+  showToast('Posizione rimossa');
+};
 
 window.changeMappa = function(input) {
   const file = input.files[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = (e) => {
-    // Salva la nuova mappa in localStorage
     try {
       localStorage.setItem('mappaCustom', e.target.result);
-      document.getElementById('mappaImg').src = e.target.result;
-      showToast('✅ Mappa aggiornata! Le posizioni esistenti sono state mantenute.');
+      const img = document.getElementById('mappaImg');
+      img.src = e.target.result;
+      img.onload = setupMappaCanvas;
+      showToast('✅ Mappa aggiornata!');
     } catch(err) {
-      showToast('❌ Immagine troppo grande. Usa una foto più piccola.');
+      showToast('❌ Immagine troppo grande.');
     }
   };
   reader.readAsDataURL(file);
-};
-
-window.removeMappaPosition = async function(piantaId) {
-  delete mappaPositions[piantaId];
-  await deleteDoc(doc(db,'mappa',piantaId));
-  renderMappa();
-  showToast('Posizione rimossa');
-};
-
-window.posizionaPrimaLibera = function(piantaId) {
-  const container = document.getElementById('mappaContainer');
-  if (!container) return;
-
-  // Evidenzia la mappa per indicare che è in attesa di click
-  container.style.border = '3px solid var(--g5)';
-  container.style.cursor = 'crosshair';
-  showToast('📍 Tocca il punto della mappa dove vuoi posizionare la pianta');
-
-  const getCoords = (clientX, clientY) => {
-    const rect = container.getBoundingClientRect();
-    const x = Math.max(2, Math.min(98, ((clientX - rect.left) / rect.width) * 100));
-    const y = Math.max(2, Math.min(98, ((clientY - rect.top) / rect.height) * 100));
-    return {x, y};
-  };
-
-  const placeAt = async (x, y) => {
-    container.style.border = '2px solid var(--border)';
-    container.style.cursor = '';
-    await saveMappaPosition(piantaId, x, y);
-    renderMappa();
-    showToast('✅ Pianta posizionata!');
-  };
-
-  // Handler click (PC)
-  const clickHandler = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const {x, y} = getCoords(e.clientX, e.clientY);
-    container.removeEventListener('click', clickHandler);
-    container.removeEventListener('touchend', touchHandler);
-    placeAt(x, y);
-  };
-
-  // Handler touch (mobile)
-  const touchHandler = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-    const t = e.changedTouches[0];
-    const {x, y} = getCoords(t.clientX, t.clientY);
-    container.removeEventListener('click', clickHandler);
-    container.removeEventListener('touchend', touchHandler);
-    placeAt(x, y);
-  };
-
-  container.addEventListener('click', clickHandler);
-  container.addEventListener('touchend', touchHandler, {passive:false});
 };
 
 // ══════════════════════════════════════════
