@@ -534,6 +534,7 @@ canvas{max-width:100%}
       <button class="drawer-item" id="dnavLog" onclick="drawerNav('Log')"><i class="ti ti-history"></i>Log modifiche</button>
 
       <div class="drawer-section">Strumenti</div>
+      <button class="drawer-item" id="dnavEnciclopedia" onclick="drawerNav('Enciclopedia')"><i class="ti ti-books"></i>Enciclopedia</button>
       <button class="drawer-item" id="dnavAI" onclick="drawerNav('AI')"><i class="ti ti-sparkles"></i>AI Consigli</button>
       <button class="drawer-item" id="dnavMeteo" onclick="drawerNav('Meteo')"><i class="ti ti-cloud"></i>Meteo</button>
       <button class="drawer-item" id="dnavBacheca" onclick="drawerNav('Bacheca')"><i class="ti ti-message-circle"></i>Bacheca</button>
@@ -566,6 +567,15 @@ canvas{max-width:100%}
     <i class="ti ti-eye" style="font-size:16px"></i> Modalità sola lettura — puoi visualizzare ma non modificare i dati
   </div>
   <div class="content">
+    <!-- ENCICLOPEDIA -->
+    <div id="panelEnciclopedia" class="tab-panel">
+      <div style="margin-bottom:1rem">
+        <input type="text" class="form-control" id="enciSearch" placeholder="🔍 Cerca nell'enciclopedia..." oninput="filterEnci(this.value)" style="border-radius:25px;padding:10px 18px">
+      </div>
+      <div class="enci-grid" id="enciGrid"></div>
+      <div id="enciDetail"></div>
+    </div>
+
     <!-- DASHBOARD -->
     <div id="panelDashboard" class="tab-panel active">
       <div class="dashboard" id="dashContent"></div>
@@ -1136,7 +1146,7 @@ function showScreen(id) {
 }
 
 window.switchTab = function(name) {
-  const panels = ['Dashboard','Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese','Mappa','Bacheca','Ricerca','Log','Kanban'];
+  const panels = ['Dashboard','Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese','Mappa','Bacheca','Ricerca','Log','Kanban','Enciclopedia'];
   panels.forEach(t => {
     document.getElementById('panel'+t)?.classList.toggle('active', t===name);
     const nav = document.getElementById('nav'+t);
@@ -1158,6 +1168,7 @@ window.switchTab = function(name) {
   if (name==='Log') loadLog();
   if (name==='Kanban') initKanban();
   if (name==='Dashboard') initDashboard();
+  if (name==='Enciclopedia') initEnciclopedia();
 };
 
 // ── MODALS ─────────────────────────────────────────────
@@ -1646,6 +1657,237 @@ window.clearSearch = function() {
   document.getElementById('searchInput').value = '';
   document.getElementById('searchClear').style.display = 'none';
   document.getElementById('searchResults').innerHTML = '<div class="search-empty">🔍 Scrivi per cercare in tutto il giardino</div>';
+};
+
+// ══════════════════════════════════════════
+// ENCICLOPEDIA PIANTE
+// ══════════════════════════════════════════
+const enciclopedia = {
+  'Olivo': {
+    emoji: '🫒', tipo: 'Albero da frutto',
+    descrizione: "Albero sempreverde simbolo del Mediterraneo, longevo e resistente alla siccita. Produce olive da cui si ricava olio di alta qualita.",
+    origineHabitat: "Bacino del Mediterraneo, zone aride e soleggiate.",
+    curiosita: "Gli olivi possono vivere migliaia di anni. Alcuni esemplari in Sardegna hanno oltre 3.000 anni.",
+    potatura: { mesi: [1,2,3], note: "Potatura invernale o dopo raccolta. Eliminare rami secchi e sfoltire la chioma." },
+    concimatura: { mesi: [3,4,9], note: "Concimazione primaverile azotata e autunnale con potassio." },
+    irrigazione: { mesi: [6,7,8], note: "Irrigazione estiva moderata. Resiste bene alla siccita." },
+    raccolta: { mesi: [10,11,12], note: "Raccolta ottobre-dicembre a seconda della varieta e grado di maturazione." },
+    parassiti: "Mosca dell'olivo (Bactrocera oleae), rogna, occhio di pavone.",
+    difficolta: '⭐⭐ Facile',
+    acqua: '💧 Bassa',
+  },
+  'Albero da frutto': {
+    emoji: '🍎', tipo: 'Albero da frutto',
+    descrizione: "Categoria che include melo, pero, ciliegio, pesco, albicocco e altri. Ogni specie ha caratteristiche proprie ma condivide esigenze di cura simili.",
+    origineHabitat: "Zone temperate, preferisce terreni ben drenati e soleggiati.",
+    curiosita: "La produttivita massima si raggiunge tra 5 e 15 anni di eta. La potatura regolare e fondamentale per una buona produzione.",
+    potatura: { mesi: [1,2,3], note: "Potatura invernale a riposo vegetativo. Potatura verde in estate per le drupe." },
+    concimatura: { mesi: [2,3,9], note: "Concimazione pre-fioritura e post-raccolta." },
+    irrigazione: { mesi: [5,6,7,8], note: "Irrigazione regolare in estate, fondamentale durante ingrossamento frutti." },
+    raccolta: { mesi: [6,7,8,9,10], note: "Varia per specie: ciliegie in giugno, pesche in agosto, mele e pere in settembre-ottobre." },
+    parassiti: "Afidi, cocciniglie, ticchiolatura, bolla del pesco.",
+    difficolta: '⭐⭐⭐ Media',
+    acqua: '💧💧 Media',
+  },
+  'Vite': {
+    emoji: '🍇', tipo: 'Vite',
+    descrizione: "Pianta rampicante che produce uva da tavola o da vino. Richiede supporti e potatura accurata per una produzione ottimale.",
+    origineHabitat: "Originaria dell'Asia occidentale, coltivata in tutto il Mediterraneo.",
+    curiosita: "Una vite ben curata puo produrre per oltre 100 anni. La qualita del vino dipende molto dal terroir.",
+    potatura: { mesi: [1,2], note: "Potatura invernale (Guyot o cordone speronato). Fondamentale per regolare la produzione." },
+    concimatura: { mesi: [3,4], note: "Concimazione primaverile con azoto e potassio." },
+    irrigazione: { mesi: [6,7], note: "Irrigazione moderata. Lo stress idrico controllato migliora la qualita delle uve." },
+    raccolta: { mesi: [8,9,10], note: "Vendemmia agosto-ottobre secondo varieta e destinazione." },
+    parassiti: "Peronospora, oidio, botrite, tignoletta.",
+    difficolta: '⭐⭐⭐ Media',
+    acqua: '💧 Bassa-Media',
+  },
+  'Verdura': {
+    emoji: '🥬', tipo: 'Verdura',
+    descrizione: "Ortaggi da orto con ciclo breve o stagionale. Richiedono cure costanti ma danno soddisfazioni immediate.",
+    origineHabitat: "Varie origini. Preferiscono terreni fertili, ben lavorati e ben esposti.",
+    curiosita: "Ruotare le colture ogni anno previene le malattie del suolo e mantiene la fertilita del terreno.",
+    potatura: { mesi: [], note: "Non richiede potatura. Scacchiatura per pomodori e peperoni." },
+    concimatura: { mesi: [3,4,5,6], note: "Concimazione organica prima del trapianto e durante la coltivazione." },
+    irrigazione: { mesi: [4,5,6,7,8,9], note: "Irrigazione regolare e costante. Evitare ristagni." },
+    raccolta: { mesi: [5,6,7,8,9,10], note: "Raccolta continua durante la stagione di crescita." },
+    parassiti: "Afidi, lumache, nottue, peronospora, alternaria.",
+    difficolta: '⭐⭐ Facile-Media',
+    acqua: '💧💧💧 Alta',
+  },
+  'Erba aromatica': {
+    emoji: '🌿', tipo: 'Erba aromatica',
+    descrizione: "Basilico, rosmarino, salvia, timo, prezzemolo e altre. Utili in cucina e attraenti per gli insetti impollinatori.",
+    origineHabitat: "Prevalentemente Mediterraneo. Amano sole e terreni ben drenati.",
+    curiosita: "Molte aromatiche hanno proprieta officinali oltre a quelle culinarie. Il rosmarino puo vivere decenni.",
+    potatura: { mesi: [3,4,5,9], note: "Potatura regolare per mantenere la pianta compatta e stimolare nuovi germogli." },
+    concimatura: { mesi: [3,9], note: "Concimazione leggera primaverile e autunnale. Non esagerare con azoto." },
+    irrigazione: { mesi: [6,7,8], note: "Irrigazione moderata. La maggior parte resiste bene alla siccita." },
+    raccolta: { mesi: [4,5,6,7,8,9,10], note: "Raccolta continuativa durante tutta la stagione vegetativa." },
+    parassiti: "Afidi, cocciniglie, oidio.",
+    difficolta: '⭐ Molto facile',
+    acqua: '💧 Bassa',
+  },
+  'Albero ornamentale': {
+    emoji: '🌲', tipo: 'Albero ornamentale',
+    descrizione: "Alberi coltivati per scopo estetico: forma, fogliame, fiori o frutti decorativi. Valorizzano il paesaggio del giardino.",
+    origineHabitat: "Varie origini secondo la specie.",
+    curiosita: "Gli alberi ornamentali aumentano il valore della proprieta fino al 15% e migliorano il microclima.",
+    potatura: { mesi: [1,2,3,10,11], note: "Potatura di formazione in inverno. Sfoltimento per mantenere la forma." },
+    concimatura: { mesi: [3,4], note: "Concimazione primaverile con fertilizzante equilibrato." },
+    irrigazione: { mesi: [6,7,8], note: "Irrigazione estiva per piante giovani. Gli adulti sono spesso autosufficienti." },
+    raccolta: { mesi: [], note: "Non applicabile." },
+    parassiti: "Varia per specie. Monitorare afidi e cocciniglie.",
+    difficolta: '⭐⭐ Facile',
+    acqua: '💧 Bassa-Media',
+  },
+  'Arbusto': {
+    emoji: '🌿', tipo: 'Arbusto',
+    descrizione: "Piante legnose di dimensioni ridotte, usate per siepi, bordure o come elementi decorativi nel giardino.",
+    origineHabitat: "Varie origini. Adattabili a molti ambienti.",
+    curiosita: "Gli arbusti fioriti come bouganville e oleandro sono tra le piante piu decorative del giardino mediterraneo.",
+    potatura: { mesi: [2,3,9,10], note: "Potatura dopo la fioritura per arbusti fioriti. Sfoltimento invernale per gli altri." },
+    concimatura: { mesi: [3,4], note: "Concimazione primaverile." },
+    irrigazione: { mesi: [6,7,8], note: "Irrigazione estiva moderata." },
+    raccolta: { mesi: [], note: "Non applicabile." },
+    parassiti: "Afidi, cocciniglie, oidio.",
+    difficolta: '⭐⭐ Facile',
+    acqua: '💧 Bassa-Media',
+  },
+  'Fiore': {
+    emoji: '🌸', tipo: 'Fiore',
+    descrizione: "Piante erbacee o arbustive coltivate per la bellezza dei fiori. Includono annuali, biennali e perenni.",
+    origineHabitat: "Varie origini. Le esigenze variano molto per specie.",
+    curiosita: "I fiori attraggono impollinatori fondamentali per la salute dell'intero giardino.",
+    potatura: { mesi: [3,9], note: "Deadheading (eliminazione fiori appassiti) per prolungare la fioritura." },
+    concimatura: { mesi: [3,4,5,6], note: "Concimazione regolare durante la stagione di crescita con fertilizzante ricco di fosforo." },
+    irrigazione: { mesi: [4,5,6,7,8], note: "Irrigazione regolare. Evitare di bagnare i fiori." },
+    raccolta: { mesi: [4,5,6,7,8,9], note: "Raccolta fiori recisi nelle ore fresche del mattino." },
+    parassiti: "Afidi, tripidi, acari, botrite.",
+    difficolta: '⭐⭐ Facile-Media',
+    acqua: '💧💧 Media',
+  },
+};
+
+let enciFilter = '';
+
+function initEnciclopedia() {
+  renderEnciGrid();
+}
+
+function renderEnciGrid() {
+  const grid = document.getElementById('enciGrid');
+  const detail = document.getElementById('enciDetail');
+  if (!grid) return;
+  detail.innerHTML = '';
+  detail.className = 'enci-detail';
+
+  // Tipi di piante presenti nel giardino
+  const tipiPresenti = [...new Set(piante.map(p => p.tipo).filter(Boolean))];
+  // Aggiungi anche i tipi dell'enciclopedia
+  const tuttiTipi = [...new Set([...tipiPresenti, ...Object.keys(enciclopedia)])];
+
+  const filtrati = tuttiTipi.filter(t =>
+    !enciFilter || t.toLowerCase().includes(enciFilter.toLowerCase())
+  );
+
+  grid.innerHTML = filtrati.map(tipo => {
+    const dati = enciclopedia[tipo] || {emoji: emojiTipo[tipo]||'🪴', tipo};
+    const numPiante = piante.filter(p => p.tipo === tipo).length;
+    return `<div class="enci-card" onclick="openEnciDetail('${tipo}')">
+      <div class="enci-emoji">${dati.emoji||'🪴'}</div>
+      <div class="enci-name">${tipo}</div>
+      <div class="enci-type">${numPiante > 0 ? numPiante+' nel giardino' : 'Non presente'}</div>
+    </div>`;
+  }).join('');
+}
+
+window.filterEnci = function(q) {
+  enciFilter = q;
+  renderEnciGrid();
+};
+
+window.openEnciDetail = function(tipo) {
+  const detail = document.getElementById('enciDetail');
+  const dati = enciclopedia[tipo];
+  const pianteTipo = piante.filter(p => p.tipo === tipo);
+  const mesiNomi = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+
+  const calRow = (label, mesi, cls) => `
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+      <div style="font-size:11px;color:var(--muted);width:70px;flex-shrink:0">${label}</div>
+      <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:2px;flex:1">
+        ${mesiNomi.map((_,i) => `<div class="enci-dot ${mesi&&mesi.includes(i+1)?'active-'+cls.charAt(0):''}" title="${mesiNomi[i]}"></div>`).join('')}
+      </div>
+    </div>`;
+
+  if (!dati) {
+    detail.className = 'enci-detail open';
+    detail.innerHTML = `<div class="card">
+      <div style="font-size:32px;text-align:center">${emojiTipo[tipo]||'🪴'}</div>
+      <div style="text-align:center;font-size:18px;font-family:'Lora',serif;color:var(--g8);margin:.5rem 0">${tipo}</div>
+      <div style="font-size:13px;color:var(--muted);text-align:center">Scheda non ancora disponibile in enciclopedia.<br>Usa il consiglio AI per informazioni specifiche!</div>
+      <button class="btn btn-ai" style="margin-top:1rem;width:100%" onclick="drawerNav('AI')"><i class="ti ti-sparkles"></i> Chiedi all'AI</button>
+    </div>`;
+    detail.scrollIntoView({behavior:'smooth', block:'start'});
+    return;
+  }
+
+  detail.className = 'enci-detail open';
+  detail.innerHTML = `<div class="card">
+    <div class="enci-detail-header">
+      <div class="enci-detail-icon">${dati.emoji}</div>
+      <div>
+        <div class="enci-detail-title">${tipo}</div>
+        <div class="enci-detail-sub">${dati.difficolta} · ${dati.acqua}</div>
+        ${pianteTipo.length?`<div style="font-size:11px;color:var(--g7);margin-top:3px">🌱 Nel tuo giardino: ${pianteTipo.map(p=>p.nome).join(', ')}</div>`:''}
+      </div>
+    </div>
+
+    <div class="enci-section">
+      <div class="enci-section-title">📖 Descrizione</div>
+      <div class="enci-section-content">${dati.descrizione}</div>
+    </div>
+
+    <div class="enci-section">
+      <div class="enci-section-title">🌍 Origine e habitat</div>
+      <div class="enci-section-content">${dati.origineHabitat}</div>
+    </div>
+
+    <div class="enci-section">
+      <div class="enci-section-title">📅 Calendario cure</div>
+      <div style="margin-bottom:.5rem">
+        <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:2px;margin-left:76px;margin-bottom:4px">
+          ${mesiNomi.map(m=>`<div style="font-size:8px;color:var(--muted);text-align:center">${m}</div>`).join('')}
+        </div>
+        ${calRow('✂️ Potatura', dati.potatura?.mesi, 'potatura')}
+        ${calRow('🌱 Concima', dati.concimatura?.mesi, 'concimatura')}
+        ${calRow('💧 Irrigaz.', dati.irrigazione?.mesi, 'irrigazione')}
+        ${dati.raccolta?.mesi?.length?calRow('🍎 Raccolta', dati.raccolta?.mesi, 'raccolta'):''}
+      </div>
+      <div class="enci-legend">
+        <div class="enci-legend-item"><div class="enci-legend-dot" style="background:#3b82f6"></div>Potatura</div>
+        <div class="enci-legend-item"><div class="enci-legend-dot" style="background:#16a34a"></div>Concimatura</div>
+        <div class="enci-legend-item"><div class="enci-legend-dot" style="background:#0891b2"></div>Irrigazione</div>
+        ${dati.raccolta?.mesi?.length?'<div class="enci-legend-item"><div class="enci-legend-dot" style="background:#dc2626"></div>Raccolta</div>':''}
+      </div>
+    </div>
+
+    <div class="enci-section">
+      <div class="enci-section-title">⚠️ Parassiti e malattie</div>
+      <div class="enci-section-content">${dati.parassiti}</div>
+    </div>
+
+    <div class="enci-section">
+      <div class="enci-section-title">💡 Lo sapevi?</div>
+      <div class="enci-section-content" style="font-style:italic;color:var(--muted)">${dati.curiosita}</div>
+    </div>
+
+    <button class="btn btn-ai" style="width:100%;margin-top:.5rem" onclick="drawerNav('AI')">
+      <i class="ti ti-sparkles"></i> Chiedi consiglio AI su ${tipo}
+    </button>
+  </div>`;
+  detail.scrollIntoView({behavior:'smooth', block:'start'});
 };
 
 // ══════════════════════════════════════════
