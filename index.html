@@ -551,7 +551,7 @@ canvas{max-width:100%}
       <button class="hamburger" onclick="openDrawer()" aria-label="Menu"><i class="ti ti-menu-2"></i></button>
       <div>
         <div class="top-brand-name" style="font-size:15px;color:var(--g8);font-family:'Lora',serif">Giardino di Quintilina</div>
-        <div class="top-brand-sub" id="headerSub" style="font-size:11px;color:var(--muted)">Caricamento...</div>
+        <div class="top-brand-sub" id="headerSub" style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px"><span id="liveDot" style="width:6px;height:6px;border-radius:50%;background:var(--g5);display:none"></span><span id="headerSubText">Caricamento...</span></div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
@@ -1065,7 +1065,8 @@ canvas{max-width:100%}
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
-  getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, setDoc
+  getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, setDoc,
+  onSnapshot
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 // ── STATE ──────────────────────────────────────────────
@@ -1335,7 +1336,12 @@ window.doLogin = function() {
 };
 
 window.doLogout = function() {
-  currentUser = ''; currentRole = 'admin'; piante = []; attivita = [];
+  // Disconnetti tutti i listener real-time
+  if (_unsubPiante) { _unsubPiante(); _unsubPiante = null; }
+  if (_unsubAttivita) { _unsubAttivita(); _unsubAttivita = null; }
+  if (_unsubSpese) { _unsubSpese(); _unsubSpese = null; }
+  if (_unsubBacheca) { _unsubBacheca(); _unsubBacheca = null; }
+  currentUser = ''; currentRole = 'admin'; piante = []; attivita = []; spese = []; note = [];
   document.getElementById('loginPin').value = '';
   showScreen('screenSetup');
 };
@@ -2505,27 +2511,64 @@ function applyRoleUI() {
 }
 
 // ── LOAD DATA ──────────────────────────────────────────
+let _unsubPiante = null, _unsubAttivita = null, _unsubSpese = null, _unsubBacheca = null;
+
 async function loadAll() {
-  document.getElementById('headerSub').textContent = 'Aggiornamento...';
-  if (!db) { document.getElementById('headerSub').textContent = 'Firebase non configurato'; return; }
-  const [snapP, snapA] = await Promise.all([
-    getDocs(query(collection(db,'piante'), orderBy('nome'))),
-    getDocs(query(collection(db,'attivita'), orderBy('data_eseguita','desc')))
-  ]);
-  piante   = snapP.docs.map(d => ({id:d.id, ...d.data()}));
-  attivita = snapA.docs.map(d => ({id:d.id, ...d.data()}));
-  document.getElementById('headerSub').textContent = 'Aggiornato: ' + new Date().toLocaleDateString('it-IT');
-  renderAll();
-  checkScadenzeBadge();
-  await loadSpese();
-  // Auto-importa storico se admin e spese vuote
-  if (currentRole === 'admin' && spese.length === 0) {
-    setTimeout(async () => {
-      if (confirm('Nessuna spesa trovata. Vuoi importare lo storico dal Google Sheet?')) {
-        await window.importStorico();
-      }
-    }, 800);
-  }
+  document.getElementById('headerSubText').textContent = 'Connessione...';
+  if (!db) { document.getElementById('headerSubText').textContent = 'Firebase non configurato'; return; }
+
+  // Disconnetti listener precedenti
+  if (_unsubPiante) _unsubPiante();
+  if (_unsubAttivita) _unsubAttivita();
+  if (_unsubSpese) _unsubSpese();
+  if (_unsubBacheca) _unsubBacheca();
+
+  // Listener real-time piante
+  _unsubPiante = onSnapshot(query(collection(db,'piante'), orderBy('nome')), snap => {
+    piante = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    const liveDot = document.getElementById('liveDot');
+    const headerSubText = document.getElementById('headerSubText');
+    if (liveDot) liveDot.style.display = 'inline-block';
+    if (headerSubText) headerSubText.textContent = 'Live · ' + new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+    renderAll();
+    checkScadenzeBadge();
+  }, err => console.error('Piante listener:', err));
+
+  // Listener real-time attivita
+  _unsubAttivita = onSnapshot(query(collection(db,'attivita'), orderBy('data_eseguita','desc')), snap => {
+    attivita = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    renderAll();
+    checkScadenzeBadge();
+  }, err => console.error('Attivita listener:', err));
+
+  // Listener real-time spese
+  _unsubSpese = onSnapshot(query(collection(db,'spese'), orderBy('data','desc')), snap => {
+    spese = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    // Auto-importa storico se admin e spese vuote
+    if (currentRole === 'admin' && spese.length === 0) {
+      setTimeout(async () => {
+        if (confirm('Nessuna spesa trovata. Vuoi importare lo storico dal Google Sheet?')) {
+          await window.importStorico();
+        }
+      }, 800);
+    }
+  }, err => console.error('Spese listener:', err));
+
+  // Listener real-time bacheca
+  _unsubBacheca = onSnapshot(query(collection(db,'bacheca'), orderBy('timestamp','desc')), snap => {
+    note = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    // Aggiorna bacheca se aperta
+    const panelBacheca = document.getElementById('panelBacheca');
+    if (panelBacheca?.classList.contains('active')) renderBacheca();
+  }, err => console.error('Bacheca listener:', err));
+
+  // Notifiche admin dopo caricamento iniziale
+  setTimeout(() => {
+    if (currentRole === 'admin') {
+      checkAndNotify();
+      checkAndSendMonthlyReport();
+    }
+  }, 4000);
 }
 
 function renderAll() {
