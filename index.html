@@ -73,6 +73,7 @@ h1,h2,h3{font-family:'Lora',serif}
 .drawer-section{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:.75rem 1rem .25rem}
 .drawer-item{display:flex;align-items:center;gap:12px;padding:11px 1rem;cursor:pointer;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);border:none;background:transparent;width:100%;text-align:left;transition:all .15s;border-left:3px solid transparent}
 .drawer-item:hover{background:var(--g0);color:var(--g7)}
+.drawer-item:active{transform:scale(.98)}
 .drawer-item.active{background:var(--g1);color:var(--g7);border-left-color:var(--g7);font-weight:600}
 .drawer-item i{font-size:20px;width:24px;text-align:center;flex-shrink:0}
 .drawer-item .badge-urgente{background:var(--r6);color:#fff;border-radius:20px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:auto}
@@ -549,6 +550,7 @@ canvas{max-width:100%}
   <div class="top-bar">
     <div style="display:flex;align-items:center;gap:10px">
       <button class="hamburger" onclick="openDrawer()" aria-label="Menu"><i class="ti ti-menu-2"></i></button>
+      <button onclick="drawerNav('Dashboard')" style="background:transparent;border:none;cursor:pointer;padding:6px;color:var(--g7);font-size:22px;display:flex;align-items:center;transition:transform .2s" title="Home" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"><i class="ti ti-home"></i></button>
       <div>
         <div class="top-brand-name" style="font-size:15px;color:var(--g8);font-family:'Lora',serif">Giardino di Quintilina</div>
         <div class="top-brand-sub" id="headerSub" style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px"><span id="liveDot" style="width:6px;height:6px;border-radius:50%;background:var(--g5);display:none"></span><span id="headerSubText">Caricamento...</span></div>
@@ -2079,6 +2081,16 @@ async function initDashboard() {
         </div>`).join('')}
     </div>` : ''}
 
+    <div class="card dash-animate" id="dashAiBox" style="padding:1rem;background:linear-gradient(135deg,var(--g1),var(--t1));border-color:var(--g2)">
+      <div class="dash-section-title" style="color:var(--g8)">
+        🤖 Consiglio AI del giorno
+        <span class="dash-section-link" onclick="refreshDashAi()">↻ Aggiorna</span>
+      </div>
+      <div id="dashAiContent" style="font-size:13px;color:var(--g9);line-height:1.7;min-height:60px">
+        <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Caricamento consiglio...</span></div>
+      </div>
+    </div>
+
     <div class="card dash-animate" style="padding:1rem">
       <div class="dash-section-title">🚀 Accesso rapido</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
@@ -2090,6 +2102,75 @@ async function initDashboard() {
       </div>
     </div>
   `;
+
+  // Carica consiglio AI
+  getDashAiSuggestion();
+}
+
+window.refreshDashAi = function() {
+  localStorage.removeItem('dashAiCache');
+  getDashAiSuggestion();
+};
+
+async function getDashAiSuggestion() {
+  const el = document.getElementById('dashAiContent');
+  if (!el) return;
+
+  // Cache per evitare troppe chiamate API (valida 6 ore)
+  const cached = localStorage.getItem('dashAiCache');
+  const cachedTime = localStorage.getItem('dashAiCacheTime');
+  if (cached && cachedTime && (Date.now() - parseInt(cachedTime)) < 6*60*60*1000) {
+    el.innerHTML = cached;
+    return;
+  }
+
+  const apiKey = localStorage.getItem('geminiApiKey');
+  if (!apiKey) {
+    el.innerHTML = '<span style="color:var(--muted);font-size:12px">Configura la chiave Groq nella sezione AI per ricevere consigli personalizzati.</span>';
+    return;
+  }
+
+  // Raccoglie info per il prompt
+  const mese = new Date().toLocaleDateString('it-IT',{month:'long'});
+  const stagione = [11,0,1].includes(new Date().getMonth()) ? 'inverno' : [2,3,4].includes(new Date().getMonth()) ? 'primavera' : [5,6,7].includes(new Date().getMonth()) ? 'estate' : 'autunno';
+  const tipologie = [...new Set(piante.map(p=>p.tipo).filter(Boolean))].join(', ');
+  const scadute = attivita.filter(a => a.data_prossima && Math.round((new Date(a.data_prossima)-new Date())/86400000) < 0).length;
+  const prossime = attivita.filter(a => a.data_prossima && Math.round((new Date(a.data_prossima)-new Date())/86400000) <= 7 && Math.round((new Date(a.data_prossima)-new Date())/86400000) >= 0).length;
+
+  // Meteo attuale
+  let meteoInfo = 'meteo non disponibile';
+  const owmKey = localStorage.getItem('owmKey');
+  if (owmKey) {
+    try {
+      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Terracina&appid=${owmKey}&units=metric&lang=it`);
+      const w = await res.json();
+      if (w.cod === 200) meteoInfo = `${Math.round(w.main.temp)}C, ${w.weather[0].description}, umidita ${w.main.humidity}%`;
+    } catch(e) {}
+  }
+
+  const prompt = `Sei un esperto giardiniere che conosce bene il clima mediterraneo di Terracina (Lazio, Italia).
+Oggi e' ${new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})}, stagione: ${stagione}.
+Meteo attuale a Terracina: ${meteoInfo}.
+Il giardino ha queste piante: ${tipologie||'varie'}.
+Situazione scadenze: ${scadute} attivita scadute, ${prossime} in scadenza entro 7 giorni.
+
+Dai UN consiglio pratico e specifico per oggi/questa settimana, considerando il meteo e la stagione.
+Massimo 3 frasi. Usa 1-2 emoji. Sii diretto e concreto.`;
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.7})
+    });
+    const data = await res.json();
+    const text = data.choices?.[0]?.message?.content || 'Nessun consiglio disponibile.';
+    el.innerHTML = text;
+    localStorage.setItem('dashAiCache', text);
+    localStorage.setItem('dashAiCacheTime', Date.now().toString());
+  } catch(e) {
+    el.innerHTML = '<span style="color:var(--muted);font-size:12px">Consiglio non disponibile al momento.</span>';
+  }
 }
 
 // ══════════════════════════════════════════
