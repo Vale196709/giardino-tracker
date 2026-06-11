@@ -1,3 +1,11 @@
+
+index.txt
+
+Pagina
+1
+/
+1
+100%
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -49,6 +57,23 @@ body.dark input, body.dark select, body.dark textarea { background:var(--surf); 
 body.dark .pill { background:var(--surf); color:var(--muted); border-color:var(--border); }
 body.dark .pill.active { background:var(--g7); color:#fff; }
 body.dark #screenSetup { background:linear-gradient(155deg,#0a1f0c 0%,#0d1f0f 60%,#081a14 100%); }
+/* SPLASH SCREEN */
+#splashScreen{position:fixed;inset:0;background:linear-gradient(155deg,#0a1f0c 0%,#1a7a3e 50%,#0f3d20 100%);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .6s ease,visibility .6s ease}
+#splashScreen.hide{opacity:0;visibility:hidden;pointer-events:none}
+.splash-logo{font-size:80px;animation:splashBounce .8s ease forwards;opacity:0;filter:drop-shadow(0 8px 24px rgba(0,0,0,.4))}
+@keyframes splashBounce{0%{opacity:0;transform:scale(.3) translateY(30px)}60%{opacity:1;transform:scale(1.15) translateY(-10px)}80%{transform:scale(.95) translateY(5px)}100%{opacity:1;transform:scale(1) translateY(0)}}
+.splash-title{font-family:'Lora',serif;font-size:28px;color:#fff;margin-top:1.25rem;opacity:0;animation:splashFade .6s ease .5s forwards;letter-spacing:-.3px;text-align:center}
+.splash-sub{font-size:14px;color:rgba(255,255,255,.7);margin-top:6px;opacity:0;animation:splashFade .6s ease .7s forwards;text-align:center}
+@keyframes splashFade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.splash-loader{margin-top:2.5rem;width:48px;height:3px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden;opacity:0;animation:splashFade .4s ease .9s forwards}
+.splash-loader-bar{height:100%;background:#fff;border-radius:2px;animation:splashLoad 1.5s ease .9s forwards}
+@keyframes splashLoad{0%{width:0}60%{width:70%}100%{width:100%}}
+.splash-dots{display:flex;gap:6px;margin-top:1.5rem;opacity:0;animation:splashFade .4s ease .9s forwards}
+.splash-dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,.4);animation:splashDotPulse 1.2s ease infinite}
+.splash-dot:nth-child(2){animation-delay:.2s}
+.splash-dot:nth-child(3){animation-delay:.4s}
+@keyframes splashDotPulse{0%,100%{background:rgba(255,255,255,.3);transform:scale(1)}50%{background:#fff;transform:scale(1.3)}}
+
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 h1,h2,h3{font-family:'Lora',serif}
@@ -790,6 +815,7 @@ canvas{max-width:100%}
     <div id="panelBacheca" class="tab-panel">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem">
         <div class="section-title">💬 Bacheca condivisa</div>
+        <span style="font-size:11px;color:var(--muted)" id="bachecaLiveIndicator"></span>
       </div>
       <div class="card" style="padding:.75rem">
         <div class="form-group" style="margin-bottom:.5rem">
@@ -1158,7 +1184,7 @@ window.switchTab = function(name) {
   currentTab = name;
   // Mostra/nascondi FAB in base al tab
   const fab = document.querySelector('.fab');
-  const tabsConFab = ['Scadenze','Piante','Spese','AI','Storico'];
+  const tabsConFab = ['Scadenze','Piante','Spese','AI','Storico','Bacheca'];
   if (fab) fab.style.display = (currentRole!=='user' && tabsConFab.includes(name)) ? 'flex' : 'none';
   if (name==='Calendario') renderCalendar();
   if (name==='Stats') renderCharts();
@@ -1197,10 +1223,12 @@ window.closeDrawer = function() {
 window.drawerNav = function(name) {
   closeDrawer();
   switchTab(name);
-  // Aggiorna active state nel drawer
   document.querySelectorAll('.drawer-item').forEach(b => b.classList.remove('active'));
   const btn = document.getElementById('dnav'+name);
   if (btn) btn.classList.add('active');
+  // Scroll in cima al contenuto
+  const content = document.querySelector('.content');
+  if (content) content.scrollTop = 0;
 };
 
 function launchConfetti() {
@@ -2062,10 +2090,10 @@ async function initDashboard() {
         </div>`;
       }).join('')}
     </div>` : `
-    <div class="card dash-animate" style="padding:1rem;text-align:center">
-      <div style="font-size:32px">🎉</div>
-      <div style="font-size:14px;color:var(--g7);font-weight:600;margin-top:6px">Tutto in ordine!</div>
-      <div style="font-size:12px;color:var(--muted)">Nessuna scadenza urgente</div>
+    <div class="card dash-animate" style="padding:1rem;text-align:center;background:var(--g0);border-color:var(--g2)">
+      <div style="font-size:36px">🎉</div>
+      <div style="font-size:15px;color:var(--g7);font-weight:700;margin-top:6px;font-family:'Lora',serif">Tutto in ordine!</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">Nessuna scadenza urgente questa settimana</div>
     </div>`}
 
     ${ultimeNote.length ? `
@@ -2637,10 +2665,13 @@ async function loadAll() {
 
   // Listener real-time bacheca
   _unsubBacheca = onSnapshot(query(collection(db,'bacheca'), orderBy('timestamp','desc')), snap => {
+    const wasEmpty = note.length === 0;
     note = snap.docs.map(d => ({id:d.id, ...d.data()}));
-    // Aggiorna bacheca se aperta
     const panelBacheca = document.getElementById('panelBacheca');
     if (panelBacheca?.classList.contains('active')) renderBacheca();
+    // Indicatore live bacheca
+    const ind = document.getElementById('bachecaLiveIndicator');
+    if (ind && !wasEmpty) ind.textContent = 'Aggiornato ' + new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
   }, err => console.error('Bacheca listener:', err));
 
   // Notifiche admin dopo caricamento iniziale
@@ -3190,6 +3221,12 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
   // Tasto Enter sul PIN
   document.getElementById('loginPin').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
 
+  // Nascondi splash screen dopo caricamento
+  setTimeout(() => {
+    const splash = document.getElementById('splashScreen');
+    if (splash) splash.classList.add('hide');
+  }, 2200);
+
   // Carica preferenza dark mode
   if (localStorage.getItem('darkMode') === '1') {
     document.body.classList.add('dark');
@@ -3497,7 +3534,7 @@ window.updateSpesa = async function() {
   document.getElementById('modalSpesa').querySelector('.btn-row').innerHTML = `
     <button class="btn btn-primary" style="flex:1" onclick="saveSpesa()"><i class="ti ti-device-floppy"></i> Salva</button>
     <button class="btn btn-secondary" onclick="closeModal('modalSpesa')">Annulla</button>`;
-  renderSpese(); showToast('✅ Spesa aggiornata');
+  showToast('✅ Spesa aggiornata');
 };
 
 window.deleteSpesa = async function() {
@@ -3508,7 +3545,7 @@ window.deleteSpesa = async function() {
   document.getElementById('modalSpesa').querySelector('.btn-row').innerHTML = `
     <button class="btn btn-primary" style="flex:1" onclick="saveSpesa()"><i class="ti ti-device-floppy"></i> Salva</button>
     <button class="btn btn-secondary" onclick="closeModal('modalSpesa')">Annulla</button>`;
-  renderSpese(); showToast('Spesa eliminata');
+  showToast('Spesa eliminata');
 };
 
 // ══════════════════════════════════════════
