@@ -553,6 +553,8 @@ canvas{max-width:100%}
 
       <div class="drawer-section">Strumenti</div>
       <button class="drawer-item" id="dnavEnciclopedia" onclick="drawerNav('Enciclopedia')"><i class="ti ti-books"></i>Enciclopedia</button>
+      <button class="drawer-item" id="dnavDiagnosi" onclick="drawerNav('Diagnosi')"><i class="ti ti-stethoscope"></i>Diagnosi malattie</button>
+      <button class="drawer-item" id="dnavChat" onclick="drawerNav('Chat')"><i class="ti ti-message-chatbot"></i>Chat giardiniere</button>
       <button class="drawer-item" id="dnavAI" onclick="drawerNav('AI')"><i class="ti ti-sparkles"></i>AI Consigli</button>
       <button class="drawer-item" id="dnavMeteo" onclick="drawerNav('Meteo')"><i class="ti ti-cloud"></i>Meteo</button>
       <button class="drawer-item" id="dnavBacheca" onclick="drawerNav('Bacheca')"><i class="ti ti-message-circle"></i>Bacheca</button>
@@ -586,6 +588,85 @@ canvas{max-width:100%}
     <i class="ti ti-eye" style="font-size:16px"></i> Modalità sola lettura — puoi visualizzare ma non modificare i dati
   </div>
   <div class="content">
+    <!-- CHAT GIARDINIERE -->
+    <div id="panelChat" class="tab-panel" style="padding:0;display:flex;flex-direction:column;height:calc(100vh - 60px)">
+      <div style="padding:.75rem 1rem;border-bottom:1px solid var(--border);background:var(--surf);display:flex;align-items:center;gap:10px">
+        <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--g7),var(--t6));display:flex;align-items:center;justify-content:center;font-size:20px">🌿</div>
+        <div>
+          <div style="font-size:14px;font-weight:700;color:var(--text)">Giardiniere AI</div>
+          <div style="font-size:11px;color:var(--g7)">● Online · conosce il tuo giardino</div>
+        </div>
+        <button onclick="clearChat()" style="margin-left:auto;background:transparent;border:none;color:var(--muted);cursor:pointer;font-size:13px;font-family:'DM Sans',sans-serif">🗑 Pulisci</button>
+      </div>
+      <div class="chat-messages" id="chatMessages"></div>
+      <div class="chat-suggestions" id="chatSuggestions"></div>
+      <div class="chat-input-area">
+        <textarea class="chat-input" id="chatInput" placeholder="Chiedi qualcosa al tuo giardiniere..." rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat()}"
+          oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+        <button class="chat-send" id="chatSend" onclick="sendChat()"><i class="ti ti-send"></i></button>
+      </div>
+    </div>
+
+    <!-- DIAGNOSI MALATTIE -->
+    <div id="panelDiagnosi" class="tab-panel">
+      <div class="diag-box">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem">
+          <span style="font-size:24px">🔬</span>
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#c92828">Diagnosi malattie e parassiti</div>
+            <div style="font-size:12px;color:var(--muted)">Descrivi i sintomi e ricevi diagnosi e trattamento</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Pianta colpita</label>
+          <select class="form-control" id="diagPianta"></select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Sintomi visivi (seleziona uno o più)</label>
+          <div class="diag-sintomi">
+            <span class="diag-sintomo" onclick="toggleSintomo(this)">🍂 Foglie gialle</span>
+            <span class="diag-sintomo" onclick="toggleSintomo(this)">🟤 Macchie marroni</span>
+            <span class="diag-sintomo" onclick="toggleSintomo(this)">⚫ Macchie nere</span>
+            <span class="diag-sintomo" onclick="toggleSintomo(this)">🔵 Muffa bianca</span>
+            <span class="diag-sintomo" onclick="toggleSintomo(this)">🐛 Insetti visibili</span>
+            <span class="diag-sintomo" onclick="toggleSintomo(this)">🕸️ Ragnatele</span>
+            <span class="diag-sintomo" onclick="toggleSintomo(this)">💧 Foglie appassite</span>
+            <span class="diag-sintomo" onclick="toggleSintomo(this)">🌿 Foglie accartocciate</span>
+            <span class="diag-sintomo" onclick="toggleSintomo(this)">🍃 Foglie cadono</span>
+            <span class="diag-sintomo" onclick="toggleSintomo(this)">🌑 Frutti marci</span>
+            <span class="diag-sintomo" onclick="toggleSintomo(this)">📏 Crescita stentata</span>
+            <span class="diag-sintomo" onclick="toggleSintomo(this)">🔴 Pustole rosse</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Descrizione aggiuntiva (opzionale)</label>
+          <textarea class="form-control" id="diagDesc" placeholder="Es: le foglie cadono dal basso verso l'alto, il tronco ha una secrezione viscosa..." style="min-height:70px"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">📷 Foto del problema (opzionale)</label>
+          <label style="display:flex;align-items:center;gap:8px;padding:10px;border:1.5px dashed var(--border);border-radius:var(--rads);cursor:pointer;color:var(--muted);font-size:13px;transition:all .15s" id="diagFotoLabel">
+            <i class="ti ti-camera" style="font-size:20px"></i>
+            <span id="diagFotoTxt">Scatta o carica una foto delle foglie/frutti colpiti</span>
+            <input type="file" id="diagFoto" accept="image/*" capture="environment" style="display:none" onchange="previewDiagFoto(this)">
+          </label>
+          <div id="diagFotoPreview" style="display:none;margin-top:8px;position:relative">
+            <img id="diagFotoImg" style="width:100%;max-height:200px;object-fit:cover;border-radius:var(--rads);border:1px solid var(--border)">
+            <button onclick="removeDiagFoto()" style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center">×</button>
+          </div>
+        </div>
+
+        <button class="btn btn-ai" onclick="getDiagnosi()" id="diagBtn" style="width:100%">
+          <i class="ti ti-stethoscope"></i> Analizza sintomi
+        </button>
+      </div>
+      <div id="diagResult"></div>
+    </div>
+
     <!-- ENCICLOPEDIA -->
     <div id="panelEnciclopedia" class="tab-panel">
       <div style="margin-bottom:1rem">
@@ -1167,7 +1248,7 @@ function showScreen(id) {
 }
 
 window.switchTab = function(name) {
-  const panels = ['Dashboard','Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese','Mappa','Bacheca','Ricerca','Log','Kanban','Enciclopedia'];
+  const panels = ['Dashboard','Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese','Mappa','Bacheca','Ricerca','Log','Kanban','Enciclopedia','Diagnosi','Chat'];
   panels.forEach(t => {
     document.getElementById('panel'+t)?.classList.toggle('active', t===name);
     const nav = document.getElementById('nav'+t);
@@ -1190,6 +1271,8 @@ window.switchTab = function(name) {
   if (name==='Kanban') initKanban();
   if (name==='Dashboard') initDashboard();
   if (name==='Enciclopedia') initEnciclopedia();
+  if (name==='Diagnosi') initDiagnosi();
+  if (name==='Chat') { initChat(); }
 };
 
 // ── MODALS ─────────────────────────────────────────────
@@ -1916,6 +1999,375 @@ window.openEnciDetail = function(tipo) {
     </button>
   </div>`;
   detail.scrollIntoView({behavior:'smooth', block:'start'});
+};
+
+// ══════════════════════════════════════════
+// DIAGNOSI MALATTIE
+// ══════════════════════════════════════════
+function initDiagnosi() {
+  const sel = document.getElementById('diagPianta');
+  if (sel) {
+    sel.innerHTML = piante.map(p => `<option value="${p.id}">${emojiTipo[p.tipo]||'🪴'} ${p.nome} (${p.tipo})</option>`).join('');
+  }
+  // Reset risultato
+  document.getElementById('diagResult').innerHTML = '';
+  // Deseleziona sintomi
+  document.querySelectorAll('.diag-sintomo').forEach(s => s.classList.remove('sel'));
+}
+
+window.previewDiagFoto = function(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    document.getElementById('diagFotoImg').src = e.target.result;
+    document.getElementById('diagFotoPreview').style.display = 'block';
+    document.getElementById('diagFotoTxt').textContent = file.name;
+    document.getElementById('diagFotoLabel').style.borderColor = 'var(--g5)';
+  };
+  reader.readAsDataURL(file);
+};
+
+window.removeDiagFoto = function() {
+  document.getElementById('diagFoto').value = '';
+  document.getElementById('diagFotoPreview').style.display = 'none';
+  document.getElementById('diagFotoTxt').textContent = 'Scatta o carica una foto delle foglie/frutti colpiti';
+  document.getElementById('diagFotoLabel').style.borderColor = '';
+};
+
+window.toggleSintomo = function(el) {
+  el.classList.toggle('sel');
+};
+
+window.getDiagnosi = async function() {
+  const apiKey = localStorage.getItem('geminiApiKey');
+  if (!apiKey) { showToast('Configura la chiave API Groq nella sezione AI'); return; }
+
+  const pId = document.getElementById('diagPianta').value;
+  const pianta = piante.find(x => x.id === pId);
+  if (!pianta) { showToast('Seleziona una pianta'); return; }
+
+  const sintomiSel = [...document.querySelectorAll('.diag-sintomo.sel')].map(s => s.textContent.trim());
+  const desc = document.getElementById('diagDesc').value.trim();
+
+  if (!sintomiSel.length && !desc) {
+    showToast('Seleziona almeno un sintomo');
+    return;
+  }
+
+  // Info storico pianta
+  const attsP = attivita.filter(a => a.pianta_id === pId).slice(0,5);
+  const storicoStr = attsP.length
+    ? attsP.map(a => '- ' + a.tipo + ' il ' + a.data_eseguita + (a.note?' ('+a.note+')':'')).join(' | ')
+    : 'Nessuna attivita recente';
+
+  const mese = new Date().toLocaleDateString('it-IT',{month:'long'});
+  const owmKey = localStorage.getItem('owmKey');
+  let meteo = '';
+  if (owmKey) {
+    try {
+      const r = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Terracina&appid=${owmKey}&units=metric&lang=it`);
+      const w = await r.json();
+      if (w.cod===200) meteo = `Meteo attuale: ${Math.round(w.main.temp)}C, ${w.weather[0].description}, umidita ${w.main.humidity}%`;
+    } catch(e) {}
+  }
+
+  const prompt = `Sei un esperto fitoiatra e giardiniere italiano specializzato in piante mediterranee.
+
+PIANTA ESAMINATA:
+- Nome: ${pianta.nome}
+- Tipo: ${pianta.tipo}
+- Posizione: ${pianta.posizione||'non specificata'}
+- Mese: ${mese}
+${meteo ? '- '+meteo : ''}
+
+STORICO CURE RECENTI:
+${storicoStr}
+
+SINTOMI RISCONTRATI:
+${sintomiSel.length ? sintomiSel.join(', ') : 'nessuno selezionato'}
+${desc ? 'Descrizione aggiuntiva: '+desc : ''}
+
+Analizza i sintomi e fornisci:
+1. **DIAGNOSI**: nome della malattia/parassita piu probabile (e alternative possibili)
+2. **CAUSA**: spiegazione della causa
+3. **GRAVITA**: Alta / Media / Bassa
+4. **TRATTAMENTO IMMEDIATO**: cosa fare adesso (prodotti, dosi, modalita)
+5. **PREVENZIONE**: come evitare il ripresentarsi del problema
+6. **ATTENZIONE**: eventuali rischi per altre piante vicine
+
+Usa emoji per rendere la risposta piu leggibile. Sii preciso e pratico.`;
+
+  const btn = document.getElementById('diagBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader spinner"></i> Analisi in corso...';
+  document.getElementById('diagResult').innerHTML = `
+    <div class="diag-result">
+      <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
+      <span>Il giardiniere AI sta analizzando i sintomi...</span></div>
+    </div>`;
+
+  // Controlla se c'è una foto
+  const fotoEl = document.getElementById('diagFotoImg');
+  const hasFoto = fotoEl && fotoEl.src && fotoEl.src.startsWith('data:image');
+  const fotoBase64 = hasFoto ? fotoEl.src.split(',')[1] : null;
+  const fotoMime = hasFoto ? fotoEl.src.split(';')[0].split(':')[1] : null;
+
+  try {
+    // Se c'è una foto usa llama-vision, altrimenti usa il modello testo
+    const model = hasFoto ? 'meta-llama/llama-4-scout-17b-16e-instruct' : 'llama-3.3-70b-versatile';
+    const messages = hasFoto ? [{
+      role: 'user',
+      content: [
+        {type:'text', text: prompt},
+        {type:'image_url', image_url:{url:`data:${fotoMime};base64,${fotoBase64}`}}
+      ]
+    }] : [{role:'user', content:prompt}];
+
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+      body:JSON.stringify({model, messages, max_tokens:1500, temperature:0.4})
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.choices?.[0]?.message?.content;
+    if (!text) throw new Error('Nessuna risposta');
+
+    // Determina gravita dal testo
+    const gravita = text.toLowerCase().includes('gravit') && text.toLowerCase().includes('alta') ? 'alta' :
+                    text.toLowerCase().includes('gravit') && text.toLowerCase().includes('bassa') ? 'bassa' : 'media';
+    const sevCls = {alta:'sev-alta',media:'sev-media',bassa:'sev-bassa'}[gravita];
+    const sevLabel = {alta:'⚠️ Gravita Alta',media:'📌 Gravita Media',bassa:'✅ Gravita Bassa'}[gravita];
+
+    // Converti markdown base in HTML
+    const htmlText = text
+      .split('**').map((s,i)=>i%2===1?'<strong>'+s+'</strong>':s).join('')
+      .split('\n').join('<br>');
+
+    document.getElementById('diagResult').innerHTML = `
+      <div class="diag-result">
+        <div class="diag-result-header">
+          <span style="font-size:28px">🔬</span>
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:700;color:var(--text)">Diagnosi per ${pianta.nome}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">${sintomiSel.join(' · ')}</div>
+          </div>
+          <span class="diag-severity ${sevCls}">${sevLabel}</span>
+        </div>
+        <div style="font-size:13px;color:var(--text);line-height:1.8">${htmlText}</div>
+        <div style="margin-top:1rem;display:flex;gap:8px">
+          <button class="btn btn-primary" style="flex:1" onclick="aggiungiTrattamento('${pId}')">
+            <i class="ti ti-plus"></i> Registra trattamento
+          </button>
+          <button class="btn btn-secondary" onclick="drawerNav('AI')">
+            <i class="ti ti-sparkles"></i> Approfondisci
+          </button>
+        </div>
+      </div>`;
+
+    addLog('edit','🔬','Diagnosi malattia per '+pianta.nome, currentUser);
+
+  } catch(e) {
+    document.getElementById('diagResult').innerHTML = `<div class="notice notice-amber">❌ Errore: ${e.message}</div>`;
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-stethoscope"></i> Analizza sintomi';
+};
+
+window.aggiungiTrattamento = function(piantaId) {
+  // Pre-compila il modal attività con Trattamento
+  const sel = document.getElementById('attPianta');
+  if (sel) sel.value = piantaId;
+  document.getElementById('attTipo').value = 'Trattamento';
+  document.getElementById('attDataEs').value = new Date().toISOString().split('T')[0];
+  openModal('modalAtt');
+};
+
+// ══════════════════════════════════════════
+// CHAT GIARDINIERE AI
+// ══════════════════════════════════════════
+let chatHistory = [];
+let chatTyping = false;
+
+const chatSuggestionsDefault = [
+  'Cosa devo fare questa settimana in giardino?',
+  'Quali piante necessitano di irrigazione?',
+  'Come sta andando il mio giardino?',
+  'Consigli per il mese di ' + new Date().toLocaleDateString('it-IT',{month:'long'}),
+  'Quali scadenze ho questa settimana?',
+  'Come prevenire i parassiti?',
+];
+
+function initChat() {
+  if (chatHistory.length === 0) {
+    // Messaggio di benvenuto
+    const ora = new Date().getHours();
+    const saluto = ora < 12 ? 'Buongiorno' : ora < 18 ? 'Buon pomeriggio' : 'Buonasera';
+    const nPiante = piante.length;
+    const nScadute = attivita.filter(a => a.data_prossima && Math.round((new Date(a.data_prossima)-new Date())/86400000) < 0).length;
+    
+    const benvenuto = `${saluto}! 🌿 Sono il tuo giardiniere AI personale. Conosco il tuo giardino di Quintilina con ${nPiante} piante${nScadute>0?' e vedo che hai '+nScadute+' attivita in scadenza':''}.
+
+Come posso aiutarti oggi? Puoi chiedermi consigli su cura, potatura, concimazione, malattie, o qualsiasi altra cosa riguardi il tuo verde!`;
+    
+    addChatMsg('ai', benvenuto);
+  } else {
+    renderChatHistory();
+  }
+  renderChatSuggestions();
+}
+
+function addChatMsg(role, text, save=true) {
+  const time = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  if (save) chatHistory.push({role, text, time});
+  
+  const el = document.getElementById('chatMessages');
+  if (!el) return;
+  
+  const div = document.createElement('div');
+  div.className = 'chat-msg ' + (role==='user'?'user':'ai');
+  
+  const htmlText = text.split('**').map((s,i)=>i%2===1?'<strong>'+s+'</strong>':s).join('').split('\n').join('<br>');
+  
+  div.innerHTML = `
+    <div class="chat-avatar ${role==='user'?'user-av':'ai-av'}">${role==='user'?'👤':'🌿'}</div>
+    <div>
+      <div class="chat-bubble">${htmlText}</div>
+      <div class="chat-time">${time}</div>
+    </div>`;
+  
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function renderChatHistory() {
+  const el = document.getElementById('chatMessages');
+  if (!el) return;
+  el.innerHTML = '';
+  chatHistory.forEach(msg => addChatMsg(msg.role, msg.text, false));
+}
+
+function renderChatSuggestions() {
+  const el = document.getElementById('chatSuggestions');
+  if (!el) return;
+  const suggs = chatHistory.length <= 1 ? chatSuggestionsDefault : [
+    'Dimmi di piu',
+    'Come lo tratto?',
+    'Quando devo farlo?',
+    'Ci sono rischi?',
+    'Cosa uso?',
+  ];
+  el.innerHTML = suggs.map(s => `<span class="chat-sugg" onclick="sendChatMsg('${s.replace(/'/g,"\'")}'">${s}</span>`).join('');
+}
+
+function showTyping() {
+  const el = document.getElementById('chatMessages');
+  if (!el) return;
+  const div = document.createElement('div');
+  div.className = 'chat-msg ai';
+  div.id = 'chatTypingIndicator';
+  div.innerHTML = `
+    <div class="chat-avatar ai-av">🌿</div>
+    <div class="chat-bubble" style="padding:12px 16px">
+      <span class="typing-dot"></span>
+      <span class="typing-dot"></span>
+      <span class="typing-dot"></span>
+    </div>`;
+  el.appendChild(div);
+  el.scrollTop = el.scrollHeight;
+}
+
+function hideTyping() {
+  const el = document.getElementById('chatTypingIndicator');
+  if (el) el.remove();
+}
+
+window.sendChat = async function() {
+  const input = document.getElementById('chatInput');
+  const msg = input.value.trim();
+  if (!msg || chatTyping) return;
+  await sendChatMsg(msg);
+  input.value = '';
+  input.style.height = 'auto';
+};
+
+window.sendChatMsg = async function(msg) {
+  const apiKey = localStorage.getItem('geminiApiKey');
+  if (!apiKey) { showToast('Configura la chiave API Groq nella sezione AI'); return; }
+
+  addChatMsg('user', msg);
+  chatTyping = true;
+  const sendBtn = document.getElementById('chatSend');
+  if (sendBtn) sendBtn.disabled = true;
+  showTyping();
+
+  // Costruisci contesto del giardino
+  const nPiante = piante.length;
+  const tipologie = [...new Set(piante.map(p=>p.tipo).filter(Boolean))].join(', ');
+  const scadute = attivita.filter(a => a.data_prossima && Math.round((new Date(a.data_prossima)-new Date())/86400000) < 0).length;
+  const prossime7 = attivita.filter(a => {
+    if (!a.data_prossima) return false;
+    const d = Math.round((new Date(a.data_prossima)-new Date())/86400000);
+    return d >= 0 && d <= 7;
+  }).length;
+  const mese = new Date().toLocaleDateString('it-IT',{month:'long'});
+  const stagione = [11,0,1].includes(new Date().getMonth()) ? 'inverno' : [2,3,4].includes(new Date().getMonth()) ? 'primavera' : [5,6,7].includes(new Date().getMonth()) ? 'estate' : 'autunno';
+
+  // Ultime attivita
+  const ultimeAtt = attivita.slice(0,5).map(a => {
+    const p = piante.find(x=>x.id===a.pianta_id);
+    return (p?p.nome:'?') + ': ' + a.tipo + ' (' + (a.data_eseguita||'?') + ')';
+  }).join(', ');
+
+  const systemPrompt = `Sei un esperto giardiniere italiano chiamato "Verde", specializzato in giardini mediterranei. Conosci molto bene il clima di Terracina (Lazio).
+
+CONTESTO DEL GIARDINO DI QUINTILINA:
+- Superficie: 1.400 mq a Terracina (Lazio)
+- Piante: ${nPiante} piante (${tipologie||'varie tipologie'})
+- Mese: ${mese} - Stagione: ${stagione}
+- Scadenze: ${scadute} attivita scadute, ${prossime7} entro 7 giorni
+- Ultime attivita: ${ultimeAtt||'nessuna'}
+
+Rispondi in italiano, in modo amichevole e pratico. Usa emoji con moderazione. Sii conciso ma completo. Se non sai qualcosa dillo chiaramente.`;
+
+  // Prepara storia conversazione per Groq
+  const messages = [
+    {role:'system', content: systemPrompt},
+    ...chatHistory.slice(-10).map(m => ({role: m.role==='user'?'user':'assistant', content: m.text}))
+  ];
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+      body:JSON.stringify({
+        model:'llama-3.3-70b-versatile',
+        messages,
+        max_tokens:800,
+        temperature:0.7
+      })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const reply = data.choices?.[0]?.message?.content || 'Non ho capito, puoi ripetere?';
+    hideTyping();
+    addChatMsg('ai', reply);
+  } catch(e) {
+    hideTyping();
+    addChatMsg('ai', 'Mi dispiace, ho avuto un problema tecnico. Riprova tra poco! (' + e.message + ')');
+  }
+
+  chatTyping = false;
+  if (sendBtn) sendBtn.disabled = false;
+  renderChatSuggestions();
+};
+
+window.clearChat = function() {
+  if (!confirm('Cancellare tutta la conversazione?')) return;
+  chatHistory = [];
+  document.getElementById('chatMessages').innerHTML = '';
+  initChat();
 };
 
 // ══════════════════════════════════════════
