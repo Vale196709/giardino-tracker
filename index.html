@@ -211,6 +211,15 @@ code{background:#f1f5f9;padding:2px 7px;border-radius:4px;font-family:monospace;
 .fab{position:fixed;bottom:76px;right:1.25rem;width:54px;height:54px;border-radius:50%;background:var(--g7);color:#fff;border:none;font-size:28px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(22,101,52,.4);z-index:60;transition:all .15s}
 .fab:hover{background:var(--g8);transform:scale(1.05)}
 .fab:active{transform:scale(.95)}
+.fab#fabVoice{width:46px;height:46px;font-size:20px;box-shadow:0 4px 16px rgba(79,70,229,.4)}
+.fab#fabVoice.listening{animation:voicePulse 1.2s ease infinite}
+@keyframes voicePulse{0%,100%{box-shadow:0 4px 16px rgba(220,38,38,.5)}50%{box-shadow:0 4px 28px rgba(220,38,38,.8)}}
+.voice-overlay{position:fixed;inset:0;background:rgba(15,31,12,.92);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.25rem;color:#fff;text-align:center;padding:2rem}
+.voice-circle{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#4f46e5);display:flex;align-items:center;justify-content:center;font-size:42px;transition:transform .15s}
+.voice-circle.listening{animation:voiceCircle 1.3s ease infinite}
+@keyframes voiceCircle{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.voice-text{font-size:15px;max-width:300px;line-height:1.6;min-height:50px}
+.voice-status{font-size:12px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.08em}
 
 /* MODAL */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center}
@@ -575,11 +584,25 @@ canvas{max-width:100%}
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
+      <button onclick="showHelp()" id="helpBtn" style="background:transparent;border:1.5px solid var(--border);border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--muted);display:flex;align-items:center;justify-content:center;font-weight:700" title="Aiuto">?</button>
       <button onclick="toggleDark()" id="darkBtn" style="background:transparent;border:1.5px solid var(--border);border-radius:20px;padding:5px 10px;cursor:pointer;font-size:16px;color:var(--muted)" title="Modalità scura">🌙</button>
       <div class="user-chip" onclick="openDrawer()">
         <i class="ti ti-user" style="font-size:14px"></i>
         <span id="headerUser">—</span>
       </div>
+    </div>
+  </div>
+
+  <!-- HELP OVERLAY -->
+  <div id="helpOverlay" class="modal-overlay" style="display:none" onclick="closeOverlay(event,'helpOverlay')">
+    <div class="modal-box" style="max-width:480px">
+      <div class="modal-handle"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem">
+        <span id="helpIcon" style="font-size:28px">💡</span>
+        <div style="font-size:17px;font-weight:700;color:var(--g8);font-family:'Lora',serif" id="helpTitle">Aiuto</div>
+      </div>
+      <div id="helpBody" style="font-size:14px;color:var(--text);line-height:1.8"></div>
+      <button class="btn btn-primary" style="width:100%;margin-top:1.25rem" onclick="closeModal('helpOverlay')">Ho capito</button>
     </div>
   </div>
 
@@ -726,6 +749,20 @@ canvas{max-width:100%}
 
     <!-- AI CONSIGLI -->
     <div id="panelAI" class="tab-panel">
+      <div class="ai-box" style="background:linear-gradient(135deg,var(--g1),var(--t1));border-color:var(--g2)">
+        <div class="ai-box-header">
+          <span style="font-size:24px">📅</span>
+          <div class="ai-box-title">Piano di cura settimanale</div>
+        </div>
+        <div style="font-size:13px;color:var(--g8);margin-bottom:1rem;line-height:1.6">
+          L'AI analizza tutte le tue piante, lo storico attività, la stagione e il meteo per generare un piano organizzato dei prossimi 7 giorni.
+        </div>
+        <button class="btn btn-ai" onclick="generaPianoSettimanale()" id="pianoBtnGenera">
+          <i class="ti ti-calendar-stats"></i> Genera piano settimanale
+        </button>
+      </div>
+      <div id="pianoResult"></div>
+
       <div class="ai-box">
         <div class="ai-box-header">
           <span style="font-size:24px">✨</span>
@@ -849,6 +886,21 @@ canvas{max-width:100%}
             </label>
           </div>
         </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem;padding:8px 10px;background:var(--g0);border-radius:var(--rads);border:1px solid var(--g2)">
+          <div style="font-size:12px;color:var(--g8);font-weight:600;display:flex;align-items:center;gap:6px">
+            <span style="font-size:16px">🌳</span> Gemello digitale
+          </div>
+          <label style="position:relative;display:inline-block;width:42px;height:24px;cursor:pointer">
+            <input type="checkbox" id="gemelloToggle" onchange="toggleGemelloDigitale(this)" style="opacity:0;width:0;height:0">
+            <span id="gemelloSlider" style="position:absolute;inset:0;background:var(--border);border-radius:24px;transition:.2s"></span>
+            <span id="gemelloKnob" style="position:absolute;left:3px;top:3px;width:18px;height:18px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.3)"></span>
+          </label>
+        </div>
+        <div id="gemelloLegenda" style="display:none;gap:10px;flex-wrap:wrap;margin-bottom:.5rem;font-size:11px;justify-content:center">
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#16a34a;display:inline-block"></span>In regola</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;display:inline-block"></span>Attenzione (entro 7gg)</span>
+          <span style="display:flex;align-items:center;gap:4px"><span style="width:10px;height:10px;border-radius:50%;background:#dc2626;display:inline-block"></span>Urgente</span>
+        </div>
         <div id="mappaContainer" style="position:relative;width:100%;max-width:420px;margin:0 auto;border-radius:10px;overflow:hidden;border:2px solid var(--border);touch-action:none">
           <img src="mappa.jpg" style="width:100%;display:block;user-select:none;pointer-events:none" draggable="false" id="mappaImg">
           <canvas id="mappaCanvas" style="position:absolute;inset:0;width:100%;height:100%"></canvas>
@@ -935,9 +987,24 @@ canvas{max-width:100%}
 
 
 
+  <button class="fab" id="fabVoice" onclick="toggleVoiceMode()" aria-label="Ciao Giardino" style="bottom:96px;background:linear-gradient(135deg,#7c3aed,#4f46e5)">
+    <i class="ti ti-microphone" id="fabVoiceIcon"></i>
+  </button>
+
   <button class="fab" onclick="fabClick()" aria-label="Aggiungi">
     <i class="ti ti-plus"></i>
   </button>
+</div>
+
+<!-- VOICE OVERLAY -->
+<div id="voiceOverlay" class="voice-overlay" style="display:none">
+  <div class="voice-circle" id="voiceCircle">🎙️</div>
+  <div class="voice-status" id="voiceStatus">Tocca per parlare</div>
+  <div class="voice-text" id="voiceText">Dimmi cosa hai fatto in giardino, es: "Ho potato l'olivo" o "Ho irrigato il basilico"</div>
+  <div style="display:flex;gap:10px;margin-top:.5rem">
+    <button onclick="closeVoiceMode()" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);padding:10px 20px;border-radius:24px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px">Chiudi</button>
+    <button onclick="confermaVoiceAttivita()" id="voiceConfirmBtn" style="display:none;background:#16a34a;color:#fff;border:none;padding:10px 20px;border-radius:24px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600">✅ Registra attività</button>
+  </div>
 </div>
 
 <!-- MODAL: Nuova attività -->
@@ -1273,6 +1340,36 @@ window.closeDrawer = function() {
   document.getElementById('drawerOverlay').classList.remove('open');
 };
 
+// ══════════════════════════════════════════
+// HELP CONTESTUALE
+// ══════════════════════════════════════════
+const helpContent = {
+  Dashboard: {icon:'🏠', title:'Dashboard', body:'La tua home page. Qui trovi: il meteo del giorno, le scadenze più urgenti, le statistiche rapide, le ultime note in bacheca e il consiglio AI del giorno.<br><br>Tocca "✨ Genera" nel box arancione per ricevere un breve racconto poetico di cosa è successo nel giardino di recente.<br><br>Usa la sezione "🚀 Accesso rapido" per saltare velocemente alle altre schermate.'},
+  Scadenze: {icon:'📅', title:'Scadenze', body:'Elenco di tutte le attività programmate, con codice colore: <span style="color:#dc2626">🔴 rosso</span> = scaduta, <span style="color:#d97706">🟡 giallo</span> = entro 30 giorni, <span style="color:#16a34a">🟢 verde</span> = in regola.<br><br>Usa i filtri in alto per vedere solo scadute o in arrivo. Tocca il pulsante <strong>+</strong> in basso per aggiungere una nuova attività.'},
+  Piante: {icon:'🌱', title:'Piante', body:'Griglia di tutte le piante del giardino con il loro stato di scadenza. Tocca una pianta per modificarla o eliminarla.<br><br>Usa le <strong>etichette colorate</strong> (biologico, in vaso, urgente...) per organizzare le piante. Tocca <strong>+</strong> per aggiungerne una nuova.'},
+  Calendario: {icon:'📆', title:'Calendario', body:'Vista mensile con un pallino colorato nei giorni che hanno attività programmate. Tocca un giorno per vedere il dettaglio delle attività previste.'},
+  Stats: {icon:'📊', title:'Statistiche', body:'Grafici sulle attività svolte: per mese, per tipo (potatura, irrigazione...) e per pianta. In fondo trovi anche la <strong>previsione spese annuali</strong> basata sulla media mensile attuale.'},
+  AI: {icon:'✨', title:'AI Consigli', body:'Due strumenti AI: il <strong>Piano di cura settimanale</strong> (genera cosa fare nei prossimi 7 giorni per tutte le piante) e i <strong>Consigli su una pianta specifica</strong> (scegli pianta e argomento per un consiglio mirato). Richiede una chiave Groq gratuita da console.groq.com.'},
+  Storico: {icon:'🕓', title:'Storico', body:'Le ultime 40 attività registrate, in ordine dalla più recente. Utile per ripercorrere cosa è stato fatto di recente in giardino.'},
+  Meteo: {icon:'☁️', title:'Meteo', body:'Meteo attuale e previsioni a 5 giorni per Terracina. In fondo puoi configurare le <strong>notifiche WhatsApp</strong> (tramite CallMeBot) per ricevere avvisi sulle scadenze anche lì, oltre alle email.'},
+  Spese: {icon:'💰', title:'Spese', body:'Registro di tutte le spese del giardino con grafici mensili e per categoria. Usa i pulsanti in fondo per esportare in <strong>PDF</strong> o <strong>Excel</strong>, o per importare lo storico da Google Sheet. Tocca <strong>+</strong> per registrare una nuova spesa.'},
+  Mappa: {icon:'🗺️', title:'Mappa', body:'Mappa interattiva del terreno. Seleziona una pianta dalla lista sotto, poi tocca il punto sulla mappa dove si trova per posizionarla.<br><br>Attiva il <strong>🌳 Gemello digitale</strong> per vedere lo stato di salute di ogni pianta direttamente sulla mappa (anello verde/giallo/rosso secondo le scadenze).'},
+  Bacheca: {icon:'💬', title:'Bacheca', body:'Spazio di note condivise tra tutti gli utenti del giardino, in tempo reale. Scegli il tipo (nota, osservazione, promemoria, problema) e scrivi liberamente. Utile per comunicare con chi gestisce il giardino con te.'},
+  Ricerca: {icon:'🔍', title:'Ricerca', body:'Cerca in tutto il giardino: piante, attività e spese contemporaneamente. Scrivi almeno 2 caratteri e tocca un risultato per aprirlo direttamente.'},
+  Log: {icon:'📝', title:'Log modifiche', body:'Cronologia di tutte le modifiche fatte nell\'app: aggiunte, modifiche ed eliminazioni, con utente e data. Utile per capire chi ha fatto cosa e quando.'},
+  Kanban: {icon:'📋', title:'Kanban', body:'Vista a tre colonne (Scadute / In arrivo / Completate) per gestire velocemente le attività. Usa i pulsanti rapidi <strong>✅ Fatta</strong> e <strong>📅 +7gg</strong> sulle singole card.<br><br>In alto trovi anche i <strong>suggerimenti stagionali</strong> e gli <strong>alert meteo</strong> automatici.'},
+  Enciclopedia: {icon:'📚', title:'Enciclopedia', body:'Schede informative per le diverse tipologie di piante (olivo, vite, agrumi...): calendario delle cure, parassiti comuni, curiosità. Tocca una scheda per vedere i dettagli completi.'},
+  Diagnosi: {icon:'🔬', title:'Diagnosi malattie', body:'Seleziona la pianta colpita, tocca i sintomi visivi che osservi e, se vuoi una diagnosi più precisa, <strong>carica una foto</strong> del problema. L\'AI analizzerà tutto e ti dirà cosa potrebbe essere e come trattarlo.'},
+};
+
+window.showHelp = function() {
+  const help = helpContent[currentTab] || {icon:'💡', title:'Aiuto', body:'Nessun aiuto disponibile per questa schermata.'};
+  document.getElementById('helpIcon').textContent = help.icon;
+  document.getElementById('helpTitle').textContent = help.title;
+  document.getElementById('helpBody').innerHTML = help.body;
+  document.getElementById('helpOverlay').style.display = 'flex';
+};
+
 window.drawerNav = function(name) {
   closeDrawer();
   switchTab(name);
@@ -1441,6 +1538,16 @@ async function initMappa() {
   if (mappaCustom && mappaImg) mappaImg.src = mappaCustom;
   const mappaChangeBtn = document.getElementById('mappaChangeBtn');
   if (mappaChangeBtn) mappaChangeBtn.style.display = currentRole === 'admin' ? 'block' : 'none';
+
+  // Ripristina stato gemello digitale
+  const gemelloAttivo = localStorage.getItem('gemelloDigitale') === '1';
+  window.gemelloDigitaleAttivo = gemelloAttivo;
+  const toggle = document.getElementById('gemelloToggle');
+  if (toggle) {
+    toggle.checked = gemelloAttivo;
+    aggiornaSliderGemello(gemelloAttivo);
+  }
+
   try {
     const snap = await getDocs(collection(db,'mappa'));
     mappaPositions = {};
@@ -1452,6 +1559,24 @@ async function initMappa() {
   if (img.complete) { setupMappaCanvas(); }
   else { img.onload = setupMappaCanvas; }
 }
+
+function aggiornaSliderGemello(attivo) {
+  const slider = document.getElementById('gemelloSlider');
+  const knob = document.getElementById('gemelloKnob');
+  const legenda = document.getElementById('gemelloLegenda');
+  if (slider) slider.style.background = attivo ? 'var(--g6)' : 'var(--border)';
+  if (knob) knob.style.left = attivo ? '21px' : '3px';
+  if (legenda) legenda.style.display = attivo ? 'flex' : 'none';
+}
+
+window.toggleGemelloDigitale = function(checkbox) {
+  const attivo = checkbox.checked;
+  window.gemelloDigitaleAttivo = attivo;
+  localStorage.setItem('gemelloDigitale', attivo ? '1' : '0');
+  aggiornaSliderGemello(attivo);
+  disegnaMarker();
+  showToast(attivo ? '🌳 Gemello digitale attivato' : 'Gemello digitale disattivato');
+};
 
 function setupMappaCanvas() {
   const container = document.getElementById('mappaContainer');
@@ -1502,6 +1627,26 @@ function disegnaMarker() {
     const x = pos.x_pct / 100 * canvas.width;
     const y = pos.y_pct / 100 * canvas.height;
     const isSelected = pId === selectedPiantaId;
+    const stato = window.gemelloDigitaleAttivo ? statoSalutePianta(pId) : null;
+
+    // Anello di stato salute (gemello digitale)
+    if (stato) {
+      ctx.beginPath();
+      ctx.arc(x, y, (isSelected ? 20 : 16) + 4, 0, Math.PI * 2);
+      ctx.strokeStyle = stato.colore;
+      ctx.lineWidth = 3.5;
+      ctx.stroke();
+      if (stato.livello === 'urgente') {
+        // Piccolo indicatore pulsante per urgenze
+        ctx.beginPath();
+        ctx.arc(x + (isSelected?20:16) + 2, y - (isSelected?20:16) - 2, 4, 0, Math.PI*2);
+        ctx.fillStyle = stato.colore;
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+    }
 
     // Cerchio sfondo
     ctx.beginPath();
@@ -2364,6 +2509,16 @@ async function initDashboard() {
       </div>
     </div>
 
+    <div class="card dash-animate" style="padding:1rem;background:linear-gradient(135deg,#fdf4e7,#fef9f0);border-color:#f0dfc0">
+      <div class="dash-section-title" style="color:#9a6b1f">
+        🎙️ Racconta il tuo giardino
+        <span class="dash-section-link" style="color:#b5832a" onclick="raccontaGiardino()">✨ Genera</span>
+      </div>
+      <div id="raccontoContent" style="font-size:13px;color:#5a4520;line-height:1.7;font-style:italic">
+        Tocca "Genera" per ricevere un breve racconto di cosa è successo nel tuo giardino di recente.
+      </div>
+    </div>
+
     <div class="card dash-animate" style="padding:1rem">
       <div class="dash-section-title">🚀 Accesso rapido</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
@@ -2432,6 +2587,216 @@ Rispondi in italiano, breve e pratico (max 4-5 frasi), con 1-2 emoji.`;
     el.innerHTML = '<span style="color:var(--r6);font-size:12px">❌ Errore: ' + e.message + '</span>';
   }
   btn.disabled = false;
+};
+
+// ══════════════════════════════════════════
+// MODALITA VOCALE "CIAO GIARDINO"
+// ══════════════════════════════════════════
+let voiceRecognition = null;
+let voiceListening = false;
+let voiceParsedActivity = null;
+
+function getSpeechRecognition() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) return null;
+  const rec = new SR();
+  rec.lang = 'it-IT';
+  rec.continuous = false;
+  rec.interimResults = true;
+  return rec;
+}
+
+window.toggleVoiceMode = function() {
+  const overlay = document.getElementById('voiceOverlay');
+  overlay.style.display = 'flex';
+  voiceParsedActivity = null;
+  document.getElementById('voiceConfirmBtn').style.display = 'none';
+  document.getElementById('voiceText').textContent = 'Dimmi cosa hai fatto in giardino, es: "Ho potato l\'olivo" o "Ho irrigato il basilico"';
+  startVoiceListening();
+};
+
+window.closeVoiceMode = function() {
+  if (voiceRecognition) { try { voiceRecognition.stop(); } catch(e) {} }
+  voiceListening = false;
+  document.getElementById('voiceOverlay').style.display = 'none';
+  document.getElementById('fabVoice').classList.remove('listening');
+};
+
+function startVoiceListening() {
+  voiceRecognition = getSpeechRecognition();
+  if (!voiceRecognition) {
+    document.getElementById('voiceStatus').textContent = 'Non supportato';
+    document.getElementById('voiceText').textContent = 'Il riconoscimento vocale non e\' disponibile su questo browser. Provo con Chrome su Android o Safari su iPhone.';
+    return;
+  }
+
+  voiceListening = true;
+  document.getElementById('voiceCircle').classList.add('listening');
+  document.getElementById('fabVoice').classList.add('listening');
+  document.getElementById('voiceStatus').textContent = 'In ascolto...';
+
+  voiceRecognition.onresult = (event) => {
+    let transcript = '';
+    for (let i = 0; i < event.results.length; i++) {
+      transcript += event.results[i][0].transcript;
+    }
+    document.getElementById('voiceText').textContent = '"' + transcript + '"';
+    if (event.results[event.results.length-1].isFinal) {
+      processVoiceTranscript(transcript);
+    }
+  };
+
+  voiceRecognition.onerror = (event) => {
+    document.getElementById('voiceStatus').textContent = 'Errore: ' + event.error;
+    voiceListening = false;
+    document.getElementById('voiceCircle').classList.remove('listening');
+    document.getElementById('fabVoice').classList.remove('listening');
+  };
+
+  voiceRecognition.onend = () => {
+    voiceListening = false;
+    document.getElementById('voiceCircle').classList.remove('listening');
+    document.getElementById('fabVoice').classList.remove('listening');
+    if (document.getElementById('voiceStatus').textContent === 'In ascolto...') {
+      document.getElementById('voiceStatus').textContent = 'Tocca per riprovare';
+    }
+  };
+
+  try { voiceRecognition.start(); } catch(e) { console.log('Voice start error:', e); }
+}
+
+async function processVoiceTranscript(transcript) {
+  document.getElementById('voiceStatus').textContent = 'Sto elaborando...';
+  const apiKey = localStorage.getItem('geminiApiKey');
+  if (!apiKey) {
+    document.getElementById('voiceText').textContent = 'Configura la chiave API Groq nella sezione AI per usare questa funzione.';
+    return;
+  }
+
+  const pianteNomi = piante.map(p => p.nome).join(', ');
+  const prompt = `Analizza questa frase detta a voce da un giardiniere: "${transcript}"
+
+Piante disponibili nel giardino: ${pianteNomi}
+
+Estrai SOLO un oggetto JSON con questi campi (nessun testo extra, nessun markdown):
+{"pianta": "nome pianta piu simile tra quelle disponibili o null se non trovata", "tipo": "uno tra: Potatura, Concimatura, Irrigazione, Trattamento, Raccolta, Altro", "note": "eventuali dettagli aggiuntivi menzionati o stringa vuota"}
+
+Se la frase non descrive un'attivita di giardinaggio, rispondi con {"pianta": null, "tipo": null, "note": ""}`;
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.2})
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    let text = data.choices?.[0]?.message?.content || '{}';
+    text = text.replace(/```json/g,'').replace(/```/g,'').trim();
+    const parsed = JSON.parse(text);
+
+    if (!parsed.pianta || !parsed.tipo) {
+      document.getElementById('voiceStatus').textContent = 'Non ho capito';
+      document.getElementById('voiceText').textContent = 'Non sono riuscito a identificare pianta e attivita. Riprova specificando meglio, es: "Ho potato l\'olivo del fondo".';
+      return;
+    }
+
+    const piantaMatch = piante.find(p => p.nome.toLowerCase() === parsed.pianta.toLowerCase()) ||
+                          piante.find(p => p.nome.toLowerCase().includes(parsed.pianta.toLowerCase()) || parsed.pianta.toLowerCase().includes(p.nome.toLowerCase()));
+
+    if (!piantaMatch) {
+      document.getElementById('voiceStatus').textContent = 'Pianta non trovata';
+      document.getElementById('voiceText').textContent = 'Non ho trovato "' + parsed.pianta + '" tra le tue piante. Riprova specificando il nome esatto.';
+      return;
+    }
+
+    voiceParsedActivity = {piantaId: piantaMatch.id, piantaNome: piantaMatch.nome, tipo: parsed.tipo, note: parsed.note||''};
+    document.getElementById('voiceStatus').textContent = 'Confermi?';
+    document.getElementById('voiceText').innerHTML = `<strong>${parsed.tipo}</strong> su <strong>${piantaMatch.nome}</strong>${parsed.note?'<br><span style="font-size:12px;opacity:.8">'+parsed.note+'</span>':''}`;
+    document.getElementById('voiceConfirmBtn').style.display = 'inline-block';
+
+  } catch(e) {
+    document.getElementById('voiceStatus').textContent = 'Errore';
+    document.getElementById('voiceText').textContent = 'Non sono riuscito a elaborare la richiesta: ' + e.message;
+  }
+}
+
+window.confermaVoiceAttivita = async function() {
+  if (!voiceParsedActivity) return;
+  const oggi = new Date().toISOString().split('T')[0];
+  try {
+    const ref = await addDoc(collection(db,'attivita'), {
+      pianta_id: voiceParsedActivity.piantaId,
+      tipo: voiceParsedActivity.tipo,
+      data_eseguita: oggi,
+      data_prossima: '',
+      note: voiceParsedActivity.note + ' (registrato a voce)',
+      utente: currentUser
+    });
+    addLog('add','🎙️','Attivita vocale: '+voiceParsedActivity.tipo+' su '+voiceParsedActivity.piantaNome, currentUser);
+    showToast('✅ Attivita registrata: '+voiceParsedActivity.tipo+' su '+voiceParsedActivity.piantaNome);
+    closeVoiceMode();
+  } catch(e) {
+    showToast('❌ Errore salvataggio: '+e.message);
+  }
+};
+
+window.raccontaGiardino = async function() {
+  const apiKey = localStorage.getItem('geminiApiKey');
+  if (!apiKey) { showToast('Configura la chiave API Groq nella sezione AI'); return; }
+
+  const el = document.getElementById('raccontoContent');
+  el.innerHTML = '<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Sto scrivendo il racconto...</span></div>';
+
+  // Raccolta eventi recenti (ultimi 14 giorni)
+  const oggi = new Date();
+  const dueSettimaneFa = new Date(); dueSettimaneFa.setDate(oggi.getDate()-14);
+
+  const attRecenti = attivita.filter(a => a.data_eseguita && new Date(a.data_eseguita) >= dueSettimaneFa)
+    .map(a => {
+      const p = piante.find(x=>x.id===a.pianta_id);
+      return (p?p.nome:'una pianta') + ': ' + a.tipo + ' il ' + a.data_eseguita + (a.note?' ('+a.note+')':'');
+    }).join(' | ') || 'nessuna attivita recente';
+
+  const noteRecenti = note.filter(n => n.timestamp && new Date(n.timestamp) >= dueSettimaneFa)
+    .map(n => n.tipo + ': ' + n.testo).join(' | ') || 'nessuna nota recente';
+
+  const speseRecenti = spese.filter(s => s.data && new Date(s.data) >= dueSettimaneFa).length;
+
+  const scaduteAttuali = attivita.filter(a => a.data_prossima && Math.round((new Date(a.data_prossima)-oggi)/86400000) < 0)
+    .map(a => { const p = piante.find(x=>x.id===a.pianta_id); return p?p.nome:''; }).filter(Boolean);
+
+  const stagione = [11,0,1].includes(oggi.getMonth()) ? 'inverno' : [2,3,4].includes(oggi.getMonth()) ? 'primavera' : [5,6,7].includes(oggi.getMonth()) ? 'estate' : 'autunno';
+
+  const prompt = `Sei uno scrittore che trasforma dati di giardinaggio in un breve racconto poetico e caldo, in italiano.
+
+Stagione: ${stagione}. Giardino di 1400 mq a Terracina.
+
+ATTIVITA DEGLI ULTIMI 14 GIORNI:
+${attRecenti}
+
+NOTE CONDIVISE RECENTI:
+${noteRecenti}
+
+SPESE REGISTRATE: ${speseRecenti} nel periodo
+
+PIANTE IN ATTESA DI CURE (scadute): ${scaduteAttuali.join(', ')||'nessuna'}
+
+Scrivi un breve racconto (massimo 4-5 frasi) in terza persona, in stile narrativo e leggermente poetico, che racconti la vita del giardino in questo periodo. Usa i dati reali forniti, personifica leggermente le piante. Non inventare eventi non presenti nei dati. Concludi con una nota di speranza o curiosita per il prossimo periodo. Massimo 2 emoji.`;
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:400,temperature:0.85})
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.choices?.[0]?.message?.content || 'Nessun racconto disponibile al momento.';
+    el.innerHTML = text;
+  } catch(e) {
+    el.innerHTML = '<span style="color:var(--r6);font-style:normal;font-size:12px">❌ Errore: ' + e.message + '</span>';
+  }
 };
 
 async function getDashAiSuggestion() {
@@ -3002,6 +3367,21 @@ function scadInfo(days) {
   return               {cls:'badge-green',itemCls:'ok',text:'Fra '+days+' giorni'};
 }
 
+// Stato di salute sintetico di una pianta, basato sulla sua scadenza più urgente
+function statoSalutePianta(piantaId) {
+  const attsP = attivita.filter(a => a.pianta_id === piantaId && a.data_prossima);
+  if (!attsP.length) return {colore:'#94a3b8', livello:'neutro', label:'Nessuna attivita programmata'};
+  let peggiore = null;
+  attsP.forEach(a => {
+    const d = daysLeft(a.data_prossima);
+    if (peggiore === null || (d !== null && d < peggiore)) peggiore = d;
+  });
+  if (peggiore === null) return {colore:'#94a3b8', livello:'neutro', label:'Nessuna attivita programmata'};
+  if (peggiore < 0)   return {colore:'#dc2626', livello:'urgente', label:'Scaduta '+Math.abs(peggiore)+'gg fa'};
+  if (peggiore <= 7)  return {colore:'#f59e0b', livello:'attenzione', label:'Fra '+peggiore+' giorni'};
+  return {colore:'#16a34a', livello:'ok', label:'In regola'};
+}
+
 function buildScadItems() {
   return attivita.map(a => {
     const p = piante.find(x => x.id===a.pianta_id);
@@ -3402,6 +3782,113 @@ function fillAiPianteSel() {
   if (!localStorage.getItem('geminiApiKey')) localStorage.setItem('geminiApiKey', defaultGeminiKey);
   document.getElementById('aiApiKey').value = localStorage.getItem('geminiApiKey') || defaultGeminiKey;
 }
+
+window.generaPianoSettimanale = async function() {
+  const apiKey = localStorage.getItem('geminiApiKey');
+  if (!apiKey) { showToast('Configura prima la chiave API Groq qui sotto'); return; }
+  if (!piante.length) { showToast('Aggiungi prima delle piante al giardino'); return; }
+
+  const btn = document.getElementById('pianoBtnGenera');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader spinner"></i> Generazione in corso...';
+  document.getElementById('pianoResult').innerHTML = `
+    <div class="diag-result">
+      <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
+      <span>Il giardiniere AI sta organizzando la settimana...</span></div>
+    </div>`;
+
+  // Riepilogo piante con ultima attivita per ciascuna
+  const pianteInfo = piante.map(p => {
+    const ultime = attivita.filter(a => a.pianta_id === p.id).sort((a,b)=>new Date(b.data_eseguita||0)-new Date(a.data_eseguita||0));
+    const ultima = ultime[0];
+    const ultimaStr = ultima ? (ultima.tipo+' il '+ultima.data_eseguita) : 'nessuna attivita registrata';
+    return '- ' + p.nome + ' (' + p.tipo + (p.posizione?', '+p.posizione:'') + '): ultima cura = ' + ultimaStr;
+  }).join(' | ');
+
+  // Scadenze attuali
+  const scadenzeStr = attivita
+    .filter(a => a.data_prossima)
+    .map(a => {
+      const p = piante.find(x=>x.id===a.pianta_id);
+      const days = Math.round((new Date(a.data_prossima)-new Date())/86400000);
+      return (p?p.nome:'?') + ': ' + a.tipo + ' (' + (days<0?'scaduta '+Math.abs(days)+'gg fa':'fra '+days+'gg') + ')';
+    }).join(' | ') || 'nessuna scadenza programmata';
+
+  const mese = new Date().toLocaleDateString('it-IT',{month:'long'});
+  const stagione = [11,0,1].includes(new Date().getMonth()) ? 'inverno' : [2,3,4].includes(new Date().getMonth()) ? 'primavera' : [5,6,7].includes(new Date().getMonth()) ? 'estate' : 'autunno';
+
+  // Meteo
+  let meteoInfo = 'non disponibile';
+  const owmKey = localStorage.getItem('owmKey');
+  if (owmKey) {
+    try {
+      const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=Terracina&appid=${owmKey}&units=metric&lang=it&cnt=8`);
+      const w = await res.json();
+      if (w.cod === '200') {
+        const temps = w.list.map(i=>Math.round(i.main.temp));
+        const condizioni = [...new Set(w.list.map(i=>i.weather[0].description))].join(', ');
+        meteoInfo = 'temperature previste ' + Math.min(...temps) + '-' + Math.max(...temps) + 'C, condizioni: ' + condizioni;
+      }
+    } catch(e) {}
+  }
+
+  const prompt = `Sei un esperto giardiniere italiano specializzato in giardini mediterranei (Terracina, Lazio, 1400 mq).
+
+Oggi e' ${new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'})}. Stagione: ${stagione} (${mese}).
+Previsioni meteo prossimi giorni: ${meteoInfo}.
+
+PIANTE NEL GIARDINO:
+${pianteInfo}
+
+SCADENZE ATTIVE:
+${scadenzeStr}
+
+Crea un PIANO DI CURA per i prossimi 7 giorni, organizzato giorno per giorno (da oggi a +6 giorni). Per ogni giorno indica solo le attivita realmente necessarie (non tutti i giorni devono avere attivita). Considera: scadenze esistenti da priorizzare, stagione, meteo previsto, ultima cura di ciascuna pianta.
+
+Formato risposta:
+**[Nome giorno e data]**
+- [emoji] Attivita su [pianta]: [breve descrizione]
+
+Se un giorno non richiede attivita scrivi "Giornata di riposo per il giardino 🌿".
+Sii pratico e specifico, massimo 2-3 attivita per giorno. Usa emoji per ogni tipo di attivita (💧 irrigazione, ✂️ potatura, 🌱 concimazione, 🐛 trattamento, 🍎 raccolta).`;
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:1800,temperature:0.5})
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.choices?.[0]?.message?.content;
+    if (!text) throw new Error('Nessuna risposta ricevuta');
+
+    const htmlText = text.split('**').map((s,i)=>i%2===1?'<strong>'+s+'</strong>':s).join('').split('\n').join('<br>');
+
+    document.getElementById('pianoResult').innerHTML = `
+      <div class="diag-result">
+        <div class="diag-result-header">
+          <span style="font-size:28px">📅</span>
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:700;color:var(--text)">Piano settimanale</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Generato il ${new Date().toLocaleDateString('it-IT')}</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--text);line-height:1.9">${htmlText}</div>
+        <div style="margin-top:1rem">
+          <button class="btn btn-secondary" style="width:100%" onclick="generaPianoSettimanale()">
+            <i class="ti ti-refresh"></i> Rigenera piano
+          </button>
+        </div>
+      </div>`;
+
+    addLog('add','📅','Generato piano di cura settimanale', currentUser);
+  } catch(e) {
+    document.getElementById('pianoResult').innerHTML = `<div class="notice notice-amber">❌ Errore: ${e.message}</div>`;
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-calendar-stats"></i> Genera piano settimanale';
+};
 
 window.getAiSuggestion = async function() {
   const apiKey = document.getElementById('aiApiKey').value.trim();
