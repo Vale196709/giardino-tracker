@@ -694,6 +694,7 @@ canvas{max-width:100%}
         <button class="pill" onclick="sendTestReport()" style="background:var(--b1);color:var(--b6);border-color:#bfdbfe">📊 Test report</button>
 
       </div>
+      <div id="emailKeyStatus" style="font-size:12px;margin-bottom:.5rem;min-height:16px"></div>
       <div id="scadList" class="scad-list">
         <div class="empty-state"><i class="ti ti-loader spinner"></i><p>Caricamento dati...</p></div>
       </div>
@@ -749,7 +750,7 @@ canvas{max-width:100%}
 
     <!-- AI CONSIGLI -->
     <div id="panelAI" class="tab-panel">
-      <div class="ai-box" style="background:linear-gradient(135deg,var(--g1),var(--t1));border-color:var(--g2)">
+      <div class="ai-box">
         <div class="ai-box-header">
           <span style="font-size:24px">📅</span>
           <div class="ai-box-title">Piano di cura settimanale</div>
@@ -765,6 +766,20 @@ canvas{max-width:100%}
 
       <div class="ai-box">
         <div class="ai-box-header">
+          <span style="font-size:24px">📊</span>
+          <div class="ai-box-title">Analisi storico e anomalie</div>
+        </div>
+        <div style="font-size:13px;color:var(--g8);margin-bottom:1rem;line-height:1.6">
+          L'AI analizza tutto lo storico delle attività e individua pattern, piante trascurate, squilibri nelle cure o anomalie da segnalare.
+        </div>
+        <button class="btn btn-ai" onclick="analizzaStoricoAnomalie()" id="analisiBtnGenera">
+          <i class="ti ti-chart-dots"></i> Analizza storico
+        </button>
+      </div>
+      <div id="analisiResult"></div>
+
+      <div class="ai-box">
+        <div class="ai-box-header">
           <span style="font-size:24px">✨</span>
           <div class="ai-box-title">Consigli AI con Gemini (Google)</div>
         </div>
@@ -773,8 +788,12 @@ canvas{max-width:100%}
         </div>
         <div class="form-group">
           <label class="form-label">Chiave API Groq (gratuita)</label>
-          <input type="password" class="form-control" id="aiApiKey" placeholder="gsk_..." style="font-size:13px">
-          <div class="ai-api-notice">La chiave è salvata solo nel browser. Gratuita su <strong>console.groq.com</strong></div>
+          <div style="display:flex;gap:6px">
+            <input type="password" class="form-control" id="aiApiKey" placeholder="gsk_..." style="font-size:13px;flex:1">
+            <button class="btn btn-sm" style="background:var(--g1);color:var(--g7);border:1px solid var(--g2);white-space:nowrap" onclick="salvaEVerificaChiave()">Salva e verifica</button>
+          </div>
+          <div class="ai-api-notice">Chiave condivisa tra tutti i dispositivi · Gratuita su <strong>console.groq.com</strong></div>
+          <div id="groqKeyStatus" style="font-size:12px;margin-top:4px"></div>
         </div>
         <div class="ai-select-row">
           <select id="aiPianta" class="form-control" style="flex:1"></select>
@@ -813,6 +832,7 @@ canvas{max-width:100%}
           <label class="form-label">Chiave API OpenWeatherMap</label>
           <input type="password" class="form-control" id="owmKey" placeholder="abcd1234..." style="font-size:13px">
           <div class="ai-api-notice">Gratuita su <strong>openweathermap.org</strong> → API keys</div>
+          <div id="owmKeyStatus" style="font-size:12px;margin-top:4px"></div>
         </div>
         <div class="form-group">
           <label class="form-label">Città</label>
@@ -1349,7 +1369,7 @@ const helpContent = {
   Piante: {icon:'🌱', title:'Piante', body:'Griglia di tutte le piante del giardino con il loro stato di scadenza. Tocca una pianta per modificarla o eliminarla.<br><br>Usa le <strong>etichette colorate</strong> (biologico, in vaso, urgente...) per organizzare le piante. Tocca <strong>+</strong> per aggiungerne una nuova.'},
   Calendario: {icon:'📆', title:'Calendario', body:'Vista mensile con un pallino colorato nei giorni che hanno attività programmate. Tocca un giorno per vedere il dettaglio delle attività previste.'},
   Stats: {icon:'📊', title:'Statistiche', body:'Grafici sulle attività svolte: per mese, per tipo (potatura, irrigazione...) e per pianta. In fondo trovi anche la <strong>previsione spese annuali</strong> basata sulla media mensile attuale.'},
-  AI: {icon:'✨', title:'AI Consigli', body:'Due strumenti AI: il <strong>Piano di cura settimanale</strong> (genera cosa fare nei prossimi 7 giorni per tutte le piante) e i <strong>Consigli su una pianta specifica</strong> (scegli pianta e argomento per un consiglio mirato). Richiede una chiave Groq gratuita da console.groq.com.'},
+  AI: {icon:'✨', title:'AI Consigli', body:'Tre strumenti AI: il <strong>Piano di cura settimanale</strong> (genera cosa fare nei prossimi 7 giorni per tutte le piante), l\'<strong>Analisi storico</strong> (individua piante trascurate, squilibri e anomalie nelle cure) e i <strong>Consigli su una pianta specifica</strong> (scegli pianta e argomento per un consiglio mirato). Richiede una chiave Groq gratuita da console.groq.com.'},
   Storico: {icon:'🕓', title:'Storico', body:'Le ultime 40 attività registrate, in ordine dalla più recente. Utile per ripercorrere cosa è stato fatto di recente in giardino.'},
   Meteo: {icon:'☁️', title:'Meteo', body:'Meteo attuale e previsioni a 5 giorni per Terracina. In fondo puoi configurare le <strong>notifiche WhatsApp</strong> (tramite CallMeBot) per ricevere avvisi sulle scadenze anche lì, oltre alle email.'},
   Spese: {icon:'💰', title:'Spese', body:'Registro di tutte le spese del giardino con grafici mensili e per categoria. Usa i pulsanti in fondo per esportare in <strong>PDF</strong> o <strong>Excel</strong>, o per importare lo storico da Google Sheet. Tocca <strong>+</strong> per registrare una nuova spesa.'},
@@ -1521,6 +1541,7 @@ window.doLogout = function() {
   if (_unsubAttivita) { _unsubAttivita(); _unsubAttivita = null; }
   if (_unsubSpese) { _unsubSpese(); _unsubSpese = null; }
   if (_unsubBacheca) { _unsubBacheca(); _unsubBacheca = null; }
+  if (_unsubConfig) { _unsubConfig(); _unsubConfig = null; }
   currentUser = ''; currentRole = 'admin'; piante = []; attivita = []; spese = []; note = [];
   document.getElementById('loginPin').value = '';
   showScreen('screenSetup');
@@ -2163,7 +2184,7 @@ window.toggleSintomo = function(el) {
 };
 
 window.getDiagnosi = async function() {
-  const apiKey = localStorage.getItem('geminiApiKey');
+  const apiKey = getGroqKey();
   if (!apiKey) { showToast('Configura la chiave API Groq nella sezione AI'); return; }
 
   const pId = document.getElementById('diagPianta').value;
@@ -2544,7 +2565,7 @@ window.askDashAi = async function() {
   const input = document.getElementById('dashAiAsk');
   const msg = input.value.trim();
   if (!msg) return;
-  const apiKey = localStorage.getItem('geminiApiKey');
+  const apiKey = getGroqKey();
   if (!apiKey) { showToast('Configura la chiave API Groq nella sezione AI'); return; }
 
   const el = document.getElementById('dashAiContent');
@@ -2667,7 +2688,7 @@ function startVoiceListening() {
 
 async function processVoiceTranscript(transcript) {
   document.getElementById('voiceStatus').textContent = 'Sto elaborando...';
-  const apiKey = localStorage.getItem('geminiApiKey');
+  const apiKey = getGroqKey();
   if (!apiKey) {
     document.getElementById('voiceText').textContent = 'Configura la chiave API Groq nella sezione AI per usare questa funzione.';
     return;
@@ -2742,7 +2763,7 @@ window.confermaVoiceAttivita = async function() {
 };
 
 window.raccontaGiardino = async function() {
-  const apiKey = localStorage.getItem('geminiApiKey');
+  const apiKey = getGroqKey();
   if (!apiKey) { showToast('Configura la chiave API Groq nella sezione AI'); return; }
 
   const el = document.getElementById('raccontoContent');
@@ -2811,7 +2832,7 @@ async function getDashAiSuggestion() {
     return;
   }
 
-  const apiKey = localStorage.getItem('geminiApiKey');
+  const apiKey = getGroqKey();
   if (!apiKey) {
     el.innerHTML = '<span style="color:var(--muted);font-size:12px">Configura la chiave Groq nella sezione AI per ricevere consigli personalizzati.</span>';
     return;
@@ -3228,10 +3249,14 @@ window.sendTestEmail = async function() {
     });
     console.log('EmailJS result:', JSON.stringify(result));
     showToast('📧 Inviata! Status: ' + result.status + ' - ' + result.text, 4000);
+    const emailStatus = document.getElementById('emailKeyStatus');
+    if (emailStatus) emailStatus.innerHTML = '<span style="color:#16a34a">✅ Servizio email attivo e funzionante</span>';
   } catch(e) {
     const errMsg = typeof e === 'object' ? JSON.stringify(e) : String(e);
     console.error('EmailJS error completo:', e);
     showToast('❌ ' + errMsg, 5000);
+    const emailStatus = document.getElementById('emailKeyStatus');
+    if (emailStatus) emailStatus.innerHTML = '<span style="color:#dc2626">❌ Servizio email non funzionante — controlla la configurazione EmailJS</span>';
     alert('Errore EmailJS:\n' + errMsg);
   }
 };
@@ -3279,7 +3304,7 @@ function applyRoleUI() {
 }
 
 // ── LOAD DATA ──────────────────────────────────────────
-let _unsubPiante = null, _unsubAttivita = null, _unsubSpese = null, _unsubBacheca = null;
+let _unsubPiante = null, _unsubAttivita = null, _unsubSpese = null, _unsubBacheca = null, _unsubConfig = null;
 
 async function loadAll() {
   document.getElementById('headerSubText').textContent = 'Connessione...';
@@ -3290,6 +3315,22 @@ async function loadAll() {
   if (_unsubAttivita) _unsubAttivita();
   if (_unsubSpese) _unsubSpese();
   if (_unsubBacheca) _unsubBacheca();
+  if (_unsubConfig) _unsubConfig();
+
+  // Listener real-time config condivisa (chiavi API)
+  _unsubConfig = onSnapshot(doc(db,'config','shared'), snap => {
+    if (snap.exists()) {
+      const data = snap.data();
+      if (data.groqApiKey) {
+        window.sharedGroqKey = data.groqApiKey;
+        // Aggiorna il campo se la tab AI e' aperta
+        const aiKeyInput = document.getElementById('aiApiKey');
+        if (aiKeyInput && document.getElementById('panelAI')?.classList.contains('active')) {
+          aiKeyInput.value = data.groqApiKey;
+        }
+      }
+    }
+  }, err => console.log('Config listener:', err));
 
   // Listener real-time piante
   _unsubPiante = onSnapshot(query(collection(db,'piante'), orderBy('nome')), snap => {
@@ -3775,16 +3816,62 @@ function drawCharts() {
 }
 
 // ── AI SUGGERIMENTI ────────────────────────────────────
+// Chiave Groq: priorita a quella condivisa su Firebase, poi localStorage, poi default
+const DEFAULT_GROQ_KEY = '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';
+function getGroqKey() {
+  return window.sharedGroqKey || localStorage.getItem('geminiApiKey') || DEFAULT_GROQ_KEY;
+}
+
+async function saveSharedGroqKey(key) {
+  localStorage.setItem('geminiApiKey', key);
+  window.sharedGroqKey = key;
+  if (db) {
+    try { await setDoc(doc(db,'config','shared'), {groqApiKey: key}, {merge:true}); }
+    catch(e) { console.log('Errore salvataggio chiave condivisa:', e); }
+  }
+}
+
+async function verificaGroqKey(key) {
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${key}`},
+      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:'ciao'}],max_tokens:5})
+    });
+    return res.ok;
+  } catch(e) { return false; }
+}
+
 function fillAiPianteSel() {
   const sel = document.getElementById('aiPianta');
   sel.innerHTML = piante.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
-  const defaultGeminiKey = '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';
-  if (!localStorage.getItem('geminiApiKey')) localStorage.setItem('geminiApiKey', defaultGeminiKey);
-  document.getElementById('aiApiKey').value = localStorage.getItem('geminiApiKey') || defaultGeminiKey;
+  document.getElementById('aiApiKey').value = getGroqKey();
+  // Controllo automatico silenzioso della chiave
+  verificaChiaveAttiva();
 }
 
+window.salvaEVerificaChiave = async function() {
+  const apiKey = document.getElementById('aiApiKey').value.trim();
+  if (!apiKey) { showToast('Inserisci una chiave prima di verificare'); return; }
+  await saveSharedGroqKey(apiKey);
+  showToast('💾 Chiave salvata, ora condivisa su tutti i dispositivi');
+  await verificaChiaveAttiva();
+};
+
+window.verificaChiaveAttiva = async function() {
+  const indicatore = document.getElementById('groqKeyStatus');
+  if (indicatore) indicatore.innerHTML = '<span style="color:var(--muted)">⏳ Verifica in corso...</span>';
+  const ok = await verificaGroqKey(getGroqKey());
+  if (indicatore) {
+    indicatore.innerHTML = ok
+      ? '<span style="color:#16a34a">✅ Chiave attiva e funzionante</span>'
+      : '<span style="color:#dc2626">❌ Chiave non valida o scaduta — aggiornala qui sotto</span>';
+  }
+  return ok;
+};
+
 window.generaPianoSettimanale = async function() {
-  const apiKey = localStorage.getItem('geminiApiKey');
+  const apiKey = getGroqKey();
   if (!apiKey) { showToast('Configura prima la chiave API Groq qui sotto'); return; }
   if (!piante.length) { showToast('Aggiungi prima delle piante al giardino'); return; }
 
@@ -3890,10 +3977,121 @@ Sii pratico e specifico, massimo 2-3 attivita per giorno. Usa emoji per ogni tip
   btn.innerHTML = '<i class="ti ti-calendar-stats"></i> Genera piano settimanale';
 };
 
+window.analizzaStoricoAnomalie = async function() {
+  const apiKey = getGroqKey();
+  if (!apiKey) { showToast('Configura prima la chiave API Groq qui sotto'); return; }
+  if (!piante.length) { showToast('Aggiungi prima delle piante al giardino'); return; }
+  if (attivita.length < 3) { showToast('Servono almeno alcune attività registrate per fare un\'analisi utile'); return; }
+
+  const btn = document.getElementById('analisiBtnGenera');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader spinner"></i> Analisi in corso...';
+  document.getElementById('analisiResult').innerHTML = `
+    <div class="diag-result">
+      <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
+      <span>Sto analizzando lo storico del giardino...</span></div>
+    </div>`;
+
+  const oggi = new Date();
+
+  // Per ogni pianta: tipo, ultima cura per tipo di attivita, totale attivita, giorni dall'ultima cura
+  const tipiAttivita = ['Potatura','Concimatura','Irrigazione','Trattamento','Raccolta'];
+  const pianteAnalisi = piante.map(p => {
+    const attsP = attivita.filter(a => a.pianta_id === p.id);
+    const perTipo = tipiAttivita.map(t => {
+      const att = attsP.filter(a => a.tipo === t).sort((a,b)=>new Date(b.data_eseguita||0)-new Date(a.data_eseguita||0));
+      if (!att.length) return t+': mai registrata';
+      const giorni = Math.round((oggi - new Date(att[0].data_eseguita)) / 86400000);
+      return t+': ultima '+giorni+' giorni fa ('+att.length+' totali)';
+    }).join(', ');
+    return p.nome+' ('+p.tipo+'): '+perTipo;
+  }).join(' || ');
+
+  // Frequenza attivita per mese (ultimi 6 mesi) per individuare cali/picchi
+  const mesiAttivita = {};
+  attivita.forEach(a => {
+    if (!a.data_eseguita) return;
+    const d = new Date(a.data_eseguita);
+    const key = d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');
+    mesiAttivita[key] = (mesiAttivita[key]||0)+1;
+  });
+  const mesiStr = Object.entries(mesiAttivita).sort().slice(-6).map(([k,v])=>k+': '+v+' attivita').join(', ') || 'nessun dato';
+
+  // Spese per categoria (per individuare squilibri)
+  const speseCat = {};
+  spese.forEach(s => {
+    const k = s.classe || s.categoria || 'altro';
+    speseCat[k] = (speseCat[k]||0) + parseFloat(s.importo||0);
+  });
+  const speseStr = Object.entries(speseCat).map(([k,v])=>k+': EUR '+v.toFixed(0)).join(', ') || 'nessuna spesa registrata';
+
+  const totAttivita = attivita.length;
+  const primaData = attivita.length ? attivita.reduce((min,a) => a.data_eseguita && (!min || a.data_eseguita < min) ? a.data_eseguita : min, null) : null;
+
+  const prompt = `Sei un analista esperto di giardinaggio che esamina dati storici per individuare pattern e anomalie.
+
+GIARDINO: 1400 mq a Terracina. Totale attivita registrate: ${totAttivita}${primaData?' (dal '+primaData+')':''}.
+
+DETTAGLIO CURE PER PIANTA:
+${pianteAnalisi}
+
+ATTIVITA PER MESE (ultimi 6 mesi):
+${mesiStr}
+
+SPESE PER CATEGORIA:
+${speseStr}
+
+Analizza questi dati e individua:
+1. **PIANTE TRASCURATE**: quali piante non ricevono cure adeguate da troppo tempo rispetto al loro tipo (es: un olivo senza concimazione da 6+ mesi e' normale, un ortaggio senza irrigazione da 1 mese e' un problema)
+2. **SQUILIBRI**: piante che ricevono troppe o troppo poche cure rispetto alle altre
+3. **PATTERN TEMPORALI**: mesi con cali sospetti di attivita o concentrazioni anomale
+4. **SPESE**: categorie di spesa sproporzionate o assenti che potrebbero indicare cure mancanti
+5. **RACCOMANDAZIONE PRINCIPALE**: la singola cosa più urgente da correggere
+
+Sii specifico citando nomi di piante e numeri reali dai dati. Usa emoji per ogni punto. Se i dati sono troppo pochi per un'analisi solida, dillo onestamente.`;
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:1500,temperature:0.4})
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.choices?.[0]?.message?.content;
+    if (!text) throw new Error('Nessuna risposta ricevuta');
+
+    const htmlText = text.split('**').map((s,i)=>i%2===1?'<strong>'+s+'</strong>':s).join('').split('\n').join('<br>');
+
+    document.getElementById('analisiResult').innerHTML = `
+      <div class="diag-result">
+        <div class="diag-result-header">
+          <span style="font-size:28px">📊</span>
+          <div style="flex:1">
+            <div style="font-size:15px;font-weight:700;color:var(--text)">Analisi storico</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Basata su ${totAttivita} attività registrate</div>
+          </div>
+        </div>
+        <div style="font-size:13px;color:var(--text);line-height:1.9">${htmlText}</div>
+        <div style="margin-top:1rem">
+          <button class="btn btn-secondary" style="width:100%" onclick="analizzaStoricoAnomalie()">
+            <i class="ti ti-refresh"></i> Rianalizza
+          </button>
+        </div>
+      </div>`;
+
+    addLog('add','📊','Eseguita analisi storico e anomalie', currentUser);
+  } catch(e) {
+    document.getElementById('analisiResult').innerHTML = `<div class="notice notice-amber">❌ Errore: ${e.message}</div>`;
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-chart-dots"></i> Analizza storico';
+};
+
 window.getAiSuggestion = async function() {
   const apiKey = document.getElementById('aiApiKey').value.trim();
   if (!apiKey) { showToast('Inserisci la chiave API Gemini'); return; }
-  localStorage.setItem('geminiApiKey', apiKey); // ora usato per Groq
+  if (apiKey !== getGroqKey()) await saveSharedGroqKey(apiKey);
 
   const pId = document.getElementById('aiPianta').value;
   const arg = document.getElementById('aiArgomento').value;
@@ -4193,8 +4391,13 @@ window.loadMeteo = async function() {
     }).join('');
     document.getElementById('meteoPrev').innerHTML = `<div class="prev-grid">${prevHtml}</div>`;
 
+    const owmStatus = document.getElementById('owmKeyStatus');
+    if (owmStatus) owmStatus.innerHTML = '<span style="color:#16a34a">✅ Chiave attiva e funzionante</span>';
+
   } catch(e) {
     document.getElementById('meteoResult').innerHTML = `<div class="notice notice-amber">❌ Errore: ${e.message}. Controlla chiave API e nome città.</div>`;
+    const owmStatus = document.getElementById('owmKeyStatus');
+    if (owmStatus) owmStatus.innerHTML = '<span style="color:#dc2626">❌ Chiave non valida o scaduta — controlla su openweathermap.org</span>';
   }
 };
 
