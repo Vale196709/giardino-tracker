@@ -1364,7 +1364,7 @@ window.closeDrawer = function() {
 // HELP CONTESTUALE
 // ══════════════════════════════════════════
 const helpContent = {
-  Dashboard: {icon:'🏠', title:'Dashboard', body:'La tua home page. Qui trovi: il meteo del giorno, le scadenze più urgenti, le statistiche rapide, le ultime note in bacheca e il consiglio AI del giorno.<br><br>Tocca "✨ Genera" nel box arancione per ricevere un breve racconto poetico di cosa è successo nel giardino di recente.<br><br>Usa la sezione "🚀 Accesso rapido" per saltare velocemente alle altre schermate.'},
+  Dashboard: {icon:'🏠', title:'Dashboard', body:'La tua home page. Qui trovi: il meteo del giorno, le scadenze più urgenti, le statistiche rapide, le ultime note in bacheca e il consiglio AI del giorno.<br><br>Tocca "✨ Genera" nel box arancione per ricevere un breve racconto poetico di cosa è successo nel giardino di recente.<br><br>Usa la sezione "🚀 Accesso rapido" per saltare velocemente alle altre schermate.<br><br>In fondo trovi il pulsante <strong>"Backup completo dati"</strong> che scarica tutte le piante, attività, spese e note in un file di sicurezza, e il numero di versione dell\'app.'},
   Scadenze: {icon:'📅', title:'Scadenze', body:'Elenco di tutte le attività programmate, con codice colore: <span style="color:#dc2626">🔴 rosso</span> = scaduta, <span style="color:#d97706">🟡 giallo</span> = entro 30 giorni, <span style="color:#16a34a">🟢 verde</span> = in regola.<br><br>Usa i filtri in alto per vedere solo scadute o in arrivo. Tocca il pulsante <strong>+</strong> in basso per aggiungere una nuova attività.'},
   Piante: {icon:'🌱', title:'Piante', body:'Griglia di tutte le piante del giardino con il loro stato di scadenza. Tocca una pianta per modificarla o eliminarla.<br><br>Usa le <strong>etichette colorate</strong> (biologico, in vaso, urgente...) per organizzare le piante. Tocca <strong>+</strong> per aggiungerne una nuova.'},
   Calendario: {icon:'📆', title:'Calendario', body:'Vista mensile con un pallino colorato nei giorni che hanno attività programmate. Tocca un giorno per vedere il dettaglio delle attività previste.'},
@@ -2550,11 +2550,79 @@ async function initDashboard() {
           </button>`).join('')}
       </div>
     </div>
+
+    <div class="dash-animate" style="text-align:center;padding:.5rem 0 1rem;display:flex;flex-direction:column;align-items:center;gap:6px">
+      <button onclick="esportaBackupCompleto()" style="background:transparent;border:1px solid var(--border);border-radius:20px;padding:6px 16px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px">
+        <i class="ti ti-database-export" style="font-size:15px"></i> Backup completo dati
+      </button>
+      <div style="font-size:10px;color:var(--muted);opacity:.7" id="dashVersionInfo">
+        Giardino di Quintilina · v${window.APP_VERSION} · ${new Date(window.APP_RELEASE_DATE).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}
+      </div>
+    </div>
   `;
 
   // Carica consiglio AI
   getDashAiSuggestion();
+
+  // Aggiorna versione/data con quella reale dell'ultimo commit GitHub
+  aggiornaVersioneDaGitHub().then(info => {
+    const el = document.getElementById('dashVersionInfo');
+    if (el && info) {
+      el.textContent = 'Giardino di Quintilina · v' + window.APP_VERSION + ' · ' +
+        new Date(window.APP_RELEASE_DATE).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
+    }
+  });
 }
+
+window.esportaBackupCompleto = async function() {
+  showToast('⏳ Preparazione backup...');
+  try {
+    // Recupera dati mappa e log che non sono in variabili globali sempre aggiornate
+    let mappaData = {};
+    try {
+      const snap = await getDocs(collection(db,'mappa'));
+      snap.docs.forEach(d => { mappaData[d.id] = d.data(); });
+    } catch(e) {}
+
+    let logData = [];
+    try { logData = JSON.parse(localStorage.getItem('giardinoLog') || '[]'); } catch(e) {}
+
+    const backup = {
+      app: 'Giardino di Quintilina',
+      versione: window.APP_VERSION,
+      dataEsportazione: new Date().toISOString(),
+      esportatoDa: currentUser,
+      dati: {
+        piante,
+        attivita,
+        spese,
+        bacheca: note,
+        mappa: mappaData,
+        log: logData
+      },
+      conteggi: {
+        piante: piante.length,
+        attivita: attivita.length,
+        spese: spese.length,
+        note: note.length
+      }
+    };
+
+    const json = JSON.stringify(backup, null, 2);
+    const blob = new Blob([json], {type:'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'backup-giardino-quintilina-' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+
+    showToast('✅ Backup scaricato: ' + piante.length + ' piante, ' + attivita.length + ' attività, ' + spese.length + ' spese');
+    addLog('add','💾','Esportato backup completo dei dati', currentUser);
+  } catch(e) {
+    showToast('❌ Errore nel backup: ' + e.message);
+  }
+};
 
 window.refreshDashAi = function() {
   localStorage.removeItem('dashAiCache');
@@ -3078,6 +3146,37 @@ window.testWhatsApp = async function() {
 // ══════════════════════════════════════════
 // NOTIFICHE EMAIL
 // ══════════════════════════════════════════
+// Valori di fallback (usati per il Service Worker prima che la fetch GitHub risponda)
+window.APP_VERSION = '5';
+window.APP_RELEASE_DATE = '2026-06-25';
+
+// Legge data/numero dell'ultimo commit reale su index.html da GitHub (fonte di verità)
+async function aggiornaVersioneDaGitHub() {
+  try {
+    const res = await fetch('https://api.github.com/repos/vale196709/giardino-tracker/commits?path=index.html&per_page=1');
+    if (!res.ok) return null;
+    const commits = await res.json();
+    if (!commits.length) return null;
+    const ultimo = commits[0];
+    const dataCommit = ultimo.commit.committer.date; // ISO string
+
+    // Numero totale di commit su index.html = numero di versione
+    const resAll = await fetch('https://api.github.com/repos/vale196709/giardino-tracker/commits?path=index.html&per_page=1&page=1');
+    const linkHeader = resAll.headers.get('link') || '';
+    let totaleCommit = null;
+    const match = linkHeader.match(/page=(\d+)>; rel="last"/);
+    if (match) totaleCommit = parseInt(match[1]);
+
+    window.APP_RELEASE_DATE = dataCommit;
+    if (totaleCommit) window.APP_VERSION = String(totaleCommit);
+
+    return {data: dataCommit, versione: totaleCommit};
+  } catch(e) {
+    console.log('Versione GitHub non disponibile, uso fallback:', e);
+    return null;
+  }
+}
+
 const EMAILJS_SERVICE  = 'service_3rupcwg';
 const EMAILJS_TEMPLATE = 'template_c0a34pc';
 const EMAILJS_TEMPLATE_REPORT = 'template_c0a34pc'; // stesso template, parametri diversi
@@ -4708,8 +4807,8 @@ if ('serviceWorker' in navigator) {
   }
   // Registra nuovo SW
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js?v=4')
-      .then(() => console.log('SW v4 registrato'))
+    navigator.serviceWorker.register('sw.js?v=' + window.APP_VERSION)
+      .then(() => console.log('SW ' + window.APP_VERSION + ' registrato'))
       .catch(e => console.log('SW errore:', e));
   });
 }
