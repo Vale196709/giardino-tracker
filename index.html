@@ -580,7 +580,7 @@ canvas{max-width:100%}
       <button onclick="drawerNav('Dashboard')" style="background:transparent;border:none;cursor:pointer;padding:6px;color:var(--g7);font-size:22px;display:flex;align-items:center;transition:transform .2s" title="Home" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"><i class="ti ti-home"></i></button>
       <div>
         <div class="top-brand-name" style="font-size:15px;color:var(--g8);font-family:'Lora',serif">Giardino di Quintilina</div>
-        <div class="top-brand-sub" id="headerSub" style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px"><span id="liveDot" style="width:6px;height:6px;border-radius:50%;background:var(--g5);display:none"></span><span id="headerSubText">Caricamento...</span></div>
+        <div class="top-brand-sub" id="headerSub" style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px"><span id="liveDot" style="width:6px;height:6px;border-radius:50%;background:var(--g5);display:none"></span><span id="headerSubText">Caricamento...</span><span id="headerVersion" style="opacity:.65"></span></div>
       </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px">
@@ -1533,6 +1533,15 @@ window.doLogin = function() {
   loadAll();
   // Dopo caricamento apri dashboard
   setTimeout(() => drawerNav('Dashboard'), 500);
+
+  // Legge la versione/data reale dall'ultimo commit GitHub e la mostra in alto
+  aggiornaVersioneDaGitHub().then(info => {
+    const el = document.getElementById('headerVersion');
+    if (el && info) {
+      const dataBreve = new Date(window.APP_RELEASE_DATE).toLocaleDateString('it-IT',{day:'numeric',month:'short'});
+      el.textContent = ' · v' + window.APP_VERSION + ' · ' + dataBreve;
+    }
+  });
 };
 
 window.doLogout = function() {
@@ -2551,27 +2560,15 @@ async function initDashboard() {
       </div>
     </div>
 
-    <div class="dash-animate" style="text-align:center;padding:.5rem 0 1rem;display:flex;flex-direction:column;align-items:center;gap:6px">
-      <button onclick="esportaBackupCompleto()" style="background:transparent;border:1px solid var(--border);border-radius:20px;padding:6px 16px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px">
+    <div class="dash-animate" style="text-align:center;padding:.5rem 0 1rem">
+      <button onclick="esportaBackupCompleto()" style="background:transparent;border:1px solid var(--border);border-radius:20px;padding:6px 16px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;margin:0 auto">
         <i class="ti ti-database-export" style="font-size:15px"></i> Backup completo dati
       </button>
-      <div style="font-size:10px;color:var(--muted);opacity:.7" id="dashVersionInfo">
-        Giardino di Quintilina · v${window.APP_VERSION} · ${new Date(window.APP_RELEASE_DATE).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'})}
-      </div>
     </div>
   `;
 
   // Carica consiglio AI
   getDashAiSuggestion();
-
-  // Aggiorna versione/data con quella reale dell'ultimo commit GitHub
-  aggiornaVersioneDaGitHub().then(info => {
-    const el = document.getElementById('dashVersionInfo');
-    if (el && info) {
-      el.textContent = 'Giardino di Quintilina · v' + window.APP_VERSION + ' · ' +
-        new Date(window.APP_RELEASE_DATE).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'});
-    }
-  });
 }
 
 window.esportaBackupCompleto = async function() {
@@ -3915,10 +3912,10 @@ function drawCharts() {
 }
 
 // ── AI SUGGERIMENTI ────────────────────────────────────
-// Chiave Groq: priorita a quella condivisa su Firebase, poi localStorage, poi default
-const DEFAULT_GROQ_KEY = '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';
+// Chiave Groq: SOLO da Firebase (config/shared) o localStorage. Mai hardcoded nel codice
+// per evitare che GitHub la rilevi e Groq la revochi automaticamente.
 function getGroqKey() {
-  return window.sharedGroqKey || localStorage.getItem('geminiApiKey') || DEFAULT_GROQ_KEY;
+  return window.sharedGroqKey || localStorage.getItem('geminiApiKey') || '';
 }
 
 async function saveSharedGroqKey(key) {
