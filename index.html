@@ -2268,7 +2268,7 @@ Usa emoji per rendere la risposta piu leggibile. Sii preciso e pratico.`;
 
   try {
     // Se c'è una foto usa llama-vision, altrimenti usa il modello testo
-    const model = hasFoto ? 'meta-llama/llama-4-scout-17b-16e-instruct' : 'llama-3.3-70b-versatile';
+    const model = hasFoto ? 'meta-llama/llama-4-scout-17b-16e-instruct' : 'qwen-qwq-32b';
     const messages = hasFoto ? [{
       role: 'user',
       content: [
@@ -2450,6 +2450,7 @@ async function initDashboard() {
   const tipoEmoji = {'nota':'📝','osservazione':'🔍','promemoria':'⏰','problema':'⚠️'};
 
   el.innerHTML = `
+    <div id="dashAnomalyAlert"></div>
     <div class="dash-hero dash-animate">
       <div class="dash-hero-greeting">${saluto},</div>
       <div class="dash-hero-name">${currentUser} 👋</div>
@@ -2567,6 +2568,9 @@ async function initDashboard() {
     </div>
   `;
 
+  // Mostra eventuale alert anomalia AI gia rilevato
+  renderAiAnomalyAlert();
+
   // Carica consiglio AI
   getDashAiSuggestion();
 }
@@ -2661,7 +2665,7 @@ Rispondi in italiano, breve e pratico (max 4-5 frasi), con 1-2 emoji.`;
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:300,temperature:0.7})
+      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:prompt}],max_tokens:300,temperature:0.7})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -2773,7 +2777,7 @@ Se la frase non descrive un'attivita di giardinaggio, rispondi con {"pianta": nu
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.2})
+      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.2})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -2874,7 +2878,7 @@ Scrivi un breve racconto (massimo 4-5 frasi) in terza persona, in stile narrativ
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:400,temperature:0.85})
+      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:prompt}],max_tokens:400,temperature:0.85})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -2934,7 +2938,7 @@ Massimo 3 frasi. Usa 1-2 emoji. Sii diretto e concreto.`;
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.7})
+      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.7})
     });
     const data = await res.json();
     const text = data.choices?.[0]?.message?.content || 'Nessun consiglio disponibile.';
@@ -3249,6 +3253,95 @@ window.resetNotify = function() {
 };
 
 // ══════════════════════════════════════════
+// NOTIFICA PROATTIVA AI (anomalie senza scadenza programmata)
+// ══════════════════════════════════════════
+async function checkAnomalieAI() {
+  const oggi = new Date().toISOString().split('T')[0];
+  const lastCheck = localStorage.getItem('lastAiAnomalyCheck');
+  if (lastCheck === oggi) return; // gia controllato oggi
+
+  const apiKey = getGroqKey();
+  if (!apiKey) return; // nessuna chiave, salta silenziosamente
+  if (!piante.length || attivita.length < 5) {
+    localStorage.setItem('lastAiAnomalyCheck', oggi);
+    return; // dati insufficienti per un'analisi sensata
+  }
+
+  // Costruisci un riepilogo compatto: per ogni pianta, giorni dall'ultima cura di ogni tipo
+  const oggiDate = new Date();
+  const tipiAttivita = ['Potatura','Concimatura','Irrigazione','Trattamento'];
+  const pianteInfo = piante.map(p => {
+    const attsP = attivita.filter(a => a.pianta_id === p.id);
+    const dettaglio = tipiAttivita.map(t => {
+      const att = attsP.filter(a => a.tipo === t).sort((a,b)=>new Date(b.data_eseguita||0)-new Date(a.data_eseguita||0));
+      if (!att.length) return null;
+      const giorni = Math.round((oggiDate - new Date(att[0].data_eseguita)) / 86400000);
+      return t+':'+giorni+'gg';
+    }).filter(Boolean).join(',');
+    return p.nome+'('+p.tipo+')['+(dettaglio||'nessuna cura registrata')+']';
+  }).join(' | ');
+
+  const prompt = `Analizza questi dati di cura piante di un giardino mediterraneo a Terracina. Per ogni pianta sono indicati i giorni trascorsi dall'ultima cura di ogni tipo.
+
+${pianteInfo}
+
+Individua SOLO se esiste UNA anomalia davvero seria e specifica (es: una pianta da orto/vaso senza irrigazione da oltre 20 giorni, o una pianta mai curata da quando è stata aggiunta). NON segnalare cose normali (es: un olivo senza concimazione da 4 mesi è normale).
+
+Rispondi SOLO con un oggetto JSON, nessun testo extra:
+{"anomalia": true/false, "pianta": "nome pianta se anomalia true altrimenti null", "messaggio": "breve frase pratica max 15 parole se anomalia true altrimenti stringa vuota"}`;
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:prompt}],max_tokens:150,temperature:0.3})
+    });
+    const data = await res.json();
+    if (data.error) { localStorage.setItem('lastAiAnomalyCheck', oggi); return; }
+    let text = (data.choices?.[0]?.message?.content || '{}').replace(/```json/g,'').replace(/```/g,'').trim();
+    const parsed = JSON.parse(text);
+
+    localStorage.setItem('lastAiAnomalyCheck', oggi);
+
+    if (parsed.anomalia && parsed.messaggio) {
+      localStorage.setItem('aiAnomalyAlert', JSON.stringify({
+        pianta: parsed.pianta || '',
+        messaggio: parsed.messaggio,
+        data: oggi
+      }));
+    } else {
+      localStorage.removeItem('aiAnomalyAlert');
+    }
+    // Se la Dashboard e' gia visibile, aggiorna subito l'alert senza aspettare un nuovo render
+    if (document.getElementById('panelDashboard')?.classList.contains('active')) {
+      renderAiAnomalyAlert();
+    }
+  } catch(e) {
+    console.log('Controllo anomalie AI non riuscito:', e);
+    localStorage.setItem('lastAiAnomalyCheck', oggi);
+  }
+}
+
+function renderAiAnomalyAlert() {
+  const el = document.getElementById('dashAnomalyAlert');
+  if (!el) return;
+  const raw = localStorage.getItem('aiAnomalyAlert');
+  if (!raw) { el.innerHTML = ''; return; }
+  try {
+    const alert = JSON.parse(raw);
+    // Mostra solo se e' di oggi
+    const oggi = new Date().toISOString().split('T')[0];
+    if (alert.data !== oggi) { el.innerHTML = ''; return; }
+    el.innerHTML = `
+      <div class="dash-animate" style="background:linear-gradient(135deg,#fff7ed,#fffbeb);border:1px solid #fed7aa;border-radius:var(--rad);padding:.85rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:10px">
+        <span style="font-size:22px">🔔</span>
+        <div style="flex:1;font-size:13px;color:#9a4a0a;line-height:1.5"><strong>L'AI ha notato qualcosa:</strong> ${alert.messaggio}</div>
+        <button onclick="this.closest('.dash-animate').remove();localStorage.removeItem('aiAnomalyAlert')" style="background:transparent;border:none;color:#b5832a;cursor:pointer;font-size:16px;padding:4px">✕</button>
+      </div>`;
+  } catch(e) { el.innerHTML = ''; }
+}
+
+// ══════════════════════════════════════════
 // REPORT MENSILE
 // ══════════════════════════════════════════
 async function checkAndSendMonthlyReport(force=false) {
@@ -3475,6 +3568,7 @@ async function loadAll() {
     if (currentRole === 'admin') {
       checkAndNotify();
       checkAndSendMonthlyReport();
+      checkAnomalieAI();
     }
   }, 4000);
 }
@@ -3932,7 +4026,7 @@ async function verificaGroqKey(key) {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${key}`},
-      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:'ciao'}],max_tokens:5})
+      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:'ciao'}],max_tokens:5})
     });
     return res.ok;
   } catch(e) { return false; }
@@ -4039,7 +4133,7 @@ Sii pratico e specifico, massimo 2-3 attivita per giorno. Usa emoji per ogni tip
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:1800,temperature:0.5})
+      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:prompt}],max_tokens:1800,temperature:0.5})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -4150,7 +4244,7 @@ Sii specifico citando nomi di piante e numeri reali dai dati. Usa emoji per ogni
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'llama-3.3-70b-versatile',messages:[{role:'user',content:prompt}],max_tokens:1500,temperature:0.4})
+      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:prompt}],max_tokens:1500,temperature:0.4})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -4232,7 +4326,7 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model: 'qwen-qwq-32b',
         messages: [{role: 'user', content: prompt}],
         max_tokens: 1000,
         temperature: 0.7
