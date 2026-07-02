@@ -2268,7 +2268,7 @@ Usa emoji per rendere la risposta piu leggibile. Sii preciso e pratico.`;
 
   try {
     // Se c'è una foto usa llama-vision, altrimenti usa il modello testo
-    const model = hasFoto ? 'meta-llama/llama-4-scout-17b-16e-instruct' : 'qwen-qwq-32b';
+    const model = hasFoto ? 'meta-llama/llama-4-scout-17b-16e-instruct' : 'qwen/qwen3.6-27b';
     const messages = hasFoto ? [{
       role: 'user',
       content: [
@@ -2665,7 +2665,7 @@ Rispondi in italiano, breve e pratico (max 4-5 frasi), con 1-2 emoji.`;
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:prompt}],max_tokens:300,temperature:0.7})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:prompt}],max_tokens:300,temperature:0.7})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -2777,7 +2777,7 @@ Se la frase non descrive un'attivita di giardinaggio, rispondi con {"pianta": nu
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.2})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.2})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -2878,7 +2878,7 @@ Scrivi un breve racconto (massimo 4-5 frasi) in terza persona, in stile narrativ
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:prompt}],max_tokens:400,temperature:0.85})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:prompt}],max_tokens:400,temperature:0.85})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -2938,7 +2938,7 @@ Massimo 3 frasi. Usa 1-2 emoji. Sii diretto e concreto.`;
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.7})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.7})
     });
     const data = await res.json();
     const text = data.choices?.[0]?.message?.content || 'Nessun consiglio disponibile.';
@@ -3294,7 +3294,7 @@ Rispondi SOLO con un oggetto JSON, nessun testo extra:
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:prompt}],max_tokens:150,temperature:0.3})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:prompt}],max_tokens:150,temperature:0.3})
     });
     const data = await res.json();
     if (data.error) { localStorage.setItem('lastAiAnomalyCheck', oggi); return; }
@@ -4026,7 +4026,7 @@ async function verificaGroqKey(key) {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${key}`},
-      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:'ciao'}],max_tokens:5})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:'ciao'}],max_tokens:5})
     });
     return res.ok;
   } catch(e) { return false; }
@@ -4133,7 +4133,7 @@ Sii pratico e specifico, massimo 2-3 attivita per giorno. Usa emoji per ogni tip
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:prompt}],max_tokens:1800,temperature:0.5})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:prompt}],max_tokens:1800,temperature:0.5})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -4244,7 +4244,7 @@ Sii specifico citando nomi di piante e numeri reali dai dati. Usa emoji per ogni
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen-qwq-32b',messages:[{role:'user',content:prompt}],max_tokens:1500,temperature:0.4})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:prompt}],max_tokens:1500,temperature:0.4})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -4326,7 +4326,7 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'qwen-qwq-32b',
+        model: 'qwen/qwen3.6-27b',
         messages: [{role: 'user', content: prompt}],
         max_tokens: 1000,
         temperature: 0.7
