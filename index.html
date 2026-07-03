@@ -283,6 +283,19 @@ canvas{max-width:100%}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 .ai-dot{width:6px;height:6px;border-radius:50%;background:var(--g7);animation:pulse 1.2s ease-in-out infinite}
 .ai-dot:nth-child(2){animation-delay:.2s}
+
+/* DIAGNOSI CHECKBOX */
+.diag-check{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--rads);border:1px solid var(--border);background:var(--surf);cursor:pointer;font-size:13px;color:var(--text);transition:all .15s;user-select:none}
+.diag-check:hover{background:var(--r1);border-color:#fca5a5}
+.diag-check input[type=checkbox]{width:16px;height:16px;accent-color:#dc2626;cursor:pointer;flex-shrink:0}
+.diag-check:has(input:checked){background:var(--r1);border-color:#fca5a5;color:#c92828;font-weight:600}
+.diag-box{background:linear-gradient(135deg,#fff5f5,#fef2f2);border:1px solid #fecaca;border-radius:var(--rad);padding:1.25rem;margin-bottom:1rem}
+.diag-result{background:var(--surf);border:1px solid var(--border);border-radius:var(--rad);padding:1.25rem;margin-top:1rem}
+.diag-result-header{display:flex;align-items:center;gap:10px;margin-bottom:.75rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.diag-severity{padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700}
+.sev-alta{background:#fee2e2;color:#c92828}
+.sev-media{background:#fef3c7;color:#d97706}
+.sev-bassa{background:#dcfce7;color:#16a34a}
 .ai-dot:nth-child(3){animation-delay:.4s}
 .ai-api-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:.75rem}
 .ai-api-row .form-control{font-size:13px;padding:8px 10px}
@@ -617,7 +630,7 @@ canvas{max-width:100%}
           <span style="font-size:24px">🔬</span>
           <div>
             <div style="font-size:14px;font-weight:700;color:#c92828">Diagnosi malattie e parassiti</div>
-            <div style="font-size:12px;color:var(--muted)">Descrivi i sintomi e ricevi diagnosi e trattamento</div>
+            <div style="font-size:12px;color:var(--muted)">Seleziona sintomi, carica una foto o descrivi il problema — anche solo uno dei tre è sufficiente</div>
           </div>
         </div>
 
@@ -627,30 +640,27 @@ canvas{max-width:100%}
         </div>
 
         <div class="form-group">
-          <label class="form-label">Sintomi visivi (seleziona uno o più)</label>
-          <div class="diag-sintomi">
-            <span class="diag-sintomo" onclick="toggleSintomo(this)">🍂 Foglie gialle</span>
-            <span class="diag-sintomo" onclick="toggleSintomo(this)">🟤 Macchie marroni</span>
-            <span class="diag-sintomo" onclick="toggleSintomo(this)">⚫ Macchie nere</span>
-            <span class="diag-sintomo" onclick="toggleSintomo(this)">🔵 Muffa bianca</span>
-            <span class="diag-sintomo" onclick="toggleSintomo(this)">🐛 Insetti visibili</span>
-            <span class="diag-sintomo" onclick="toggleSintomo(this)">🕸️ Ragnatele</span>
-            <span class="diag-sintomo" onclick="toggleSintomo(this)">💧 Foglie appassite</span>
-            <span class="diag-sintomo" onclick="toggleSintomo(this)">🌿 Foglie accartocciate</span>
-            <span class="diag-sintomo" onclick="toggleSintomo(this)">🍃 Foglie cadono</span>
-            <span class="diag-sintomo" onclick="toggleSintomo(this)">🌑 Frutti marci</span>
-            <span class="diag-sintomo" onclick="toggleSintomo(this)">📏 Crescita stentata</span>
-            <span class="diag-sintomo" onclick="toggleSintomo(this)">🔴 Pustole rosse</span>
+          <label class="form-label">Sintomi visivi <span style="font-size:11px;color:var(--muted);font-weight:400">(opzionale — seleziona quelli che vedi)</span></label>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:4px">
+            <label class="diag-check"><input type="checkbox" value="Foglie gialle"> 🍂 Foglie gialle o ingiallite</label>
+            <label class="diag-check"><input type="checkbox" value="Macchie marroni"> 🟤 Macchie marroni</label>
+            <label class="diag-check"><input type="checkbox" value="Macchie nere"> ⚫ Macchie nere</label>
+            <label class="diag-check"><input type="checkbox" value="Muffa bianca"> 🔵 Muffa o polvere bianca</label>
+            <label class="diag-check"><input type="checkbox" value="Insetti visibili"> 🐛 Insetti visibili</label>
+            <label class="diag-check"><input type="checkbox" value="Ragnatele"> 🕸️ Ragnatele o filamenti</label>
+            <label class="diag-check"><input type="checkbox" value="Foglie appassite"> 💧 Foglie appassite o flaccide</label>
+            <label class="diag-check"><input type="checkbox" value="Foglie accartocciate"> 🌿 Foglie accartocciate o deformate</label>
+            <label class="diag-check"><input type="checkbox" value="Foglie cadono"> 🍃 Caduta prematura delle foglie</label>
+            <label class="diag-check"><input type="checkbox" value="Frutti marci"> 🌑 Frutti marci o deformati</label>
+            <label class="diag-check"><input type="checkbox" value="Crescita stentata"> 📏 Crescita stentata o anomala</label>
+            <label class="diag-check"><input type="checkbox" value="Pustole rosse"> 🔴 Pustole, escrescenze o lesioni</label>
+            <label class="diag-check"><input type="checkbox" value="Seccumi"> 🌵 Rami o foglie secchi</label>
+            <label class="diag-check"><input type="checkbox" value="Secrezioni"> 💦 Secrezioni vischiose o resine</label>
           </div>
         </div>
 
         <div class="form-group">
-          <label class="form-label">Descrizione aggiuntiva (opzionale)</label>
-          <textarea class="form-control" id="diagDesc" placeholder="Es: le foglie cadono dal basso verso l'alto, il tronco ha una secrezione viscosa..." style="min-height:70px"></textarea>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label">📷 Foto del problema (opzionale)</label>
+          <label class="form-label">📷 Foto del problema <span style="font-size:11px;color:var(--muted);font-weight:400">(opzionale — migliora molto la diagnosi)</span></label>
           <label style="display:flex;align-items:center;gap:8px;padding:10px;border:1.5px dashed var(--border);border-radius:var(--rads);cursor:pointer;color:var(--muted);font-size:13px;transition:all .15s" id="diagFotoLabel">
             <i class="ti ti-camera" style="font-size:20px"></i>
             <span id="diagFotoTxt">Scatta o carica una foto delle foglie/frutti colpiti</span>
@@ -662,8 +672,17 @@ canvas{max-width:100%}
           </div>
         </div>
 
+        <div class="form-group">
+          <label class="form-label">Descrizione libera <span style="font-size:11px;color:var(--muted);font-weight:400">(opzionale)</span></label>
+          <textarea class="form-control" id="diagDesc" placeholder="Es: le foglie cadono dal basso, il tronco ha una secrezione viscosa, da 2 settimane..." style="min-height:70px"></textarea>
+        </div>
+
+        <div id="diagValidation" style="font-size:12px;color:#c92828;margin-bottom:.5rem;display:none">
+          ⚠️ Seleziona almeno un sintomo, carica una foto o scrivi una descrizione.
+        </div>
+
         <button class="btn btn-ai" onclick="getDiagnosi()" id="diagBtn" style="width:100%">
-          <i class="ti ti-stethoscope"></i> Analizza sintomi
+          <i class="ti ti-stethoscope"></i> Analizza e diagnostica
         </button>
       </div>
       <div id="diagResult"></div>
@@ -2164,8 +2183,10 @@ function initDiagnosi() {
   }
   // Reset risultato
   document.getElementById('diagResult').innerHTML = '';
-  // Deseleziona sintomi
-  document.querySelectorAll('.diag-sintomo').forEach(s => s.classList.remove('sel'));
+  // Deseleziona checkbox
+  document.querySelectorAll('.diag-check input[type=checkbox]').forEach(cb => cb.checked = false);
+  const val = document.getElementById('diagValidation');
+  if (val) val.style.display = 'none';
 }
 
 window.previewDiagFoto = function(input) {
@@ -2200,13 +2221,19 @@ window.getDiagnosi = async function() {
   const pianta = piante.find(x => x.id === pId);
   if (!pianta) { showToast('Seleziona una pianta'); return; }
 
-  const sintomiSel = [...document.querySelectorAll('.diag-sintomo.sel')].map(s => s.textContent.trim());
+  const sintomiSel = [...document.querySelectorAll('.diag-check input:checked')].map(s => s.value);
   const desc = document.getElementById('diagDesc').value.trim();
+  const hasFotoEl = document.getElementById('diagFotoImg');
+  const hasFoto = hasFotoEl && hasFotoEl.src && hasFotoEl.src.startsWith('data:image');
 
-  if (!sintomiSel.length && !desc) {
-    showToast('Seleziona almeno un sintomo');
+  // Almeno uno tra: sintomi, foto, descrizione
+  if (!sintomiSel.length && !desc && !hasFoto) {
+    const val = document.getElementById('diagValidation');
+    if (val) val.style.display = 'block';
     return;
   }
+  const val = document.getElementById('diagValidation');
+  if (val) val.style.display = 'none';
 
   // Info storico pianta
   const attsP = attivita.filter(a => a.pianta_id === pId).slice(0,5);
@@ -2260,11 +2287,9 @@ Usa emoji per rendere la risposta piu leggibile. Sii preciso e pratico.`;
       <span>Il giardiniere AI sta analizzando i sintomi...</span></div>
     </div>`;
 
-  // Controlla se c'è una foto
-  const fotoEl = document.getElementById('diagFotoImg');
-  const hasFoto = fotoEl && fotoEl.src && fotoEl.src.startsWith('data:image');
-  const fotoBase64 = hasFoto ? fotoEl.src.split(',')[1] : null;
-  const fotoMime = hasFoto ? fotoEl.src.split(';')[0].split(':')[1] : null;
+  // Controlla se c'è una foto (già dichiarato sopra)
+  const fotoBase64 = hasFoto ? hasFotoEl.src.split(',')[1] : null;
+  const fotoMime = hasFoto ? hasFotoEl.src.split(';')[0].split(':')[1] : null;
 
   try {
     // Se c'è una foto usa llama-vision, altrimenti usa il modello testo
@@ -2280,7 +2305,7 @@ Usa emoji per rendere la risposta piu leggibile. Sii preciso e pratico.`;
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model, messages, max_tokens:1500, temperature:0.4})
+      body:JSON.stringify({model, reasoning_effort:'none', messages, max_tokens:1500, temperature:0.4})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -2665,7 +2690,7 @@ Rispondi in italiano, breve e pratico (max 4-5 frasi), con 1-2 emoji.`;
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:prompt}],max_tokens:300,temperature:0.7})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:300,temperature:0.7})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -2777,7 +2802,7 @@ Se la frase non descrive un'attivita di giardinaggio, rispondi con {"pianta": nu
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.2})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.2})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -2878,7 +2903,7 @@ Scrivi un breve racconto (massimo 4-5 frasi) in terza persona, in stile narrativ
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:prompt}],max_tokens:400,temperature:0.85})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:400,temperature:0.85})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -2938,7 +2963,7 @@ Massimo 3 frasi. Usa 1-2 emoji. Sii diretto e concreto.`;
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.7})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.7})
     });
     const data = await res.json();
     const text = data.choices?.[0]?.message?.content || 'Nessun consiglio disponibile.';
@@ -3294,7 +3319,7 @@ Rispondi SOLO con un oggetto JSON, nessun testo extra:
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:prompt}],max_tokens:150,temperature:0.3})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:150,temperature:0.3})
     });
     const data = await res.json();
     if (data.error) { localStorage.setItem('lastAiAnomalyCheck', oggi); return; }
@@ -4026,7 +4051,7 @@ async function verificaGroqKey(key) {
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${key}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:'ciao'}],max_tokens:5})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:'ciao'}],max_tokens:5})
     });
     return res.ok;
   } catch(e) { return false; }
@@ -4133,7 +4158,7 @@ Sii pratico e specifico, massimo 2-3 attivita per giorno. Usa emoji per ogni tip
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:prompt}],max_tokens:1800,temperature:0.5})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:1800,temperature:0.5})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -4244,7 +4269,7 @@ Sii specifico citando nomi di piante e numeri reali dai dati. Usa emoji per ogni
     const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',messages:[{role:'user',content:prompt}],max_tokens:1500,temperature:0.4})
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:1500,temperature:0.4})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -4882,28 +4907,5 @@ function reloadUtenti() {
   window.dispatchEvent(new CustomEvent('reloadUtenti'));
 }
 function switchSetupTabGlobal(tab) {
-  window.dispatchEvent(new CustomEvent('switchSetupTab', {detail: tab}));
-}
-</script>
-<script>
-// Pulisci tutto e registra SW aggiornato
-if ('serviceWorker' in navigator) {
-  // Prima deregistra tutti i SW vecchi
-  navigator.serviceWorker.getRegistrations().then(regs => {
-    regs.forEach(r => r.unregister());
-  });
-  // Pulisci tutte le cache
-  if (window.caches) {
-    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
-  }
-  // Registra nuovo SW
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js?v=' + window.APP_VERSION)
-      .then(() => console.log('SW ' + window.APP_VERSION + ' registrato'))
-      .catch(e => console.log('SW errore:', e));
-  });
-}
-</script>
-</body>
-</html>
+  window.dispatchEvent(new CustomEvent('switchSetupTab', {detail: ta
 Visualizzazione di index.txt.
