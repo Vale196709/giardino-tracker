@@ -561,24 +561,27 @@ canvas{max-width:100%}
       <button class="drawer-item active" id="dnavDashboard" onclick="drawerNav('Dashboard')"><i class="ti ti-home"></i>Dashboard</button>
 
       <div class="drawer-section">Gestione</div>
-      <button class="drawer-item" id="dnavScadenze" onclick="drawerNav('Scadenze')"><i class="ti ti-calendar-due"></i>Scadenze<span id="dnavBadge" style="display:none" class="badge-urgente">!</span></button>
-      <button class="drawer-item" id="dnavKanban" onclick="drawerNav('Kanban')"><i class="ti ti-layout-kanban"></i>Kanban</button>
       <button class="drawer-item" id="dnavPiante" onclick="drawerNav('Piante')"><i class="ti ti-trees"></i>Piante</button>
+      <button class="drawer-item" id="dnavKanban" onclick="drawerNav('Kanban')"><i class="ti ti-layout-kanban"></i>Kanban</button>
+      <button class="drawer-item" id="dnavScadenze" onclick="drawerNav('Scadenze')"><i class="ti ti-calendar-due"></i>Scadenze<span id="dnavBadge" style="display:none" class="badge-urgente">!</span></button>
       <button class="drawer-item" id="dnavCalendario" onclick="drawerNav('Calendario')"><i class="ti ti-calendar-month"></i>Calendario</button>
       <button class="drawer-item" id="dnavMappa" onclick="drawerNav('Mappa')"><i class="ti ti-map"></i>Mappa</button>
 
       <div class="drawer-section">Analisi</div>
-      <button class="drawer-item" id="dnavStats" onclick="drawerNav('Stats')"><i class="ti ti-chart-bar"></i>Statistiche</button>
       <button class="drawer-item" id="dnavSpese" onclick="drawerNav('Spese')"><i class="ti ti-coins"></i>Spese</button>
-      <button class="drawer-item" id="dnavStorico" onclick="drawerNav('Storico')"><i class="ti ti-clock-hour-4"></i>Storico</button>
-      <button class="drawer-item" id="dnavLog" onclick="drawerNav('Log')"><i class="ti ti-history"></i>Log modifiche</button>
+      <button class="drawer-item" id="dnavStats" onclick="drawerNav('Stats')"><i class="ti ti-chart-bar"></i>Statistiche</button>
 
       <div class="drawer-section">Strumenti</div>
-      <button class="drawer-item" id="dnavEnciclopedia" onclick="drawerNav('Enciclopedia')"><i class="ti ti-books"></i>Enciclopedia</button>
-      <button class="drawer-item" id="dnavDiagnosi" onclick="drawerNav('Diagnosi')"><i class="ti ti-stethoscope"></i>Diagnosi malattie</button>
       <button class="drawer-item" id="dnavAI" onclick="drawerNav('AI')"><i class="ti ti-sparkles"></i>AI Consigli</button>
+      <button class="drawer-item" id="dnavDiagnosi" onclick="drawerNav('Diagnosi')"><i class="ti ti-stethoscope"></i>Diagnosi malattie</button>
       <button class="drawer-item" id="dnavMeteo" onclick="drawerNav('Meteo')"><i class="ti ti-cloud"></i>Meteo</button>
+      <button class="drawer-item" id="dnavEnciclopedia" onclick="drawerNav('Enciclopedia')"><i class="ti ti-books"></i>Enciclopedia</button>
+
+      <div class="drawer-section">Altro</div>
       <button class="drawer-item" id="dnavBacheca" onclick="drawerNav('Bacheca')"><i class="ti ti-message-circle"></i>Bacheca</button>
+      <button class="drawer-item" id="dnavRacconto" onclick="drawerNav('Racconto')"><i class="ti ti-feather"></i>Racconta il giardino</button>
+      <button class="drawer-item" id="dnavStorico" onclick="drawerNav('Storico')"><i class="ti ti-clock-hour-4"></i>Storico</button>
+      <button class="drawer-item" id="dnavLog" onclick="drawerNav('Log')"><i class="ti ti-history"></i>Log modifiche</button>
       <button class="drawer-item" id="dnavRicerca" onclick="drawerNav('Ricerca')"><i class="ti ti-search"></i>Ricerca</button>
     </div>
     <div class="drawer-footer">
@@ -979,6 +982,25 @@ canvas{max-width:100%}
       <div id="bachecaList"></div>
     </div>
 
+    <!-- RACCONTA IL GIARDINO -->
+    <div id="panelRacconto" class="tab-panel">
+      <div class="card" style="background:linear-gradient(135deg,#fdf4e7,#fef9f0);border-color:#f0dfc0;padding:1.25rem">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:.75rem">
+          <span style="font-size:28px">🎙️</span>
+          <div>
+            <div style="font-size:16px;font-weight:700;color:#9a6b1f;font-family:'Lora',serif">Racconta il tuo giardino</div>
+            <div style="font-size:12px;color:#b5832a;margin-top:2px">Un racconto poetico degli ultimi 14 giorni</div>
+          </div>
+        </div>
+        <div id="raccontoContentPage" style="font-size:13px;color:#5a4520;line-height:1.8;font-style:italic;min-height:60px;margin-bottom:1rem">
+          Tocca il pulsante per ricevere un breve racconto narrativo di cosa è successo nel tuo giardino di recente.
+        </div>
+        <button class="btn" onclick="generaRaccontoPagina()" id="raccontoBtnPage" style="width:100%;background:#9a6b1f;color:#fff;border:none">
+          <i class="ti ti-feather"></i> Genera racconto
+        </button>
+      </div>
+    </div>
+
     <!-- RICERCA -->
     <div id="panelRicerca" class="tab-panel">
       <div class="search-bar">
@@ -1357,6 +1379,7 @@ window.switchTab = function(name) {
   if (name==='Dashboard') initDashboard();
   if (name==='Enciclopedia') initEnciclopedia();
   if (name==='Diagnosi') initDiagnosi();
+  if (name==='Racconto') initRaccontoPagina();
 };
 
 // ── MODALS ─────────────────────────────────────────────
@@ -2363,6 +2386,59 @@ window.aggiungiTrattamento = function(piantaId) {
 };
 
 // ══════════════════════════════════════════
+// RACCONTA IL GIARDINO (pagina dedicata)
+// ══════════════════════════════════════════
+function initRaccontoPagina() {
+  // Mantieni il testo se gia generato
+}
+
+window.generaRaccontoPagina = async function() {
+  const apiKey = getGroqKey();
+  if (!apiKey) { showToast('Configura la chiave API Groq nella sezione AI'); return; }
+  const el = document.getElementById('raccontoContentPage');
+  const btn = document.getElementById('raccontoBtnPage');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader spinner"></i> Scrittura in corso...';
+  el.innerHTML = '<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Sto scrivendo il racconto...</span></div>';
+
+  const oggiDate = new Date();
+  const dueSettimaneFa = new Date(); dueSettimaneFa.setDate(oggiDate.getDate()-14);
+  const attRecenti = attivita.filter(a => a.data_eseguita && new Date(a.data_eseguita) >= dueSettimaneFa)
+    .map(a => { const p = piante.find(x=>x.id===a.pianta_id); return (p?p.nome:'una pianta') + ': ' + a.tipo + ' il ' + a.data_eseguita + (a.note?' ('+a.note+')':''); }).join(' | ') || 'nessuna attivita recente';
+  const noteRecenti = note.filter(n => n.timestamp && new Date(n.timestamp) >= dueSettimaneFa)
+    .map(n => n.tipo + ': ' + n.testo).join(' | ') || 'nessuna nota recente';
+  const speseRecenti = spese.filter(s => s.data && new Date(s.data) >= dueSettimaneFa).length;
+  const scaduteAttuali = attivita.filter(a => a.data_prossima && Math.round((new Date(a.data_prossima)-oggiDate)/86400000) < 0)
+    .map(a => { const p = piante.find(x=>x.id===a.pianta_id); return p?p.nome:''; }).filter(Boolean);
+  const stagione = [11,0,1].includes(oggiDate.getMonth()) ? 'inverno' : [2,3,4].includes(oggiDate.getMonth()) ? 'primavera' : [5,6,7].includes(oggiDate.getMonth()) ? 'estate' : 'autunno';
+
+  const prompt = `Sei uno scrittore che trasforma dati di giardinaggio in un breve racconto poetico e caldo, in italiano.
+Stagione: ${stagione}. Giardino di 1400 mq a Terracina.
+ATTIVITA DEGLI ULTIMI 14 GIORNI: ${attRecenti}
+NOTE CONDIVISE RECENTI: ${noteRecenti}
+SPESE REGISTRATE: ${speseRecenti} nel periodo
+PIANTE IN ATTESA DI CURE: ${scaduteAttuali.join(', ')||'nessuna'}
+Scrivi un racconto (5-6 frasi) in terza persona, in stile narrativo e leggermente poetico. Usa i dati reali. Non inventare. Concludi con una nota di speranza per il prossimo periodo. Massimo 2 emoji.`;
+
+  try {
+    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
+      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:400,temperature:0.85})
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const text = data.choices?.[0]?.message?.content || 'Nessun racconto disponibile.';
+    el.innerHTML = text;
+    el.style.fontStyle = 'italic';
+  } catch(e) {
+    el.innerHTML = '<span style="color:var(--r6);font-style:normal;font-size:12px">Errore: ' + e.message + '</span>';
+  }
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-feather"></i> Genera racconto';
+};
+
+// ══════════════════════════════════════════
 // LOG MODIFICHE
 // ══════════════════════════════════════════
 function addLog(tipo, icon, azione, utente) {
@@ -2565,15 +2641,7 @@ async function initDashboard() {
       </div>
     </div>
 
-    <div class="card dash-animate" style="padding:1rem;background:linear-gradient(135deg,#fdf4e7,#fef9f0);border-color:#f0dfc0">
-      <div class="dash-section-title" style="color:#9a6b1f">
-        🎙️ Racconta il tuo giardino
-        <span class="dash-section-link" style="color:#b5832a" onclick="raccontaGiardino()">✨ Genera</span>
-      </div>
-      <div id="raccontoContent" style="font-size:13px;color:#5a4520;line-height:1.7;font-style:italic">
-        Tocca "Genera" per ricevere un breve racconto di cosa è successo nel tuo giardino di recente.
-      </div>
-    </div>
+
 
     <div class="card dash-animate" style="padding:1rem">
       <div class="dash-section-title">🚀 Accesso rapido</div>
@@ -4027,7 +4095,12 @@ function drawCharts() {
   const el = document.getElementById('prevAmount');
   const elDetail = document.getElementById('prevDetail');
   if (el) el.textContent = '€ ' + previsione.toFixed(2);
-  if (elDetail) elDetail.textContent = `Speso finora: € ${totaleFinora.toFixed(2)} in ${meseCorrente} mesi · Media mensile: € ${mediaAl.toFixed(2)}`;
+  if (elDetail) elDetail.textContent = `Speso finora: € ${fmtEur(totaleFinora)} in ${meseCorrente} mesi · Media mensile: € ${fmtEur(mediaAl)}`;
+}
+
+// Formatta importo con separatore migliaia
+function fmtEur(n) {
+  return parseFloat(n||0).toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
 // ── AI SUGGERIMENTI ────────────────────────────────────
@@ -4669,7 +4742,7 @@ function renderSpese() {
         <div class="spesa-desc">${s.descrizione || s.oggetto || ''}</div>
         <div class="spesa-meta">${classe}${come}${dadove} · ${d}${s.note?' · '+String(s.note).substring(0,40):''}</div>
       </div>
-      <div class="spesa-importo">€ ${parseFloat(s.importo||0).toFixed(2)}</div>
+      <div class="spesa-importo">€ ${fmtEur(s.importo)}</div>
     </div>`;
   }).join('');
 }
@@ -4805,107 +4878,5 @@ function renderChartSpese() {
   }
 }
 
-window.exportExcel = function() {
-  // Crea CSV compatibile con Excel
-  const bom = '\uFEFF'; // BOM per UTF-8
-  const header = ['Data','Importo (€)','Oggetto','Classe','Come','Note','Da dove'].join(';');
-  const rows = spese.map(s => {
-    const d = s.data ? new Date(s.data).toLocaleDateString('it-IT') : '';
-    return [
-      d,
-      parseFloat(s.importo||0).toFixed(2).replace('.',','),
-      (s.oggetto||s.descrizione||'').replace(/;/g,' '),
-      (s.classe||s.categoria||'').replace(/;/g,' '),
-      (s.come||'').replace(/;/g,' '),
-      (s.note||'').replace(/;/g,' '),
-      (s.da_dove||'').replace(/;/g,' ')
-    ].join(';');
-  });
-  const csv = bom + header + '\n' + rows.join('\n');
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'spese-giardino-' + new Date().toISOString().split('T')[0] + '.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-  showToast('✅ File Excel scaricato!');
-};
-
-window.exportPDF = function() {
-  const anno = new Date().getFullYear();
-  const tot = spese.reduce((s,x) => s + parseFloat(x.importo||0), 0);
-  const totAnno = spese.filter(x => x.data?.startsWith(String(anno))).reduce((s,x) => s + parseFloat(x.importo||0), 0);
-
-  // Raggruppa per categoria
-  const perCat = {};
-  spese.forEach(s => { perCat[s.categoria] = (perCat[s.categoria]||0) + parseFloat(s.importo||0); });
-
-  const rows = spese.map(s => `
-    <tr>
-      <td>${s.data ? new Date(s.data).toLocaleDateString('it-IT') : '—'}</td>
-      <td>${spesaCatEmoji[s.categoria]||''} ${s.categoria}</td>
-      <td>${s.descrizione}</td>
-      <td>${s.note||''}</td>
-      <td style="text-align:right;font-weight:600">€ ${parseFloat(s.importo||0).toFixed(2)}</td>
-    </tr>`).join('');
-
-  const catRows = Object.entries(perCat).map(([k,v]) =>
-    `<tr><td>${spesaCatEmoji[k]||''} ${k}</td><td style="text-align:right;font-weight:600">€ ${v.toFixed(2)}</td></tr>`).join('');
-
-  const attRows = [...attivita].slice(0,30).map(a => {
-    const p = piante.find(x => x.id===a.pianta_id);
-    return `<tr>
-      <td>${a.data_eseguita ? new Date(a.data_eseguita).toLocaleDateString('it-IT') : '—'}</td>
-      <td>${p ? p.nome : '—'}</td>
-      <td>${a.tipo}</td>
-      <td>${a.note||''}</td>
-    </tr>`;
-  }).join('');
-
-  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
-  <title>Report Giardino di Quintilina</title>
-  <style>
-    body{font-family:Georgia,serif;color:#1a1a1a;max-width:900px;margin:0 auto;padding:2rem}
-    h1{color:#1a7a3e;font-size:24px;border-bottom:2px solid #1a7a3e;padding-bottom:.5rem}
-    h2{color:#1a7a3e;font-size:16px;margin-top:2rem}
-    table{width:100%;border-collapse:collapse;margin-top:.5rem;font-size:13px}
-    th{background:#1a7a3e;color:#fff;padding:8px 10px;text-align:left}
-    td{padding:7px 10px;border-bottom:1px solid #dde8dc}
-    tr:nth-child(even){background:#f2fdf6}
-    .totale{font-size:18px;color:#1a7a3e;font-weight:bold;margin-top:1rem}
-    .footer{margin-top:3rem;font-size:11px;color:#888;text-align:center}
-    @media print{body{padding:0}}
-  </style></head><body>
-  <h1>🌿 Report Giardino di Quintilina</h1>
-  <p>Generato il ${new Date().toLocaleDateString('it-IT',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
-  <div class="totale">Totale spese anno ${anno}: € ${totAnno.toFixed(2)} &nbsp;|&nbsp; Totale storico: € ${tot.toFixed(2)}</div>
-
-  <h2>📊 Riepilogo per categoria</h2>
-  <table><tr><th>Categoria</th><th>Totale</th></tr>${catRows}</table>
-
-  <h2>💰 Dettaglio spese</h2>
-  <table><tr><th>Data</th><th>Categoria</th><th>Descrizione</th><th>Note</th><th>Importo</th></tr>${rows}</table>
-
-  <h2>📋 Ultime attività in giardino</h2>
-  <table><tr><th>Data</th><th>Pianta</th><th>Attività</th><th>Note</th></tr>${attRows}</table>
-
-  <div class="footer">Giardino di Quintilina — Report generato automaticamente</div>
-  </body></html>`;
-
-  const w = window.open('','_blank');
-  w.document.write(html);
-  w.document.close();
-  setTimeout(() => w.print(), 500);
-};
-</script>
-
-<script>
-// Funzioni globali accessibili da HTML (fuori dal modulo ES)
-function reloadUtenti() {
-  // Chiama la versione interna del modulo tramite evento custom
-  window.dispatchEvent(new CustomEvent('reloadUtenti'));
-}
-function switchSetupTabGlobal(tab) {
-  window.dispatchEvent(new CustomEvent('switchSetupTab', {detail: ta
+window.exportExce
 Visualizzazione di index.txt.
