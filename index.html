@@ -1,3 +1,11 @@
+
+index.txt
+
+Pagina
+1
+/
+2
+100%
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -476,7 +484,7 @@ canvas{max-width:100%}
         <label class="form-label">PIN</label>
         <input type="password" class="form-control" id="loginPin" maxlength="6" placeholder="••••" inputmode="numeric">
       </div>
-      <button class="btn btn-primary" onclick="doLogin()">Accedi</button>
+      <button class="btn btn-primary" id="loginBtn" onclick="(window.doLogin||function(){document.getElementById('loginBtn').setAttribute('data-pending','1')})()">Accedi</button>
 
     </div>
 
@@ -4496,8 +4504,14 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
   // Tasto Enter sul PIN
   document.getElementById('loginPin').addEventListener('keydown', e => { if (e.key==='Enter') window.doLogin(); });
 
-  // Segnala che il modulo ES e' pronto — sblocca il bridge doLogin
+  // Segnala che il modulo ES e' pronto
   window.dispatchEvent(new Event('moduleReady'));
+  // Se l'utente aveva gia cliccato Accedi prima che il modulo fosse pronto, eseguilo ora
+  const pendingBtn = document.getElementById('loginBtn');
+  if (pendingBtn && pendingBtn.getAttribute('data-pending')) {
+    pendingBtn.removeAttribute('data-pending');
+    window.doLogin();
+  }
 
   // Nascondi splash screen dopo caricamento
   setTimeout(() => {
@@ -4872,14 +4886,5 @@ function renderChartSpese() {
   const catColors = {'acquisto':'#1565c0','geometra':'#6a1b9a','concessione':'#e65100','utilities':'#00838f','attrezzi':'#558b2f','flora':'#2e7d32','manutenzione':'#4e342e','altro':'#546e7a'};
   const catTot = {};
   spese.forEach(s => {
-    const k = s.classe || s.categoria || 'altro';
-    catTot[k] = (catTot[k]||0) + parseFloat(s.importo||0);
-  });
-  const catKeys = Object.keys(catTot).sort((a,b)=>catTot[b]-catTot[a]);
-  const ctx2 = document.getElementById('chartSpeseCategorie');
-  if (ctx2) {
-    if (ctx2._chartInst) ctx2._chartInst.destroy();
-    ctx2._chartInst = new C(ctx2.getContext('2d'), {
-      type:'doughnut',
-      da
+    const k = s.classe || s.categoria ||
 Visualizzazione di index.txt.
