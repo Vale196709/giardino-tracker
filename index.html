@@ -1,3 +1,4 @@
+100%
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -469,14 +470,14 @@ canvas{max-width:100%}
         <label class="form-label">Chi sei?</label>
         <select class="form-control" id="loginUtente"><option value="">— seleziona —</option></select>
         <div id="loginStatus" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
-        <button onclick="reloadUtenti()" style="margin-top:8px;width:100%;padding:8px;background:var(--g1);border:1.5px solid var(--g2);border-radius:var(--rads);color:var(--g7);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600">↻ Ricarica utenti</button>
+        <button onclick="window.reloadUtenti()" style="margin-top:8px;width:100%;padding:8px;background:var(--g1);border:1.5px solid var(--g2);border-radius:var(--rads);color:var(--g7);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600">↻ Ricarica utenti</button>
         <div id="debugInfo" style="margin-top:8px;padding:8px;background:#f1f5f9;border-radius:6px;font-size:11px;font-family:monospace;color:#334155;line-height:1.6;word-break:break-all"></div>
       </div>
       <div class="form-group">
         <label class="form-label">PIN</label>
         <input type="password" class="form-control" id="loginPin" maxlength="6" placeholder="••••" inputmode="numeric">
       </div>
-      <button class="btn btn-primary" onclick="doLogin()">Accedi</button>
+      <button class="btn btn-primary" onclick="window.doLogin()">Accedi</button>
 
     </div>
 
@@ -563,7 +564,7 @@ canvas{max-width:100%}
       <div class="drawer-section">Gestione</div>
       <button class="drawer-item" id="dnavPiante" onclick="drawerNav('Piante')"><i class="ti ti-trees"></i>Piante</button>
       <button class="drawer-item" id="dnavKanban" onclick="drawerNav('Kanban')"><i class="ti ti-layout-kanban"></i>Kanban</button>
-      <button class="drawer-item" id="dnavScadenze" onclick="drawerNav('Scadenze')"><i class="ti ti-calendar-due"></i>Scadenze<span id="dnavBadge" style="display:none" class="badge-urgente">!</span></button>
+      <button class="drawer-item" id="dnavScadenze" onclick="drawerNav('Scadenze')"><i class="ti ti-calendar-due"></i>Scadenze<span id="dnavBadge" style="display:none;margin-left:auto;background:#dc2626;color:#fff;border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700" id="dnavBadge">0</span></button>
       <button class="drawer-item" id="dnavCalendario" onclick="drawerNav('Calendario')"><i class="ti ti-calendar-month"></i>Calendario</button>
       <button class="drawer-item" id="dnavMappa" onclick="drawerNav('Mappa')"><i class="ti ti-map"></i>Mappa</button>
 
@@ -1843,7 +1844,11 @@ async function loadBacheca() {
 
 function renderBacheca() {
   const el = document.getElementById('bachecaList');
-  if (!note.length) { el.innerHTML = '<div class="empty-state"><i class="ti ti-message-circle"></i><p>Nessuna nota ancora.<br>Scrivi la prima!</p></div>'; return; }
+  if (!note.length) { el.innerHTML = `<div style="text-align:center;padding:2rem">
+    <div style="font-size:40px;margin-bottom:.5rem">💬</div>
+    <div style="font-size:15px;font-weight:700;color:var(--g8);margin-bottom:.25rem">Bacheca vuota</div>
+    <div style="font-size:12px;color:var(--muted)">Scrivi la prima nota qui sopra per condividerla con Antonella.</div>
+  </div>`; return; }
   const tipoEmoji = {'nota':'📝','osservazione':'🔍','promemoria':'⏰','problema':'⚠️'};
   el.innerHTML = note.map(n => {
     const d = n.timestamp ? new Date(n.timestamp).toLocaleDateString('it-IT',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
@@ -3674,7 +3679,10 @@ function renderAll() {
 function checkScadenzeBadge() {
   const urgenti = attivita.filter(a => { const d = daysLeft(a.data_prossima); return d !== null && d < 0; }).length;
   const badge = document.getElementById('dnavBadge');
-  if (badge) badge.style.display = urgenti > 0 ? 'inline-flex' : 'none';
+  if (badge) {
+    badge.style.display = urgenti > 0 ? 'inline-flex' : 'none';
+    badge.textContent = urgenti > 0 ? String(urgenti) : '';
+  }
 }
 
 // ── SCADENZE ───────────────────────────────────────────
@@ -3741,7 +3749,9 @@ function renderScad() {
   }).join('');
 }
 
+let currentScadFilter = 'tutte';
 window.filterScad = function(f, btn) {
+  currentScadFilter = f;
   currentFilter = f;
   document.querySelectorAll('.filter-pills .pill').forEach(b => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
@@ -4869,14 +4879,5 @@ function renderChartSpese() {
     if (ctx2._chartInst) ctx2._chartInst.destroy();
     ctx2._chartInst = new C(ctx2.getContext('2d'), {
       type:'doughnut',
-      data:{labels:catKeys,datasets:[{data:catKeys.map(k=>catTot[k]),backgroundColor:catKeys.map(k=>catColors[k]||'#546e7a'),borderWidth:2,borderColor:'var(--surf)'}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'60%'}
-    });
-    const legend = document.getElementById('chartSpeseCatLegend');
-    if (legend) legend.innerHTML = catKeys.map(k =>
-      `<div class="legend-item"><div class="legend-dot" style="background:${catColors[k]||'#546e7a'}"></div><span>${k}: € ${catTot[k].toFixed(0)}</span></div>`).join('');
-  }
-}
-
-window.exportExce
+      data:{labels:catKeys,datasets:[{data:catKeys.map(k=>catTot[k]),backgroundColor:catKeys.map(k=>catColors[k]||'#546e7a
 Visualizzazione di index.txt.
