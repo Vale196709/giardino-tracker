@@ -4483,27 +4483,35 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
     document.getElementById('fbAppId').value = cfg.appId||'';
   }
   // Inizializza sempre Firebase con la config embedded
-  if (initFirebase()) {
-    loadUtenti();
-  } else {
-    // Riprova dopo 1 secondo
-    setTimeout(() => { if (initFirebase()) loadUtenti(); }, 1000);
+  // Riprova fino a 5 volte con intervallo crescente
+  let retryCount = 0;
+  async function tryLoadUtenti() {
+    if (initFirebase()) {
+      await loadUtenti();
+      // Segnala pronto solo dopo che gli utenti sono stati caricati
+      window.dispatchEvent(new Event('moduleReady'));
+      // Esegui login pendente se c'era
+      const pendingBtn = document.getElementById('loginBtn');
+      if (pendingBtn && pendingBtn.getAttribute('data-pending')) {
+        pendingBtn.removeAttribute('data-pending');
+        window.doLogin();
+      }
+    } else if (retryCount < 5) {
+      retryCount++;
+      setTimeout(tryLoadUtenti, retryCount * 500);
+    } else {
+      const status = document.getElementById('loginStatus');
+      if (status) status.textContent = '❌ Firebase non raggiungibile. Ricarica la pagina.';
+      window.dispatchEvent(new Event('moduleReady'));
+    }
   }
+  tryLoadUtenti();
 
   // Inizializza EmailJS
   emailjs.init('9YVGzzNQ_0ByT8JI8');
 
   // Tasto Enter sul PIN
   document.getElementById('loginPin').addEventListener('keydown', e => { if (e.key==='Enter') window.doLogin(); });
-
-  // Segnala che il modulo ES e' pronto
-  window.dispatchEvent(new Event('moduleReady'));
-  // Se l'utente aveva gia cliccato Accedi prima che il modulo fosse pronto, eseguilo ora
-  const pendingBtn = document.getElementById('loginBtn');
-  if (pendingBtn && pendingBtn.getAttribute('data-pending')) {
-    pendingBtn.removeAttribute('data-pending');
-    window.doLogin();
-  }
 
   // Nascondi splash screen dopo caricamento
   setTimeout(() => {
@@ -4870,13 +4878,5 @@ function renderChartSpese() {
     ctx1._chartInst = new C(ctx1.getContext('2d'), {
       type:'bar',
       data:{labels:mesiLabels,datasets:[{label:'€',data:mesiData,backgroundColor:'rgba(46,198,106,.7)',borderColor:'rgba(26,122,62,1)',borderWidth:1.5,borderRadius:6}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'€'+v},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false}}}}
-    });
-  }
-
-  // Grafico categorie
-  const catColors = {'acquisto':'#1565c0','geometra':'#6a1b9a','concessione':'#e65100','utilities':'#00838f','attrezzi':'#558b2f','flora':'#2e7d32','manutenzione':'#4e342e','altro':'#546e7a'};
-  const catTot = {};
-  spese.forEach(s => {
-    const k = s.classe || s.categoria ||
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'€'+v},grid:{c
 Visualizzazione di index.txt.
