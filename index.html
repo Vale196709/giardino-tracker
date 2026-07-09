@@ -1282,7 +1282,7 @@ let db = null, fbApp = null;
 let currentUser = '';
 let currentTab = 'Scadenze';
 let currentRole = 'admin'; // 'admin' o 'user'
-let piante = [], attivita = [], utenti = [];
+let piante = [], attivita = [], utenti = [], spese = [], note = [];
 let currentFilter = 'tutte';
 let editingAttId = null, editingPiantaId = null;
 let calYear, calMonth, calSelectedDate = null;
@@ -1832,7 +1832,6 @@ window.changeMappa = function(input) {
 // ══════════════════════════════════════════
 // BACHECA NOTE CONDIVISE
 // ══════════════════════════════════════════
-let note = [];
 
 async function loadBacheca() {
   if (!db) return;
@@ -4728,7 +4727,6 @@ window.loadMeteo = async function() {
 // ══════════════════════════════════════════
 // SPESE
 // ══════════════════════════════════════════
-let spese = [];
 let editingSpesaId = null;
 const spesaCatEmoji = {'Concimi':'🌱','Antiparassitari':'🧪','Attrezzatura':'🔧','Sementi':'🌰','Irrigazione':'💧','Altro':'📦'};
 
@@ -4884,5 +4882,5 @@ function renderChartSpese() {
   }
   const ctx1 = document.getElementById('chartSpeseMesi');
   if (ctx1) {
-    if (ctx1._chartInst)
+    if (ctx1._chartInst) ctx1._c
 Visualizzazione di index.txt.
