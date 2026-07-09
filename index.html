@@ -4460,7 +4460,8 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
 };
 
 // ── INIT ───────────────────────────────────────────────
-(function init() {
+(async function init() {
+  try {
   document.getElementById('attDataEs').value = new Date().toISOString().split('T')[0];
   initCal();
 
@@ -4594,6 +4595,15 @@ const storicoSpese = [
 
   // Data default spesa
   document.getElementById('spData').value = new Date().toISOString().split('T')[0];
+
+  } catch(initError) {
+    console.error('ERRORE CRITICO INIT:', initError);
+    // Mostra errore visibile sulla pagina
+    const status = document.getElementById('loginStatus');
+    if (status) status.innerHTML = '<span style="color:red">❌ Errore inizializzazione: ' + initError.message + '</span>';
+    // Mostra anche un alert per debug immediato
+    document.title = 'ERRORE: ' + initError.message;
+  }
 })();
 
 // ══════════════════════════════════════════
@@ -4874,9 +4884,5 @@ function renderChartSpese() {
   }
   const ctx1 = document.getElementById('chartSpeseMesi');
   if (ctx1) {
-    if (ctx1._chartInst) ctx1._chartInst.destroy();
-    ctx1._chartInst = new C(ctx1.getContext('2d'), {
-      type:'bar',
-      data:{labels:mesiLabels,datasets:[{label:'€',data:mesiData,backgroundColor:'rgba(46,198,106,.7)',borderColor:'rgba(26,122,62,1)',borderWidth:1.5,borderRadius:6}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'€'+v},grid:{c
+    if (ctx1._chartInst)
 Visualizzazione di index.txt.
