@@ -1303,16 +1303,26 @@ const chartColors = {
 };
 
 // ── FIREBASE INIT ──────────────────────────────────────
+const _FB_CFG = {
+  apiKey: 'AIzaSyClUZhdem-alQ3TbkklmJ7SLSGeNbQkX2c',
+  projectId: 'quintilina-eacbf',
+  appId: '1:840407908607:web:f31a526f7ff27e15baccca',
+  authDomain: 'quintilina-eacbf.firebaseapp.com',
+  storageBucket: 'quintilina-eacbf.appspot.com',
+  messagingSenderId: '840407908607'
+};
+
 function initFirebase() {
-  const cfg = JSON.parse(localStorage.getItem('fbConfig') || 'null');
-  if (!cfg) return false;
   try {
     if (!fbApp) {
+      // Usa config localStorage se presente, altrimenti quella embedded
+      const stored = localStorage.getItem('fbConfig');
+      const cfg = stored ? JSON.parse(stored) : _FB_CFG;
       fbApp = initializeApp(cfg, 'giardino');
       db = getFirestore(fbApp);
     }
     return true;
-  } catch(e) { console.error(e); return false; }
+  } catch(e) { console.error('Firebase init error:', e); return false; }
 }
 
 window.saveFirebaseConfig = function() {
@@ -4871,11 +4881,5 @@ function renderChartSpese() {
     if (ctx1._chartInst) ctx1._chartInst.destroy();
     ctx1._chartInst = new C(ctx1.getContext('2d'), {
       type:'bar',
-      data:{labels:mesiLabels,datasets:[{label:'€',data:mesiData,backgroundColor:'rgba(46,198,106,.7)',borderColor:'rgba(26,122,62,1)',borderWidth:1.5,borderRadius:6}]},
-      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'€'+v},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false}}}}
-    });
-  }
-
-  // Grafico categorie
-  const catColors = {'acquisto':'#1565c0','geometra':'#6a1b9a','concessione':'#e65100','utilities
+      data:{labels:mesiLabels,datasets:[{label:'€',data:mesiData,backgroundColor:'rgba(46,198,106,
 Visualizzazione di index.txt.
