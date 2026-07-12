@@ -1355,7 +1355,7 @@ function showScreen(id) {
 }
 
 window.switchTab = function(name) {
-  const panels = ['Dashboard','Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese','Mappa','Bacheca','Ricerca','Log','Kanban','Enciclopedia','Diagnosi','Chat'];
+  const panels = ['Dashboard','Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese','Mappa','Bacheca','Racconto','Ricerca','Log','Kanban','Enciclopedia','Diagnosi'];
   panels.forEach(t => {
     document.getElementById('panel'+t)?.classList.toggle('active', t===name);
     const nav = document.getElementById('nav'+t);
@@ -4459,7 +4459,7 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
 };
 
 // ── INIT ───────────────────────────────────────────────
-(async function init() {
+(function init() {
   try {
   document.getElementById('attDataEs').value = new Date().toISOString().split('T')[0];
   initCal();
@@ -4484,28 +4484,14 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
   }
   // Inizializza sempre Firebase con la config embedded
   // Riprova fino a 5 volte con intervallo crescente
-  let retryCount = 0;
-  async function tryLoadUtenti() {
-    if (initFirebase()) {
-      await loadUtenti();
-      // Segnala pronto solo dopo che gli utenti sono stati caricati
-      window.dispatchEvent(new Event('moduleReady'));
-      // Esegui login pendente se c'era
-      const pendingBtn = document.getElementById('loginBtn');
-      if (pendingBtn && pendingBtn.getAttribute('data-pending')) {
-        pendingBtn.removeAttribute('data-pending');
-        window.doLogin();
-      }
-    } else if (retryCount < 5) {
-      retryCount++;
-      setTimeout(tryLoadUtenti, retryCount * 500);
-    } else {
-      const status = document.getElementById('loginStatus');
-      if (status) status.textContent = '❌ Firebase non raggiungibile. Ricarica la pagina.';
-      window.dispatchEvent(new Event('moduleReady'));
-    }
+  // Inizializza Firebase e carica utenti
+  if (initFirebase()) {
+    loadUtenti();
+  } else {
+    setTimeout(() => { if (initFirebase()) loadUtenti(); }, 1500);
   }
-  tryLoadUtenti();
+  // Segnala modulo pronto
+  window.dispatchEvent(new Event('moduleReady'));
 
   // Inizializza EmailJS
   emailjs.init('9YVGzzNQ_0ByT8JI8');
@@ -4882,5 +4868,14 @@ function renderChartSpese() {
   }
   const ctx1 = document.getElementById('chartSpeseMesi');
   if (ctx1) {
-    if (ctx1._chartInst) ctx1._c
+    if (ctx1._chartInst) ctx1._chartInst.destroy();
+    ctx1._chartInst = new C(ctx1.getContext('2d'), {
+      type:'bar',
+      data:{labels:mesiLabels,datasets:[{label:'€',data:mesiData,backgroundColor:'rgba(46,198,106,.7)',borderColor:'rgba(26,122,62,1)',borderWidth:1.5,borderRadius:6}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'€'+v},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false}}}}
+    });
+  }
+
+  // Grafico categorie
+  const catColors = {'acquisto':'#1565c0','geometra':'#6a1b9a','concessione':'#e65100','utilities
 Visualizzazione di index.txt.
