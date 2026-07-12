@@ -1,3 +1,11 @@
+
+index.txt
+
+Pagina
+1
+/
+2
+100%
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -1275,6 +1283,8 @@ import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/fireba
 import {
   getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, setDoc,
   onSnapshot
+console.log("MODULO STEP 1: imports OK");
+window._moduleLoading = true;
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 // ── STATE ──────────────────────────────────────────────
@@ -1563,6 +1573,7 @@ window.deleteUtente = async function(id) {
 };
 
 // ── LOGIN / LOGOUT ─────────────────────────────────────
+console.log("MODULO STEP 2: prima di doLogin");
 window.doLogin = function() {
   const nome = document.getElementById('loginUtente').value;
   const pin  = document.getElementById('loginPin').value;
@@ -4879,7 +4890,5 @@ function renderChartSpese() {
   const ctx1 = document.getElementById('chartSpeseMesi');
   if (ctx1) {
     if (ctx1._chartInst) ctx1._chartInst.destroy();
-    ctx1._chartInst = new C(ctx1.getContext('2d'), {
-      type:'bar',
-      data:{labels:mesiLabels,datasets:[{label:'€',data:mesiData,backgroundColor:'rgba(46,198,106,
+    ctx1._chartInst = new C(ctx1.getContext('2d'), 
 Visualizzazione di index.txt.
