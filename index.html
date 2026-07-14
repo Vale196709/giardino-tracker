@@ -1,11 +1,3 @@
-
-index.txt
-
-Pagina
-1
-/
-2
-100%
 <!DOCTYPE html>
 <html lang="it">
 <head>
@@ -1278,13 +1270,29 @@ canvas{max-width:100%}
 <div class="toast" id="toast"></div>
 
 <!-- Firebase SDK -->
+<script>
+// Cattura QUALSIASI errore nel modulo ES
+window.addEventListener('error', function(e) {
+  document.body.style.background = '#fee2e2';
+  var div = document.createElement('div');
+  div.style.cssText = 'position:fixed;top:0;left:0;right:0;background:red;color:white;padding:10px;z-index:99999;font-size:14px;font-family:monospace';
+  div.textContent = 'ERRORE: ' + e.message + ' (riga ' + e.lineno + ')';
+  document.body.appendChild(div);
+  console.error('ERRORE CRITICO:', e.message, 'riga:', e.lineno, 'file:', e.filename);
+});
+window.addEventListener('unhandledrejection', function(e) {
+  console.error('PROMISE REJECTION:', e.reason);
+  var div = document.createElement('div');
+  div.style.cssText = 'position:fixed;top:40px;left:0;right:0;background:orange;color:white;padding:10px;z-index:99999;font-size:14px;font-family:monospace';
+  div.textContent = 'PROMISE ERROR: ' + e.reason;
+  document.body.appendChild(div);
+});
+</script>
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
 import {
   getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, orderBy, setDoc,
   onSnapshot
-console.log("MODULO STEP 1: imports OK");
-window._moduleLoading = true;
 } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
 
 // ── STATE ──────────────────────────────────────────────
@@ -1573,7 +1581,6 @@ window.deleteUtente = async function(id) {
 };
 
 // ── LOGIN / LOGOUT ─────────────────────────────────────
-console.log("MODULO STEP 2: prima di doLogin");
 window.doLogin = function() {
   const nome = document.getElementById('loginUtente').value;
   const pin  = document.getElementById('loginPin').value;
@@ -4481,7 +4488,7 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
 
 // ── INIT ───────────────────────────────────────────────
 (function init() {
-  try {
+   try {
   document.getElementById('attDataEs').value = new Date().toISOString().split('T')[0];
   initCal();
 
@@ -4867,7 +4874,8 @@ function renderChartSpese() {
   if (!window.Chart) {
     const s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
-    s.onload = () => { renderChartSpese(); };
+    s.onload = () => { renderChartSpe
+se(); };
     document.head.appendChild(s);
     return;
   }
@@ -4890,5 +4898,167 @@ function renderChartSpese() {
   const ctx1 = document.getElementById('chartSpeseMesi');
   if (ctx1) {
     if (ctx1._chartInst) ctx1._chartInst.destroy();
-    ctx1._chartInst = new C(ctx1.getContext('2d'), 
+    ctx1._chartInst = new C(ctx1.getContext('2d'), {
+      type:'bar',
+      data:{labels:mesiLabels,datasets:[{label:'€',data:mesiData,backgroundColor:'rgba(46,198,106,.7)',borderColor:'rgba(26,122,62,1)',borderWidth:1.5,borderRadius:6}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{callback:v=>'€'+v},grid:{color:'rgba(0,0,0,.04)'}},x:{grid:{display:false}}}}
+    });
+  }
+
+  // Grafico categorie
+  const catColors = {'acquisto':'#1565c0','geometra':'#6a1b9a','concessione':'#e65100','utilities':'#00838f','attrezzi':'#558b2f','flora':'#2e7d32','manutenzione':'#4e342e','altro':'#546e7a'};
+  const catTot = {};
+  spese.forEach(s => {
+    const k = s.classe || s.categoria || 'altro';
+    catTot[k] = (catTot[k]||0) + parseFloat(s.importo||0);
+  });
+  const catKeys = Object.keys(catTot).sort((a,b)=>catTot[b]-catTot[a]);
+  const ctx2 = document.getElementById('chartSpeseCategorie');
+  if (ctx2) {
+    if (ctx2._chartInst) ctx2._chartInst.destroy();
+    ctx2._chartInst = new C(ctx2.getContext('2d'), {
+      type:'doughnut',
+      data:{labels:catKeys,datasets:[{data:catKeys.map(k=>catTot[k]),backgroundColor:catKeys.map(k=>catColors[k]||'#546e7a'),borderWidth:2,borderColor:'var(--surf)'}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'60%'}
+    });
+    const legend = document.getElementById('chartSpeseCatLegend');
+    if (legend) legend.innerHTML = catKeys.map(k =>
+      `<div class="legend-item"><div class="legend-dot" style="background:${catColors[k]||'#546e7a'}"></div><span>${k}: € ${catTot[k].toFixed(0)}</span></div>`).join('');
+  }
+}
+
+window.exportExcel = function() {
+  // Crea CSV compatibile con Excel
+  const bom = '\uFEFF'; // BOM per UTF-8
+  const header = ['Data','Importo (€)','Oggetto','Classe','Come','Note','Da dove'].join(';');
+  const rows = spese.map(s => {
+    const d = s.data ? new Date(s.data).toLocaleDateString('it-IT') : '';
+    return [
+      d,
+      parseFloat(s.importo||0).toFixed(2).replace('.',','),
+      (s.oggetto||s.descrizione||'').replace(/;/g,' '),
+      (s.classe||s.categoria||'').replace(/;/g,' '),
+      (s.come||'').replace(/;/g,' '),
+      (s.note||'').replace(/;/g,' '),
+      (s.da_dove||'').replace(/;/g,' ')
+    ].join(';');
+  });
+  const csv = bom + header + '\n' + rows.join('\n');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'spese-giardino-' + new Date().toISOString().split('T')[0] + '.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('✅ File Excel scaricato!');
+};
+
+window.exportPDF = function() {
+  const anno = new Date().getFullYear();
+  const tot = spese.reduce((s,x) => s + parseFloat(x.importo||0), 0);
+  const totAnno = spese.filter(x => x.data?.startsWith(String(anno))).reduce((s,x) => s + parseFloat(x.importo||0), 0);
+
+  // Raggruppa per categoria
+  const perCat = {};
+  spese.forEach(s => { perCat[s.categoria] = (perCat[s.categoria]||0) + parseFloat(s.importo||0); });
+
+  const rows = spese.map(s => `
+    <tr>
+      <td>${s.data ? new Date(s.data).toLocaleDateString('it-IT') : '—'}</td>
+      <td>${spesaCatEmoji[s.categoria]||''} ${s.categoria}</td>
+      <td>${s.descrizione}</td>
+      <td>${s.note||''}</td>
+      <td style="text-align:right;font-weight:600">€ ${fmtEur(s.importo)}</td>
+    </tr>`).join('');
+
+  const catRows = Object.entries(perCat).map(([k,v]) =>
+    `<tr><td>${spesaCatEmoji[k]||''} ${k}</td><td style="text-align:right;font-weight:600">€ ${v.toFixed(2)}</td></tr>`).join('');
+
+  const attRows = [...attivita].slice(0,30).map(a => {
+    const p = piante.find(x => x.id===a.pianta_id);
+    return `<tr>
+      <td>${a.data_eseguita ? new Date(a.data_eseguita).toLocaleDateString('it-IT') : '—'}</td>
+      <td>${p ? p.nome : '—'}</td>
+      <td>${a.tipo}</td>
+      <td>${a.note||''}</td>
+    </tr>`;
+  }).join('');
+
+  const html = `<!DOCTYPE html><html><head><meta charset="UTF-8">
+  <title>Report Giardino di Quintilina</title>
+  <style>
+    body{font-family:Georgia,serif;color:#1a1a1a;max-width:900px;margin:0 auto;padding:2rem}
+    h1{color:#1a7a3e;font-size:24px;border-bottom:2px solid #1a7a3e;padding-bottom:.5rem}
+    h2{color:#1a7a3e;font-size:16px;margin-top:2rem}
+    table{width:100%;border-collapse:collapse;margin-top:.5rem;font-size:13px}
+    th{background:#1a7a3e;color:#fff;padding:8px 10px;text-align:left}
+    td{padding:7px 10px;border-bottom:1px solid #dde8dc}
+    tr:nth-child(even){background:#f2fdf6}
+    .totale{font-size:18px;color:#1a7a3e;font-weight:bold;margin-top:1rem}
+    .footer{margin-top:3rem;font-size:11px;color:#888;text-align:center}
+    @media print{body{padding:0}}
+  </style></head><body>
+  <h1>🌿 Report Giardino di Quintilina</h1>
+  <p>Generato il ${new Date().toLocaleDateString('it-IT',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</p>
+  <div class="totale">Totale spese anno ${anno}: € ${totAnno.toFixed(2)} &nbsp;|&nbsp; Totale storico: € ${tot.toFixed(2)}</div>
+
+  <h2>📊 Riepilogo per categoria</h2>
+  <table><tr><th>Categoria</th><th>Totale</th></tr>${catRows}</table>
+
+  <h2>💰 Dettaglio spese</h2>
+  <table><tr><th>Data</th><th>Categoria</th><th>Descrizione</th><th>Note</th><th>Importo</th></tr>${rows}</table>
+
+  <h2>📋 Ultime attività in giardino</h2>
+  <table><tr><th>Data</th><th>Pianta</th><th>Attività</th><th>Note</th></tr>${attRows}</table>
+
+  <div class="footer">Giardino di Quintilina — Report generato automaticamente</div>
+  </body></html>`;
+
+  const w = window.open('','_blank');
+  w.document.write(html);
+  w.document.close();
+  setTimeout(() => w.print(), 500);
+};
+</script>
+
+<script>
+// Funzioni globali accessibili da HTML (fuori dal modulo ES)
+function reloadUtenti() {
+  window.dispatchEvent(new CustomEvent('reloadUtenti'));
+}
+function switchSetupTabGlobal(tab) {
+  window.dispatchEvent(new CustomEvent('switchSetupTab', {detail: tab}));
+}
+// Bridge per login/logout — il modulo ES potrebbe non essere ancora pronto
+function doLogin() {
+  if (typeof window.doLogin === 'function') { window.doLogin(); return; }
+  // Riprova dopo che il modulo è caricato
+  window.addEventListener('moduleReady', () => window.doLogin(), {once:true});
+}
+function doLogout() {
+  if (typeof window.doLogout === 'function') window.doLogout();
+}
+</script>
+<script>
+// Pulisci tutto e registra SW aggiornato
+if ('serviceWorker' in navigator) {
+  // Prima deregistra tutti i SW vecchi
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(r => r.unregister());
+  });
+  // Pulisci tutte le cache
+  if (window.caches) {
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k)));
+  }
+  // Registra nuovo SW
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js?v=' + window.APP_VERSION)
+      .then(() => console.log('SW ' + window.APP_VERSION + ' registrato'))
+      .catch(e => console.log('SW errore:', e));
+  });
+}
+</script>
+</body>
+</html>
 Visualizzazione di index.txt.
