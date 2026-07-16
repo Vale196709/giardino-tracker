@@ -4492,16 +4492,19 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
     document.getElementById('fbProjectId').value = cfg.projectId||'';
     document.getElementById('fbAppId').value = cfg.appId||'';
   }
-  // Inizializza sempre Firebase con la config embedded
-  // Riprova fino a 5 volte con intervallo crescente
-  // Inizializza Firebase e carica utenti
-  if (initFirebase()) {
-    loadUtenti();
-  } else {
-    setTimeout(() => { if (initFirebase()) loadUtenti(); }, 1500);
+  // Inizializza Firebase e carica utenti, poi emetti moduleReady
+  async function avviaApp() {
+    let ok = initFirebase();
+    if (!ok) {
+      await new Promise(r => setTimeout(r, 1000));
+      ok = initFirebase();
+    }
+    if (ok) {
+      await loadUtenti();
+    }
+    window.dispatchEvent(new Event('moduleReady'));
   }
-  // Segnala modulo pronto
-  window.dispatchEvent(new Event('moduleReady'));
+  avviaApp();
 
   // Inizializza EmailJS
   emailjs.init('9YVGzzNQ_0ByT8JI8');
@@ -4881,5 +4884,5 @@ function renderChartSpese() {
     if (ctx1._chartInst) ctx1._chartInst.destroy();
     ctx1._chartInst = new C(ctx1.getContext('2d'), {
       type:'bar',
-      data:{labels:mesiLabels,datasets:[{label:'€',data:mesiData,backgroundColor:'rgba(46,198,106
+      data:{labels:mesiLabels,datasets:[{label:'€',data:mesiData,backgroundColor:'rgba(46,198,106,.7)',border
 Visualizzazione di index.txt.
