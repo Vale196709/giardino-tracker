@@ -1563,7 +1563,7 @@ window.deleteUtente = async function(id) {
 };
 
 // ── LOGIN / LOGOUT ─────────────────────────────────────
-window.doLogin = function() {
+window._doLogin = function() {
   const nome = document.getElementById('loginUtente').value;
   const pin  = document.getElementById('loginPin').value;
   if (!nome) { showToast('Seleziona il tuo nome'); return; }
@@ -1596,7 +1596,7 @@ window.doLogin = function() {
   });
 };
 
-window.doLogout = function() {
+window._doLogout = function() {
   // Disconnetti tutti i listener real-time
   if (_unsubPiante) { _unsubPiante(); _unsubPiante = null; }
   if (_unsubAttivita) { _unsubAttivita(); _unsubAttivita = null; }
@@ -3556,7 +3556,7 @@ window.sendTestEmail = async function() {
   }
 };
 
-window.reloadUtenti = async function() {
+window._reloadUtenti = async function() {
   const status = document.getElementById('loginStatus');
   const debug = document.getElementById('debugInfo');
   let log = '';
@@ -4504,7 +4504,9 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
     }
     window.dispatchEvent(new Event('moduleReady'));
   }
-  avviaApp();
+  avviaApp().then(() => {
+    window.dispatchEvent(new Event('moduleReady'));
+  });
 
   // Inizializza EmailJS
   emailjs.init('9YVGzzNQ_0ByT8JI8');
@@ -4528,7 +4530,7 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
   }
 
   // Listener per funzioni chiamate dall'HTML
-  window.addEventListener('reloadUtenti', () => window.reloadUtenti());
+  window.addEventListener('reloadUtenti', () => window._reloadUtenti && window._reloadUtenti());
   window.addEventListener('switchSetupTab', e => window.switchSetupTab(e.detail));
 
   // Controlla scadenze e invia mail all'apertura (solo admin)
@@ -4884,5 +4886,5 @@ function renderChartSpese() {
     if (ctx1._chartInst) ctx1._chartInst.destroy();
     ctx1._chartInst = new C(ctx1.getContext('2d'), {
       type:'bar',
-      data:{labels:mesiLabels,datasets:[{label:'€',data:mesiData,backgroundColor:'rgba(46,198,106,.7)',border
+      data:{l
 Visualizzazione di index.txt.
