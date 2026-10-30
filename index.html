@@ -670,6 +670,23 @@ canvas{max-width:100%}
 .interv-act-btn:hover{background:var(--g1);color:var(--g7);border-color:var(--g2)}
 .interv-act-btn.del:hover{background:var(--r1);color:var(--r6);border-color:#fca5a5}
 .interv-form{background:var(--g0);border:1px solid var(--g2);border-radius:var(--rads);padding:.75rem;margin-bottom:1rem}
+/* AI settings */
+.ai-settings{padding:0;overflow:hidden}
+.ai-settings-sum{list-style:none;cursor:pointer;padding:14px 16px;font-weight:600;font-size:14px;color:var(--g8);display:flex;align-items:center;gap:8px}
+.ai-settings-sum::-webkit-details-marker{display:none}
+.ai-settings-sum::after{content:'';margin-left:auto;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s}
+.ai-settings[open] .ai-settings-sum::after{transform:rotate(-135deg)}
+.ai-settings[open]{padding-bottom:14px}
+.ai-settings > :not(summary){margin-left:16px;margin-right:16px}
+.ai-settings-badge{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px}
+.ai-settings-badge.ok{background:var(--g1);color:var(--g7)}
+.ai-settings-badge.ko{background:var(--r1);color:var(--r6)}
+.lbl-hint{font-weight:400;font-size:11px;color:var(--muted)}
+.ai-status{font-size:12px;margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.ai-status-row{display:flex;align-items:center;gap:8px;color:var(--text)}
+.ai-status-hint{color:var(--muted);margin-top:2px}
+.ai-dot-st{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--muted)}
+.ai-dot-st.ok{background:var(--g5)}.ai-dot-st.ko{background:var(--r6)}.ai-dot-st.off{background:var(--border)}
 </style>
 <!-- Libreria QR code incorporata (MIT, Kazuhiko Arase) — nessuna dipendenza esterna, funziona anche offline -->
 <script>
@@ -1055,6 +1072,34 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
 
     <!-- AI CONSIGLI -->
     <div id="panelAI" class="tab-panel">
+      <details class="card ai-settings" id="aiSettingsCard">
+        <summary class="ai-settings-sum"><i class="ti ti-settings"></i> Impostazioni AI <span id="aiSettingsBadge" class="ai-settings-badge"></span></summary>
+        <div style="font-size:12px;color:var(--muted);line-height:1.6;margin:.5rem 0 1rem">
+          L'app sceglie da sola il modello migliore tra quelli attivi oggi e, se uno viene ritirato, passa automaticamente a un altro. Basta una chiave; con entrambe hai la massima affidabilità. Entrambe gratuite, nessun abbonamento.
+        </div>
+        <div class="form-group">
+          <label class="form-label">Chiave Groq <span class="lbl-hint">— testo veloce · console.groq.com</span></label>
+          <input type="password" class="form-control" id="aiApiKey" placeholder="gsk_..." autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Chiave Google Gemini <span class="lbl-hint">— testo + foto · aistudio.google.com</span></label>
+          <input type="password" class="form-control" id="aiGeminiKey" placeholder="AIza..." autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Provider preferito per il testo</label>
+          <select class="form-control" id="aiProviderSel">
+            <option value="auto">Automatico (consigliato)</option>
+            <option value="groq">Groq prima</option>
+            <option value="gemini">Gemini prima</option>
+          </select>
+        </div>
+        <div class="btn-row" style="margin-top:0;gap:8px">
+          <button class="btn btn-primary" style="flex:1;width:auto;padding:10px 16px" onclick="salvaChiaviAI()">Salva e verifica</button>
+          <button class="btn btn-secondary" style="width:auto;padding:10px 14px" onclick="aggiornaModelliAI()" title="Ricontrolla subito i modelli disponibili"><i class="ti ti-refresh"></i></button>
+        </div>
+        <div id="groqKeyStatus" class="ai-status"></div>
+        <div class="ai-api-notice">Chiavi condivise su tutti i dispositivi (salvate su Firebase, mai nel codice).</div>
+      </details>
       <div class="ai-box" style="background:linear-gradient(135deg,var(--g1) 0%,var(--a0) 100%)">
         <div class="ai-box-header">
           <span style="font-size:24px">🌱</span>
@@ -1119,19 +1164,10 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
       <div class="ai-box">
         <div class="ai-box-header">
           <span style="font-size:24px">✨</span>
-          <div class="ai-box-title">Consigli AI con Gemini (Google)</div>
+          <div class="ai-box-title">Consiglio su una pianta</div>
         </div>
         <div style="font-size:13px;color:var(--g8);margin-bottom:1rem;line-height:1.6">
-          Scegli una pianta e ricevi suggerimenti personalizzati su irrigazione, concimatura, potatura e cure stagionali. Powered by <strong>Groq + Llama 3</strong> — gratuito e veloce!
-        </div>
-        <div class="form-group">
-          <label class="form-label">Chiave API Groq (gratuita)</label>
-          <div style="display:flex;gap:6px">
-            <input type="password" class="form-control" id="aiApiKey" placeholder="gsk_..." style="font-size:13px;flex:1">
-            <button class="btn btn-sm" style="background:var(--g1);color:var(--g7);border:1px solid var(--g2);white-space:nowrap" onclick="salvaEVerificaChiave()">Salva e verifica</button>
-          </div>
-          <div class="ai-api-notice">Chiave condivisa tra tutti i dispositivi · Gratuita su <strong>console.groq.com</strong></div>
-          <div id="groqKeyStatus" style="font-size:12px;margin-top:4px"></div>
+          Scegli una pianta e un argomento: irrigazione, concimatura, potatura, parassiti o cure di stagione.
         </div>
         <div class="ai-select-row">
           <select id="aiPianta" class="form-control" style="flex:1"></select>
@@ -1145,7 +1181,7 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
           </select>
         </div>
         <button class="btn btn-ai" onclick="getAiSuggestion()" id="aiBtnChiedi">
-          <i class="ti ti-sparkles"></i> Chiedi consiglio a Groq
+          <i class="ti ti-sparkles"></i> Chiedi consiglio
         </button>
       </div>
       <div id="aiResult"></div>
@@ -2302,7 +2338,7 @@ const helpContent = {
   Piante: {icon:'🌱', title:'Piante', body:'Griglia di tutte le piante del giardino con il loro stato di scadenza. Tocca una pianta per modificarla o eliminarla.<br><br>Il pulsante <strong>📋 in alto a sinistra</strong> di ogni scheda (o \"Registro interventi\" dentro la scheda di modifica) apre la <strong>tabella degli interventi</strong> della pianta: data, tipologia (Piantumazione, Innaffiamento, Potatura, Innesto, Concimazione, Altro) e descrizione.<br><br>Usa le <strong>etichette colorate</strong> (biologico, in vaso, urgente...) per organizzare le piante. Tocca <strong>+</strong> per aggiungerne una nuova.'},
   Calendario: {icon:'📆', title:'Calendario', body:'Vista mensile con un pallino colorato nei giorni che hanno attività programmate. Tocca un giorno per vedere il dettaglio delle attività previste.'},
   Stats: {icon:'📊', title:'Statistiche', body:'Grafici sulle attività svolte: per mese, per tipo (potatura, irrigazione...) e per pianta. In fondo trovi anche la <strong>previsione spese annuali</strong> basata sulla media mensile attuale.'},
-  AI: {icon:'✨', title:'AI Consigli', body:'Tre strumenti AI: il <strong>Piano di cura settimanale</strong> (genera cosa fare nei prossimi 7 giorni per tutte le piante), l\'<strong>Analisi storico</strong> (individua piante trascurate, squilibri e anomalie nelle cure) e i <strong>Consigli su una pianta specifica</strong> (scegli pianta e argomento per un consiglio mirato). Richiede una chiave Groq gratuita da console.groq.com.'},
+  AI: {icon:'✨', title:'AI Consigli', body:'Tre strumenti AI: il <strong>Piano di cura settimanale</strong> (genera cosa fare nei prossimi 7 giorni per tutte le piante), l\'<strong>Analisi storico</strong> (individua piante trascurate, squilibri e anomalie nelle cure) e i <strong>Consigli su una pianta specifica</strong> (scegli pianta e argomento per un consiglio mirato). Richiede almeno una chiave gratuita (Groq o Google Gemini) da inserire in <strong>Impostazioni AI</strong>, in cima alla pagina. Il modello viene scelto e aggiornato automaticamente.'},
   Storico: {icon:'🕓', title:'Storico', body:'Le ultime 40 attività registrate, in ordine dalla più recente. Utile per ripercorrere cosa è stato fatto di recente in giardino.'},
   Meteo: {icon:'☁️', title:'Meteo', body:'Meteo attuale e previsioni a 5 giorni per Terracina. In fondo puoi configurare le <strong>notifiche WhatsApp</strong> (tramite CallMeBot) per ricevere avvisi sulle scadenze anche lì, oltre alle email.'},
   Spese: {icon:'💰', title:'Spese', body:'Registro di tutte le spese del giardino con grafici mensili e per categoria. Usa i pulsanti in fondo per esportare in <strong>PDF</strong> o <strong>Excel</strong>, o per importare lo storico da Google Sheet. Tocca <strong>+</strong> per registrare una nuova spesa.'},
@@ -5085,8 +5121,8 @@ function initDiagnosi() {
 window.riconosciPiantaDaFoto = async function(input) {
   const file = input.files[0];
   if (!file) return;
-  const apiKey = getGroqKey();
-  if (!apiKey) { showToast('Configura prima la chiave API Groq nella sezione AI'); input.value=''; return; }
+  const apiKey = getAiKey();
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); input.value=''; return; }
 
   const status = document.getElementById('riconosciFotoStatus');
   const label = document.getElementById('riconosciFotoLabel');
@@ -5105,7 +5141,7 @@ window.riconosciPiantaDaFoto = async function(input) {
 Se non riesci a identificare la pianta con ragionevole certezza, rispondi {"nome": null, "tipo": null, "note": "", "confidenza": "bassa"}`;
 
     try {
-      const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
         body:JSON.stringify({
@@ -5168,8 +5204,8 @@ window.toggleSintomo = function(el) {
 
 window.getDiagnosi = async function() {
   if (!richiedeConnessione()) return;
-  const apiKey = getGroqKey();
-  if (!apiKey) { showToast('Configura la chiave API Groq nella sezione AI'); return; }
+  const apiKey = getAiKey();
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); return; }
 
   const pId = document.getElementById('diagPianta').value;
   const pianta = piante.find(x => x.id === pId);
@@ -5256,7 +5292,7 @@ Usa emoji per rendere la risposta piu leggibile. Sii preciso e pratico.`;
       ]
     }] : [{role:'user', content:prompt}];
 
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
       body:JSON.stringify({model, messages, max_tokens:1500, temperature:0.4})
@@ -5348,8 +5384,8 @@ function initRaccontoPagina() {
 
 window.generaRaccontoPagina = async function() {
   if (!richiedeConnessione()) return;
-  const apiKey = getGroqKey();
-  if (!apiKey) { showToast('Configura la chiave API Groq nella sezione AI'); return; }
+  const apiKey = getAiKey();
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); return; }
   const el = document.getElementById('raccontoContentPage');
   const btn = document.getElementById('raccontoBtnPage');
   btn.disabled = true;
@@ -5376,7 +5412,7 @@ PIANTE IN ATTESA DI CURE: ${scaduteAttuali.join(', ')||'nessuna'}
 Scrivi un racconto (5-6 frasi) in terza persona, in stile narrativo e leggermente poetico. Usa i dati reali. Non inventare. Concludi con una nota di speranza per il prossimo periodo. Massimo 2 emoji.`;
 
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
       body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:400,temperature:0.85})
@@ -5806,8 +5842,8 @@ window.askDashAi = async function() {
   const input = document.getElementById('dashAiAsk');
   const msg = input.value.trim();
   if (!msg) return;
-  const apiKey = getGroqKey();
-  if (!apiKey) { showToast('Configura la chiave API Groq nella sezione AI'); return; }
+  const apiKey = getAiKey();
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); return; }
 
   const el = document.getElementById('dashAiContent');
   const btn = document.getElementById('dashAiAskBtn');
@@ -5834,7 +5870,7 @@ Domanda dell'utente: ${msg}
 Rispondi in italiano, breve e pratico (max 4-5 frasi), con 1-2 emoji.`;
 
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
       body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:300,temperature:0.7})
@@ -5967,9 +6003,9 @@ function startVoiceListening() {
 
 async function processVoiceTranscript(transcript) {
   document.getElementById('voiceStatus').textContent = 'Sto elaborando...';
-  const apiKey = getGroqKey();
+  const apiKey = getAiKey();
   if (!apiKey) {
-    document.getElementById('voiceText').textContent = 'Configura la chiave API Groq nella sezione AI per usare questa funzione.';
+    document.getElementById('voiceText').textContent = 'Configura una chiave AI gratuita in AI Consigli → Impostazioni AI per usare questa funzione.';
     return;
   }
 
@@ -5984,7 +6020,7 @@ Estrai SOLO un oggetto JSON con questi campi (nessun testo extra, nessun markdow
 Se la frase non descrive un'attivita di giardinaggio, rispondi con {"pianta": null, "tipo": null, "note": ""}`;
 
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
       body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.2})
@@ -6042,8 +6078,8 @@ window.confermaVoiceAttivita = async function() {
 };
 
 window.raccontaGiardino = async function() {
-  const apiKey = getGroqKey();
-  if (!apiKey) { showToast('Configura la chiave API Groq nella sezione AI'); return; }
+  const apiKey = getAiKey();
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); return; }
 
   const el = document.getElementById('raccontoContent');
   el.innerHTML = '<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Sto scrivendo il racconto...</span></div>';
@@ -6085,7 +6121,7 @@ PIANTE IN ATTESA DI CURE (scadute): ${scaduteAttuali.join(', ')||'nessuna'}
 Scrivi un breve racconto (massimo 4-5 frasi) in terza persona, in stile narrativo e leggermente poetico, che racconti la vita del giardino in questo periodo. Usa i dati reali forniti, personifica leggermente le piante. Non inventare eventi non presenti nei dati. Concludi con una nota di speranza o curiosita per il prossimo periodo. Massimo 2 emoji.`;
 
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
       body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:400,temperature:0.85})
@@ -6111,9 +6147,9 @@ async function getDashAiSuggestion() {
     return;
   }
 
-  const apiKey = getGroqKey();
+  const apiKey = getAiKey();
   if (!apiKey) {
-    el.innerHTML = '<span style="color:var(--muted);font-size:12px">Configura la chiave Groq nella sezione AI per ricevere consigli personalizzati.</span>';
+    el.innerHTML = '<span style="color:var(--muted);font-size:12px">Configura una chiave AI gratuita in AI Consigli → Impostazioni AI per ricevere consigli personalizzati.</span>';
     return;
   }
 
@@ -6145,7 +6181,7 @@ Dai UN consiglio pratico e specifico per oggi/questa settimana, considerando il 
 Massimo 3 frasi. Usa 1-2 emoji. Sii diretto e concreto.`;
 
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
       body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.7})
@@ -6656,7 +6692,7 @@ async function checkAnomalieAI() {
   const lastCheck = localStorage.getItem('lastAiAnomalyCheck');
   if (lastCheck === oggi) return; // gia controllato oggi
 
-  const apiKey = getGroqKey();
+  const apiKey = getAiKey();
   if (!apiKey) return; // nessuna chiave, salta silenziosamente
   if (!piante.length || attivita.length < 5) {
     localStorage.setItem('lastAiAnomalyCheck', oggi);
@@ -6687,7 +6723,7 @@ Rispondi SOLO con un oggetto JSON, nessun testo extra:
 {"anomalia": true/false, "pianta": "nome pianta se anomalia true altrimenti null", "messaggio": "breve frase pratica max 15 parole se anomalia true altrimenti stringa vuota"}`;
 
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
       body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:150,temperature:0.3})
@@ -7116,6 +7152,11 @@ async function loadAll() {
   _unsubConfig = onSnapshot(doc(db,'config','shared'), snap => {
     if (snap.exists()) {
       const data = snap.data();
+      if (data.geminiApiKey) {
+        window.sharedGeminiKey = data.geminiApiKey;
+        const gk = document.getElementById('aiGeminiKey');
+        if (gk && document.getElementById('panelAI')?.classList.contains('active')) gk.value = data.geminiApiKey;
+      }
       if (data.groqApiKey) {
         window.sharedGroqKey = data.groqApiKey;
         // Aggiorna il campo se la tab AI e' aperta
@@ -8129,6 +8170,293 @@ function fmtEur(n) {
   return parseFloat(n||0).toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
+// ══════════════════════════════════════════════════════════════════════
+// ── MOTORE AI STABILE ─────────────────────────────────────────────────
+// Nessun nome di modello è "obbligatorio": l'app chiede ai provider quali
+// modelli sono attivi OGGI (cache 24h), sceglie il migliore secondo una
+// lista di preferenze e, se un modello viene ritirato o va in errore,
+// passa da solo al successivo (anche cambiando provider).
+//   • Groq   → testo veloce (chiave gratuita console.groq.com)
+//   • Gemini → testo + FOTO (chiave gratuita aistudio.google.com)
+//     usa l'alias "gemini-flash-latest", che Google aggiorna da solo.
+// Tutte le funzioni AI dell'app passano da aiFetch(), drop-in di fetch().
+// ══════════════════════════════════════════════════════════════════════
+const AI_CFG = {
+  groqBase: 'https://api.groq.com/openai/v1',
+  geminiBase: 'https://generativelanguage.googleapis.com/v1beta',
+  cacheMs: 24*60*60*1000,         // ricontrolla l'elenco modelli ogni 24h
+  badMs: 7*24*60*60*1000,         // un modello fallito viene evitato per 7 giorni
+  // Preferenze (regex sul nome). Qualunque altro modello attivo resta come riserva.
+  groqText:   [/gpt-oss-120b/i, /qwen/i, /llama-3\.3-70b/i, /kimi/i, /gpt-oss-20b/i, /llama/i],
+  groqVision: [/vision/i, /llama-4/i, /scout/i, /maverick/i, /-vl/i, /qwen.*vl/i],
+  groqSkip:   /whisper|guard|safeguard|tts|playai|orpheus|compound|distil|prompt|embed|transcri/i,
+  geminiPref: [/^gemini-flash-latest$/, /^gemini-flash-lite-latest$/, /flash(?!.*lite)/i, /flash-lite/i, /pro/i],
+  geminiSkip: /embed|image|imagen|tts|audio|live|robotics|computer|veo|lyria|aqa|learnlm|gemma|native|thinking-exp|banana/i
+};
+
+function getGeminiKey() {
+  return window.sharedGeminiKey || localStorage.getItem('quintGeminiKey') || '';
+}
+// Chiave "qualsiasi": basta una delle due per usare l'AI
+function getAiKey() { return getGroqKey() || getGeminiKey(); }
+
+function _aiLS(k, v) {
+  try {
+    if (v === undefined) { const s = localStorage.getItem(k); return s ? JSON.parse(s) : null; }
+    localStorage.setItem(k, JSON.stringify(v));
+  } catch(e) { return null; }
+}
+function _aiBadList() {
+  const all = _aiLS('aiBadModels') || {};
+  const now = Date.now(); let changed = false;
+  Object.keys(all).forEach(k => { if (now - all[k] > AI_CFG.badMs) { delete all[k]; changed = true; } });
+  if (changed) _aiLS('aiBadModels', all);
+  return all;
+}
+function _aiMarkBad(provider, model) {
+  const all = _aiBadList(); all[provider+':'+model] = Date.now(); _aiLS('aiBadModels', all);
+  localStorage.removeItem('aiModels_'+provider); // forza nuova scoperta
+}
+function _aiRank(ids, prefs) {
+  const score = id => { const i = prefs.findIndex(r => r.test(id)); return i === -1 ? prefs.length : i; };
+  return [...ids].sort((a,b) => score(a) - score(b) || b.localeCompare(a, undefined, {numeric:true}));
+}
+
+async function _aiDiscover(provider, key, force) {
+  const cacheKey = 'aiModels_'+provider;
+  const cached = _aiLS(cacheKey);
+  if (!force && cached && cached.key === key.slice(-6) && Date.now() - cached.t < AI_CFG.cacheMs) return cached.ids;
+  let ids = [];
+  try {
+    if (provider === 'groq') {
+      const r = await fetch(AI_CFG.groqBase+'/models', {headers:{'Authorization':'Bearer '+key}});
+      if (r.status === 401) return { invalidKey: true };
+      const d = await r.json();
+      ids = (d.data||[]).filter(m => m.active !== false && !AI_CFG.groqSkip.test(m.id)).map(m => m.id);
+    } else {
+      const r = await fetch(AI_CFG.geminiBase+'/models?pageSize=200&key='+encodeURIComponent(key));
+      if (r.status === 400 || r.status === 401 || r.status === 403) return { invalidKey: true };
+      const d = await r.json();
+      ids = (d.models||[])
+        .filter(m => (m.supportedGenerationMethods||[]).includes('generateContent'))
+        .map(m => m.name.replace(/^models\//,''))
+        .filter(id => id.startsWith('gemini') && !AI_CFG.geminiSkip.test(id));
+    }
+  } catch(e) {
+    // rete assente o CORS: usa la cache vecchia se c'è, altrimenti i default sicuri
+    if (cached) return cached.ids;
+    ids = provider === 'groq' ? ['openai/gpt-oss-120b','openai/gpt-oss-20b'] : ['gemini-flash-latest','gemini-flash-lite-latest'];
+    return ids;
+  }
+  if (provider === 'gemini') ['gemini-flash-latest','gemini-flash-lite-latest'].forEach(a => { if (!ids.includes(a)) ids.unshift(a); });
+  if (ids.length) _aiLS(cacheKey, {t: Date.now(), key: key.slice(-6), ids});
+  return ids;
+}
+
+// Costruisce la lista ordinata di tentativi [{provider, model, key}]
+async function _aiCandidates(needsVision) {
+  const groqKey = getGroqKey(), gemKey = getGeminiKey();
+  const pref = localStorage.getItem('aiProvider') || 'auto';
+  const bad = _aiBadList();
+  const out = { list: [], invalid: [] };
+  const add = async (provider, key) => {
+    if (!key) return;
+    const ids = await _aiDiscover(provider, key);
+    if (ids && ids.invalidKey) { out.invalid.push(provider); return; }
+    let ranked;
+    if (provider === 'groq') {
+      ranked = needsVision ? _aiRank(ids.filter(id => AI_CFG.groqVision.some(r => r.test(id))), AI_CFG.groqVision)
+                           : _aiRank(ids, AI_CFG.groqText);
+    } else ranked = _aiRank(ids, AI_CFG.geminiPref);
+    ranked.filter(m => !bad[provider+':'+m]).slice(0, 4).forEach(model => out.list.push({provider, model, key}));
+  };
+  // Foto → Gemini prima (Groq gratuito oggi non ha modelli vision). Testo → Groq prima (più veloce).
+  let order = needsVision ? ['gemini','groq'] : ['groq','gemini'];
+  if (pref === 'gemini') order = ['gemini','groq'];
+  if (pref === 'groq' && !needsVision) order = ['groq','gemini'];
+  for (const p of order) await add(p, p === 'groq' ? groqKey : gemKey);
+  return out;
+}
+
+function _aiClean(text) {
+  return String(text||'')
+    .replace(/<think>[\s\S]*?<\/think>/gi, '')
+    .replace(/^[\s\S]*?<\/think>/i, '')       // reasoning senza tag di apertura
+    .trim();
+}
+
+async function _aiCallGroq(c, req) {
+  const isReasoning = /gpt-oss|qwen3|qwen-3|qwq|deepseek-r1|kimi/i.test(c.model);
+  const want = req.max_tokens || 800;
+  const body = {
+    model: c.model, messages: req.messages, temperature: req.temperature ?? 0.6,
+    max_tokens: isReasoning ? Math.max(want*3, want+1200) : want
+  };
+  if (/gpt-oss/i.test(c.model)) { body.reasoning_effort = 'low'; body.include_reasoning = false; }
+  else if (/qwen/i.test(c.model)) { body.reasoning_effort = 'none'; }
+  let r = await fetch(AI_CFG.groqBase+'/chat/completions', {
+    method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.key}, body: JSON.stringify(body)
+  });
+  let d = await r.json().catch(() => ({}));
+  // Parametri di "ragionamento" non accettati da questo modello → riprova senza
+  if (!r.ok && /reasoning|include_reasoning/i.test(d?.error?.message||'')) {
+    delete body.reasoning_effort; delete body.include_reasoning; body.reasoning_format = 'hidden';
+    r = await fetch(AI_CFG.groqBase+'/chat/completions', {
+      method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.key}, body: JSON.stringify(body)
+    });
+    d = await r.json().catch(() => ({}));
+    if (!r.ok && /reasoning_format/i.test(d?.error?.message||'')) {
+      delete body.reasoning_format;
+      r = await fetch(AI_CFG.groqBase+'/chat/completions', {
+        method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.key}, body: JSON.stringify(body)
+      });
+      d = await r.json().catch(() => ({}));
+    }
+  }
+  if (!r.ok || d.error) return { status: r.status, error: d?.error?.message || ('HTTP '+r.status), code: d?.error?.code || '' };
+  return { text: _aiClean(d.choices?.[0]?.message?.content) };
+}
+
+async function _aiCallGemini(c, req) {
+  // Converte i messaggi stile OpenAI in "contents" Gemini (testo + immagini base64)
+  const contents = req.messages.map(m => {
+    const parts = [];
+    const push = p => {
+      if (typeof p === 'string') parts.push({text: p});
+      else if (p.type === 'text') parts.push({text: p.text});
+      else if (p.type === 'image_url') {
+        const url = p.image_url?.url || '';
+        const mt = url.match(/^data:([^;]+);base64,(.*)$/);
+        if (mt) parts.push({inline_data: {mime_type: mt[1], data: mt[2]}});
+      }
+    };
+    Array.isArray(m.content) ? m.content.forEach(push) : push(m.content);
+    return { role: m.role === 'assistant' ? 'model' : 'user', parts };
+  });
+  const want = req.max_tokens || 800;
+  const gen = { temperature: req.temperature ?? 0.6, maxOutputTokens: want, thinkingConfig: { thinkingBudget: 0 } };
+  const url = `${AI_CFG.geminiBase}/models/${encodeURIComponent(c.model)}:generateContent?key=${encodeURIComponent(c.key)}`;
+  const send = () => fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({contents, generationConfig: gen}) });
+  let r = await send(); let d = await r.json().catch(() => ({}));
+  if (!r.ok && /thinking/i.test(d?.error?.message||'')) {
+    // Modello che non permette di spegnere il "pensiero": lascia spazio extra
+    delete gen.thinkingConfig; gen.maxOutputTokens = want + 2048;
+    r = await send(); d = await r.json().catch(() => ({}));
+  }
+  if (!r.ok || d.error) return { status: r.status, error: d?.error?.message || ('HTTP '+r.status), code: d?.error?.status || '' };
+  const parts = d.candidates?.[0]?.content?.parts || [];
+  const text = parts.filter(p => !p.thought).map(p => p.text || '').join('');
+  if (!text) return { status: 200, error: 'Risposta vuota (' + (d.candidates?.[0]?.finishReason || 'nessun testo') + ')', code: 'EMPTY' };
+  return { text: _aiClean(text) };
+}
+
+// Cuore del sistema: prova i candidati in ordine finché uno risponde
+async function aiComplete(req) {
+  const needsVision = (req.messages||[]).some(m => Array.isArray(m.content) && m.content.some(p => p.type === 'image_url'));
+  let { list, invalid } = await _aiCandidates(needsVision);
+  if (!list.length) {
+    if (invalid.length) throw new Error('Chiave AI non valida (' + invalid.join(', ') + ') — aggiornala in AI Consigli → Impostazioni AI');
+    if (needsVision && !getGeminiKey()) throw new Error('Per analizzare le foto serve la chiave gratuita Gemini (AI Consigli → Impostazioni AI)');
+    throw new Error('Nessuna chiave AI configurata — aggiungila in AI Consigli → Impostazioni AI');
+  }
+  let lastErr = '';
+  for (let i = 0; i < list.length && i < 6; i++) {
+    const c = list[i];
+    let res;
+    try { res = c.provider === 'groq' ? await _aiCallGroq(c, req) : await _aiCallGemini(c, req); }
+    catch(e) { res = { status: 0, error: e.message }; }
+    if (res.text) {
+      window._aiLast = { provider: c.provider, model: c.model, at: Date.now() };
+      _aiLS('aiLast', window._aiLast);
+      return res.text;
+    }
+    lastErr = res.error || 'errore sconosciuto';
+    const msg = (lastErr + ' ' + (res.code||'')).toLowerCase();
+    const modelGone = res.status === 404 || /decommission|deprecat|not found|does not exist|no longer|not supported|model_not_found|invalid model|unknown model|retired|not available/.test(msg);
+    const keyBad = res.status === 401 || /api key not valid|invalid api key|api_key_invalid|invalid_api_key/.test(msg) || (res.status === 403 && /key|permission/.test(msg));
+    if (keyBad) {
+      list = list.filter(x => x.provider !== c.provider || x === c);   // chiave KO: salta tutto quel provider
+      continue;
+    }
+    if (modelGone) { _aiMarkBad(c.provider, c.model); continue; }
+    // 429 (limite), 5xx, risposta vuota → si passa semplicemente al prossimo
+  }
+  throw new Error('AI momentaneamente non disponibile: ' + lastErr);
+}
+
+// Drop-in di fetch() per le vecchie chiamate a Groq: ignora "model" e instrada da solo
+async function aiFetch(_url, opts) {
+  let req = {};
+  try { req = JSON.parse(opts?.body || '{}'); } catch(e) {}
+  try {
+    const text = await aiComplete({ messages: req.messages || [], max_tokens: req.max_tokens, temperature: req.temperature });
+    const data = { choices: [{ message: { content: text } }] };
+    return { ok: true, status: 200, json: async () => data };
+  } catch(e) {
+    const data = { error: { message: e.message } };
+    return { ok: false, status: 503, json: async () => data };
+  }
+}
+window.aiComplete = aiComplete;
+
+function aiPoweredBy() {
+  const l = window._aiLast || _aiLS('aiLast');
+  if (!l) return 'Powered by AI gratuita (Groq / Gemini)';
+  return 'Risposta da ' + (l.provider === 'groq' ? 'Groq' : 'Google Gemini') + ' · ' + l.model;
+}
+window.aiPoweredBy = aiPoweredBy;
+
+// ── Impostazioni AI (UI) ──────────────────────────────
+async function saveSharedGeminiKey(key) {
+  localStorage.setItem('quintGeminiKey', key);
+  window.sharedGeminiKey = key;
+  localStorage.removeItem('aiModels_gemini');
+  if (db) {
+    try { await setDoc(doc(db,'config','shared'), {geminiApiKey: key}, {merge:true}); }
+    catch(e) { console.warn('Errore salvataggio chiave Gemini:', e); }
+  }
+}
+
+window.salvaChiaviAI = async function() {
+  const g = document.getElementById('aiApiKey')?.value.trim() || '';
+  const m = document.getElementById('aiGeminiKey')?.value.trim() || '';
+  if (!g && !m) { showToast('Inserisci almeno una chiave'); return; }
+  if (g && g !== getGroqKey()) { await saveSharedGroqKey(g); localStorage.removeItem('aiModels_groq'); }
+  if (m && m !== getGeminiKey()) await saveSharedGeminiKey(m);
+  const sel = document.getElementById('aiProviderSel');
+  if (sel) localStorage.setItem('aiProvider', sel.value);
+  showToast('💾 Impostazioni AI salvate e condivise');
+  await verificaChiaveAttiva(true);
+};
+
+window.verificaChiaveAttiva = async function(force) {
+  const box = document.getElementById('groqKeyStatus');
+  if (!box) return false;
+  box.innerHTML = '<span style="color:var(--muted)">⏳ Verifica modelli disponibili...</span>';
+  const rows = [];
+  let okAny = false;
+  for (const [p, key, label] of [['groq', getGroqKey(), 'Groq'], ['gemini', getGeminiKey(), 'Gemini']]) {
+    if (!key) { rows.push(`<div class="ai-status-row"><span class="ai-dot-st off"></span>${label}: non configurato</div>`); continue; }
+    const ids = await _aiDiscover(p, key, !!force);
+    if (ids && ids.invalidKey) { rows.push(`<div class="ai-status-row"><span class="ai-dot-st ko"></span>${label}: chiave non valida</div>`); continue; }
+    const best = p === 'groq' ? _aiRank(ids, AI_CFG.groqText)[0] : _aiRank(ids, AI_CFG.geminiPref)[0];
+    const vision = p === 'gemini' || ids.some(id => AI_CFG.groqVision.some(r => r.test(id)));
+    okAny = true;
+    rows.push(`<div class="ai-status-row"><span class="ai-dot-st ok"></span>${label}: <strong>${best||'—'}</strong>${vision?' · 📷 foto':''}</div>`);
+  }
+  if (!getGeminiKey()) rows.push('<div class="ai-status-hint">💡 Aggiungi la chiave Gemini per riconoscimento foto e diagnosi con immagine.</div>');
+  box.innerHTML = rows.join('');
+  const badge = document.getElementById('aiSettingsBadge');
+  if (badge) { badge.className = 'ai-settings-badge ' + (okAny ? 'ok' : 'ko'); badge.textContent = okAny ? 'attiva' : 'da configurare'; }
+  return okAny;
+};
+
+window.aggiornaModelliAI = async function() {
+  localStorage.removeItem('aiModels_groq'); localStorage.removeItem('aiModels_gemini'); localStorage.removeItem('aiBadModels');
+  await verificaChiaveAttiva(true);
+  showToast('🔄 Elenco modelli aggiornato');
+};
+
 // ── AI SUGGERIMENTI ────────────────────────────────────
 // Chiave Groq: SOLO da Firebase (config/shared) o localStorage. Mai hardcoded nel codice
 // per evitare che GitHub la rilevi e Groq la revochi automaticamente.
@@ -8147,12 +8475,8 @@ async function saveSharedGroqKey(key) {
 
 async function verificaGroqKey(key) {
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':`Bearer ${key}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:'ciao'}],max_tokens:5})
-    });
-    return res.ok;
+    const r = await fetch('https://api.groq.com/openai/v1/models', {headers:{'Authorization':`Bearer ${key}`}});
+    return r.ok;
   } catch(e) { return false; }
 }
 
@@ -8160,34 +8484,19 @@ function fillAiPianteSel() {
   const sel = document.getElementById('aiPianta');
   sel.innerHTML = piante.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
   document.getElementById('aiApiKey').value = getGroqKey();
+  const gk = document.getElementById('aiGeminiKey'); if (gk) gk.value = getGeminiKey();
+  const ps = document.getElementById('aiProviderSel'); if (ps) ps.value = localStorage.getItem('aiProvider') || 'auto';
+  const card = document.getElementById('aiSettingsCard'); if (card && !getAiKey()) card.open = true;
   // Controllo automatico silenzioso della chiave
   verificaChiaveAttiva();
 }
 
-window.salvaEVerificaChiave = async function() {
-  const apiKey = document.getElementById('aiApiKey').value.trim();
-  if (!apiKey) { showToast('Inserisci una chiave prima di verificare'); return; }
-  await saveSharedGroqKey(apiKey);
-  showToast('💾 Chiave salvata, ora condivisa su tutti i dispositivi');
-  await verificaChiaveAttiva();
-};
-
-window.verificaChiaveAttiva = async function() {
-  const indicatore = document.getElementById('groqKeyStatus');
-  if (indicatore) indicatore.innerHTML = '<span style="color:var(--muted)">⏳ Verifica in corso...</span>';
-  const ok = await verificaGroqKey(getGroqKey());
-  if (indicatore) {
-    indicatore.innerHTML = ok
-      ? '<span style="color:#16a34a">✅ Chiave attiva e funzionante</span>'
-      : '<span style="color:#dc2626">❌ Chiave non valida o scaduta — aggiornala qui sotto</span>';
-  }
-  return ok;
-};
+window.salvaEVerificaChiave = (...a) => window.salvaChiaviAI(...a);
 
 window.getCosaPianto = async function() {
   if (!richiedeConnessione()) return;
-  const apiKey = getGroqKey();
-  if (!apiKey) { showToast('Configura prima la chiave API Groq qui sotto'); return; }
+  const apiKey = getAiKey();
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); return; }
 
   const esposizione = document.getElementById('cpoEsposizione').value;
   const terreno = document.getElementById('cpoTerreno').value;
@@ -8221,7 +8530,7 @@ Suggerisci 3-4 piante adatte da mettere a dimora ORA in queste condizioni. Per o
 Evita di riproporre piante già presenti a meno che non abbia senso raddoppiarle. Rispondi in italiano, con emoji, in modo pratico e sintetico (max 250 parole totali).`;
 
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
       body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:700,temperature:0.6})
@@ -8254,8 +8563,8 @@ Evita di riproporre piante già presenti a meno che non abbia senso raddoppiarle
 
 window.generaPianoSettimanale = async function() {
   if (!richiedeConnessione()) return;
-  const apiKey = getGroqKey();
-  if (!apiKey) { showToast('Configura prima la chiave API Groq qui sotto'); return; }
+  const apiKey = getAiKey();
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); return; }
   if (!piante.length) { showToast('Aggiungi prima delle piante al giardino'); return; }
 
   const btn = document.getElementById('pianoBtnGenera');
@@ -8323,7 +8632,7 @@ Se un giorno non richiede attivita scrivi "Giornata di riposo per il giardino �
 Sii pratico e specifico, massimo 2-3 attivita per giorno. Usa emoji per ogni tipo di attivita (💧 irrigazione, ✂️ potatura, 🌱 concimazione, 🐛 trattamento, 🍎 raccolta).`;
 
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
       body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:1800,temperature:0.5})
@@ -8363,8 +8672,8 @@ Sii pratico e specifico, massimo 2-3 attivita per giorno. Usa emoji per ogni tip
 
 window.analizzaStoricoAnomalie = async function() {
   if (!richiedeConnessione()) return;
-  const apiKey = getGroqKey();
-  if (!apiKey) { showToast('Configura prima la chiave API Groq qui sotto'); return; }
+  const apiKey = getAiKey();
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); return; }
   if (!piante.length) { showToast('Aggiungi prima delle piante al giardino'); return; }
   if (attivita.length < 3) { showToast('Servono almeno alcune attività registrate per fare un\'analisi utile'); return; }
 
@@ -8436,7 +8745,7 @@ Analizza questi dati e individua:
 Sii specifico citando nomi di piante e numeri reali dai dati. Usa emoji per ogni punto. Se i dati sono troppo pochi per un'analisi solida, dillo onestamente.`;
 
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
       body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:1500,temperature:0.4})
@@ -8476,9 +8785,8 @@ Sii specifico citando nomi di piante e numeri reali dai dati. Usa emoji per ogni
 
 window.getAiSuggestion = async function() {
   if (!richiedeConnessione()) return;
-  const apiKey = document.getElementById('aiApiKey').value.trim();
-  if (!apiKey) { showToast('Inserisci la chiave API Gemini'); return; }
-  if (apiKey !== getGroqKey()) await saveSharedGroqKey(apiKey);
+  const apiKey = getAiKey();
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in Impostazioni AI'); return; }
 
   const pId = document.getElementById('aiPianta').value;
   const arg = document.getElementById('aiArgomento').value;
@@ -8511,12 +8819,12 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
     <div class="ai-box">
       <div class="ai-loading">
         <div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
-        <span>Groq sta elaborando il consiglio...</span>
+        <span>Il giardiniere AI sta elaborando il consiglio...</span>
       </div>
     </div>`;
 
   try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -8542,13 +8850,13 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
           ${speakerButtonHtml('aiResult')}
         </div>
         <div class="ai-response">${text}</div>
-        <div style="font-size:10px;color:var(--muted);margin-top:.5rem">Powered by Groq · Llama 3</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:.5rem">${aiPoweredBy()}</div>
       </div>`;
   } catch(e) {
     document.getElementById('aiResult').innerHTML = `<div class="notice notice-amber">❌ Errore: ${e.message}. Controlla la chiave API.</div>`;
   }
   btn.disabled = false;
-  btn.innerHTML = '<i class="ti ti-sparkles"></i> Chiedi consiglio a Groq';
+  btn.innerHTML = '<i class="ti ti-sparkles"></i> Chiedi consiglio';
 };
 
 // ── INIT ───────────────────────────────────────────────
