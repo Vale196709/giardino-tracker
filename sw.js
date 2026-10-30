@@ -1,7 +1,7 @@
 // Service Worker - Giardino di Quintilina
 // Gestisce: notifiche native + cache offline dell'app (PWA)
 
-const CACHE_NAME = 'giardino-quintilina-v2';
+const CACHE_NAME = 'giardino-quintilina-v3';
 const CORE_ASSETS = [
   './',
   './index.html',

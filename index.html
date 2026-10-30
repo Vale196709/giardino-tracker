@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-<meta name="theme-color" content="#1a7a3e">
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -651,13 +651,6 @@ canvas{max-width:100%}
 .spesa-meta{font-size:12px;color:var(--muted);margin-top:2px}
 .spesa-importo{font-size:16px;font-weight:700;color:var(--g8);white-space:nowrap}
 
-/* Nascondi tab Firebase e Utenti su mobile (non su PC) */
-@media(max-width:600px){
-  .tab-setup-btn:nth-child(2),
-  .tab-setup-btn:nth-child(3){ display:none; }
-  #setupFirebase, #setupUtenti { display:none !important; }
-  #setupLogin { display:block !important; }
-}
 /* INTERVENTI PIANTA */
 .interv-table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:var(--rads)}
 .interv-table{width:100%;border-collapse:collapse;font-size:13px}
@@ -687,6 +680,244 @@ canvas{max-width:100%}
 .ai-status-hint{color:var(--muted);margin-top:2px}
 .ai-dot-st{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--muted)}
 .ai-dot-st.ok{background:var(--g5)}.ai-dot-st.ko{background:var(--r6)}.ai-dot-st.off{background:var(--border)}
+/* ════════════════════════════════════════════════════════════
+   REVISIONE UX 2026 — sistema visivo unificato
+   ════════════════════════════════════════════════════════════ */
+:root{
+  --rad:16px; --rads:10px;
+  --surf2:#f7faf7;
+  --ring:0 0 0 3px rgba(46,198,106,.28);
+  --shadow:0 1px 2px rgba(15,42,19,.05),0 1px 6px rgba(15,42,19,.05);
+  --shadow-md:0 6px 20px rgba(15,42,19,.10);
+  --cant:#0891b2; --cant1:#cffafe;
+  --tap:44px;
+}
+body.dark{
+  --surf2:#17311a; --b6:#8fb4ff; --t6:#5eead4; --r6:#ef5350; --a6:#f0a83a;
+  --cant:#22d3ee; --cant1:#0b2a31;
+  --ring:0 0 0 3px rgba(46,198,106,.35);
+}
+html{-webkit-text-size-adjust:100%}
+body{font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,a,select,input,textarea,summary{-webkit-tap-highlight-color:transparent}
+:focus-visible{outline:none;box-shadow:var(--ring);border-radius:var(--rads)}
+.muted{color:var(--muted)}
+
+/* ── Contenitore ── */
+.content{max-width:880px;padding:1rem 1rem calc(96px + env(safe-area-inset-bottom))}
+@media(min-width:681px){.content{padding:1.5rem 1.5rem 3rem}}
+
+/* ── Top bar ── */
+.top-bar{gap:4px;padding:.5rem .5rem .5rem .25rem;padding-top:calc(.5rem + env(safe-area-inset-top));justify-content:flex-start;background:color-mix(in srgb,var(--surf) 88%,transparent);backdrop-filter:saturate(1.4) blur(12px);-webkit-backdrop-filter:saturate(1.4) blur(12px);box-shadow:none}
+.icon-btn{width:var(--tap);height:var(--tap);flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;border:none;background:transparent;color:var(--muted);border-radius:12px;cursor:pointer;font-size:22px;transition:background .15s,color .15s}
+.icon-btn:hover{background:var(--g0);color:var(--g7)}
+.icon-btn:active{transform:scale(.92)}
+.icon-btn-sm{width:34px;height:34px;font-size:18px;border-radius:10px}
+.top-title-wrap{flex:1;min-width:0;cursor:pointer;padding:0 4px}
+.top-title{font-family:'Lora',serif;font-size:17px;font-weight:600;color:var(--g8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25}
+body.dark .top-title{color:var(--text)}
+#headerSub{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden}
+#headerSub > span{flex-shrink:0}
+.user-chip{height:36px;margin-left:2px;padding:0 12px 0 8px;font-family:'DM Sans',sans-serif;font-weight:600;border:1px solid var(--g2)}
+.user-chip i{font-size:20px}
+@media(max-width:440px){ .user-chip{padding:0;width:var(--tap);height:var(--tap);justify-content:center;background:transparent;border:none;color:var(--muted)} .user-chip #headerUser{display:none} .user-chip i{font-size:24px} #headerVersion{display:none} }
+
+/* ── Drawer ── */
+.drawer{width:288px;left:-300px;padding-top:env(safe-area-inset-top)}
+.drawer-item{min-height:var(--tap);padding:0 1rem;gap:14px;border-left:3px solid transparent;font-size:14.5px}
+.drawer-item span{flex:1}
+.drawer-item i{color:var(--muted)}
+.drawer-item.active i,.drawer-item:hover i{color:var(--g7)}
+.drawer-section{padding:1rem 1.15rem .35rem}
+.drawer-badge{background:var(--r6);color:#fff;border-radius:20px;min-width:20px;height:20px;padding:0 6px;font-size:11px;font-weight:700;align-items:center;justify-content:center;flex:0 0 auto!important}
+.drawer-footer{padding:.35rem 0 calc(.5rem + env(safe-area-inset-bottom))}
+.drawer-footer .drawer-item{font-size:14px}
+@media(min-width:1100px){
+  .drawer{left:0;box-shadow:none;border-right:1px solid var(--border);z-index:60}
+  .drawer-overlay{display:none}
+  #screenMain{padding-left:288px}
+  .top-bar .icon-btn[aria-label="Menu"]{display:none}
+  .top-bar{padding-left:1rem}
+  .toast{left:calc(50% + 144px)!important}
+}
+
+/* ── Bottom nav ── */
+.bottom-nav{background:color-mix(in srgb,var(--surf) 92%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.bottom-nav-item{min-height:52px;font-size:11px}
+.bottom-nav-item.active{color:var(--g7)}
+.bottom-nav-item.active i{background:var(--g1);border-radius:16px;padding:2px 16px}
+.bottom-nav-item i{padding:2px 16px;transition:background .2s}
+.bottom-nav-item .bn-badge{right:calc(50% - 22px)}
+
+/* ── Card, testi, moduli ── */
+.card{border-radius:var(--rad);padding:1.1rem 1.15rem}
+.card-title{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600;color:var(--text)}
+.card-title i{font-size:19px;color:var(--g7)}
+.card-desc{font-size:13px;color:var(--muted);line-height:1.6;margin:-.25rem 0 1rem}
+.form-label{text-transform:none;letter-spacing:0;font-size:13px;font-weight:600;color:var(--text);margin-bottom:6px}
+.form-control{min-height:var(--tap);border-radius:var(--rads);font-size:16px;background:var(--surf2)}
+.form-control:focus{box-shadow:var(--ring)}
+.form-control-sm{min-height:36px;font-size:14px;padding:6px 10px;flex:1;min-width:140px;width:auto}
+textarea.form-control{min-height:88px}
+.btn{min-height:var(--tap);border-radius:12px;font-weight:600}
+.btn-sm{min-height:36px;padding:6px 12px;border-radius:10px}
+.btn-primary{box-shadow:0 1px 2px rgba(26,122,62,.25)}
+.btn-primary:active,.btn-ai:active,.btn-secondary:active{transform:scale(.97)}
+.btn-secondary{color:var(--text);background:var(--surf);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--g0);border-color:var(--g2)}
+.btn-ghost{background:transparent;color:var(--g7);border:none}
+.btn-ghost:hover{background:var(--g0)}
+.btn-ai{border-radius:12px;box-shadow:0 2px 10px rgba(15,118,110,.25)}
+.btn-row{flex-wrap:wrap}
+.pill{min-height:34px;padding:6px 14px;font-size:13px}
+.notice{border-radius:12px;font-size:13px}
+.tab-panel.active{animation:panelFadeIn .22s ease}
+.section-title{font-size:15px}
+.panel-toolbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem}
+.toolbar-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem;align-items:center}
+.muted-count{font-size:12px;color:var(--muted);font-weight:500;margin-left:4px}
+.card-collapsible{padding:0}
+.card-collapsible > summary{list-style:none;cursor:pointer;padding:1rem 1.15rem;display:flex;align-items:center;gap:8px;min-height:var(--tap)}
+.card-collapsible > summary::-webkit-details-marker{display:none}
+.card-collapsible > summary::after{content:'';margin-left:auto;flex-shrink:0;width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .2s}
+.card-collapsible[open] > summary::after{transform:rotate(-135deg)}
+.card-collapsible > :not(summary){margin:0 1.15rem 1.15rem}
+.card-collapsible > summary > i.ti-chevron-right{display:none}
+.card-sub{margin:-.25rem 0 1rem;font-size:13px}
+.card-sub > summary{cursor:pointer;color:var(--g7);font-weight:600;padding:4px 0}
+.card-sub .notice{margin-top:.5rem}
+code{background:var(--g0)}
+body.dark code{background:var(--bg);color:var(--g5)}
+
+/* ── Stati vuoti ── */
+.empty-state{text-align:center;padding:1.25rem .5rem}
+.empty-emoji{font-size:34px;line-height:1}
+.empty-title{font-family:'Lora',serif;font-size:16px;font-weight:600;color:var(--g7);margin-top:8px}
+.empty-sub{font-size:13px;color:var(--muted);margin-top:2px}
+
+/* ── Dashboard ── */
+.dashboard{gap:.9rem}
+.dash-hero{padding:1.15rem 1.15rem 1rem;border-radius:20px;box-shadow:0 8px 24px rgba(21,90,46,.18)}
+.dash-hero::before{font-size:120px;right:-18px;top:-26px;opacity:.12}
+.dash-hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;position:relative}
+.dash-hero-greeting{font-family:'Lora',serif;font-size:22px;font-weight:600;opacity:1;margin:0;line-height:1.25}
+.dash-hero-sub{font-size:13px;opacity:.85;margin-top:2px}
+.dash-meteo-chip{display:flex;align-items:center;gap:6px;flex-shrink:0;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.22);color:#fff;border-radius:14px;padding:6px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;max-width:48%;min-height:var(--tap)}
+.dash-meteo-chip i{font-size:22px}
+.dash-meteo-t{font-size:20px;font-weight:700}
+.dash-meteo-d{font-size:11px;opacity:.9;line-height:1.2;text-align:left;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+@media(max-width:380px){.dash-meteo-d{display:none}}
+.dash-hero-summary{position:relative;display:flex;align-items:center;gap:10px;margin-top:1rem;padding:.7rem .85rem;border-radius:14px;background:rgba(255,255,255,.15);cursor:pointer;font-size:14px;min-height:var(--tap)}
+.dash-hero-summary i{font-size:20px}
+.dash-hero-summary.is-alert{background:rgba(255,255,255,.95);color:var(--r6)}
+.dash-alerts{display:flex;flex-direction:column;gap:.6rem}
+.dash-alerts > div:empty{display:none}
+.dash-alerts .card,.dash-alerts .notice{margin:0}
+.dash-alerts:not(:has(> div:not(:empty))){display:none}
+.dash-card{margin:0;padding:1rem 1.1rem}
+.dash-section-title{font-size:14px;font-weight:700;margin-bottom:.6rem;gap:8px}
+.dash-section-title > span:first-child{display:flex;align-items:center;gap:8px}
+.dash-section-title i{font-size:18px;color:var(--g7)}
+.dash-section-link{display:inline-flex;align-items:center;gap:2px;background:none;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;color:var(--g7);cursor:pointer;padding:6px 4px;border-radius:8px}
+.dash-section-link i{font-size:14px;color:inherit}
+.todo-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.todo-item:last-of-type{border-bottom:none}
+.todo-emoji{font-size:24px;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:var(--g0);border-radius:12px;flex-shrink:0}
+.todo-body{flex:1;min-width:0;cursor:pointer}
+.todo-name{font-size:14.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.todo-meta{display:flex;gap:6px;align-items:center;margin-top:3px;flex-wrap:wrap}
+.todo-meta .scad-badge{font-size:11px;padding:2px 8px}
+.todo-done{width:var(--tap);height:var(--tap);flex-shrink:0;border-radius:50%;border:2px solid var(--g2);background:var(--surf);color:var(--g7);font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.todo-done:hover,.todo-done:active{background:var(--g7);color:#fff;border-color:var(--g7)}
+.dash-more{width:100%;margin-top:6px;min-height:40px;background:var(--g0);border:none;border-radius:10px;color:var(--g7);font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer}
+.dash-grid{grid-template-columns:repeat(2,1fr);gap:.7rem}
+@media(min-width:640px){.dash-grid{grid-template-columns:repeat(4,1fr)}}
+.dash-stat-card{font-family:'DM Sans',sans-serif;color:var(--text);display:flex;flex-direction:column;align-items:flex-start;text-align:left;padding:.85rem .95rem;gap:2px;min-height:96px;position:relative}
+.dash-stat-ic{font-size:22px;color:var(--g7);margin-bottom:4px}
+.dash-stat-num{font-size:24px;line-height:1.1}
+.dash-stat-money{font-size:19px}
+.dash-stat-label{text-transform:none;letter-spacing:0;font-size:12px}
+.dash-stat-card.is-alert{border-color:var(--r6);background:var(--r0)}
+.dash-stat-card.is-alert .dash-stat-ic,.dash-stat-card.is-alert .dash-stat-num{color:var(--r6)}
+.dash-stat-card.is-cantiere .dash-stat-ic{color:var(--cant)}
+.mini-bar{position:absolute;left:.95rem;right:.95rem;bottom:.6rem;height:4px;border-radius:4px;background:var(--cant1);overflow:hidden}
+.mini-bar span{display:block;height:100%;background:var(--cant);border-radius:4px}
+.dash-ai{background:linear-gradient(135deg,var(--g0),var(--t1));border-color:var(--g2)}
+.dash-ai-text{font-size:14px;line-height:1.7;color:var(--text);min-height:48px}
+.ask-row{display:flex;gap:8px;margin-top:.8rem;align-items:flex-end}
+.ask-input{flex:1;padding:10px 14px;border:1.5px solid var(--g2);border-radius:22px;font-size:16px;background:var(--surf);color:var(--text);font-family:'DM Sans',sans-serif;outline:none;resize:none;max-height:120px;min-height:var(--tap);line-height:1.4}
+.ask-input:focus{border-color:var(--g5);box-shadow:var(--ring)}
+.ask-send{width:var(--tap);height:var(--tap);border-radius:50%;background:var(--g7);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.dash-nota-item{background:var(--surf2);padding:10px 12px;border-radius:12px}
+#dashIntervTable{overflow-x:auto}
+
+/* ── Impostazioni ── */
+.settings-section{margin-bottom:1.5rem}
+.settings-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:0 0 .5rem .25rem}
+.settings-section > .card,.settings-section > div > .card{margin-bottom:.6rem}
+.settings-account{display:flex;align-items:center;gap:12px}
+.settings-avatar{width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--g7),var(--t6));color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.settings-user{font-family:'Lora',serif;font-size:18px;font-weight:600}
+.settings-role{font-size:12px;color:var(--muted)}
+.settings-row-card{padding:.6rem 1.15rem}
+.settings-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:var(--tap)}
+.settings-row-title{font-size:14.5px;font-weight:600}
+.settings-row-sub{font-size:12px;color:var(--muted)}
+.switch{position:relative;width:50px;height:30px;flex-shrink:0;cursor:pointer}
+.switch input{opacity:0;width:0;height:0;position:absolute}
+.switch span{position:absolute;inset:0;background:var(--border);border-radius:30px;transition:background .2s}
+.switch span::before{content:'';position:absolute;width:24px;height:24px;left:3px;top:3px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.25);transition:transform .2s}
+.switch input:checked + span{background:var(--g6)}
+.switch input:checked + span::before{transform:translateX(20px)}
+.switch input:focus-visible + span{box-shadow:var(--ring)}
+#setUtentiSlot .setup-panel{display:block}
+#setUtentiSlot .notice{margin-top:.5rem}
+body.role-user .admin-only{display:none!important}
+#waDetails > summary{font-weight:600}
+
+/* ── Login ── */
+#screenSetup{padding:1.25rem}
+.setup-card{padding:2rem 1.5rem;border-radius:24px}
+.brand-sub{margin-bottom:1.5rem}
+
+/* ── Tema scuro: colori fissi nel codice ── */
+body.dark [style*="background:#f1f5f9"]{background:var(--bg)!important;color:var(--text)!important}
+body.dark [style*="background:#fff;"],body.dark [style*="background:#fff\""]{background:var(--surf)!important}
+body.dark [style*="background:#fee2e2"],body.dark [style*="background:#ffe4e6"]{background:var(--r1)!important}
+body.dark [style*="background:#dcfce7"],body.dark [style*="background:#e8f5e9"]{background:var(--g1)!important}
+body.dark [style*="background:#fef3c7"],body.dark [style*="background:#fef9c3"]{background:var(--a1)!important}
+body.dark [style*="background:#dbeafe"],body.dark [style*="background:#e0f2fe"]{background:var(--b1)!important}
+body.dark [style*="color:#334155"],body.dark [style*="color:#0f2a13"]{color:var(--text)!important}
+body.dark .badge-gray,body.dark .tp-altro{background:var(--g1);color:var(--muted)}
+body.dark .tp-raccolta{background:#3a0f1a;color:#fb7185}
+body.dark .tp-sopralluogo,body.dark .tp-impresa{background:#0b2a31;color:#67e8f9}
+body.dark .tp-consegna,body.dark .tp-rilievo{background:#2a1846;color:#c4b5fd}
+body.dark .tp-pagamento{background:var(--g1);color:var(--g5)}
+body.dark .tp-problema{background:var(--r1);color:#fca5a5}
+body.dark .notice-blue{border-color:#1e3a6e}
+body.dark .dash-hero{background:linear-gradient(135deg,#0f3d20 0%,#155a2e 55%,#0d4d47 100%)}
+body.dark .dash-hero-summary.is-alert{background:#2a0f0f;color:#fca5a5}
+body.dark .switch span::before{background:#e2f0e4}
+body.dark{--gtxt:#7fe0a5}
+body.dark .dash-section-link,body.dark .dash-stat-num,body.dark .empty-title,body.dark .card-sub>summary,body.dark .btn-ghost,body.dark .link-btn,
+body.dark .dash-section-title i,body.dark .card-title i,body.dark .dash-stat-ic,body.dark .todo-done,body.dark .drawer-item.active,body.dark .drawer-item.active i,
+body.dark .bottom-nav-item.active,body.dark .dash-more,body.dark .stat-num,body.dark .notice-green,body.dark .tp-concimatura,body.dark .ai-box-title,
+body.dark .settings-user,body.dark .section-title,body.dark .user-chip{color:var(--gtxt)}
+body.dark .tp-concimatura{background:#14361c}
+body.dark .dash-stat-card.is-cantiere .dash-stat-ic{color:var(--cant)}
+body.dark .dash-stat-card.is-alert .dash-stat-ic,body.dark .dash-stat-card.is-alert .dash-stat-num{color:#fca5a5}
+body.dark [style*="color:var(--g7)"],body.dark [style*="color:var(--g8)"],body.dark [style*="color:var(--g9)"],body.dark [style*="color:#16a34a"],body.dark [style*="color:#155a2e"]{color:var(--gtxt)!important}
+body.dark [style*="color:#dc2626"],body.dark [style*="color:#c92828"]{color:#fca5a5!important}
+
+#fabVoice{display:none!important}
+.ask-mic{width:var(--tap);height:var(--tap);border-radius:50%;background:var(--surf);color:#6d28d9;border:1.5px solid #ddd6fe;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
+body.dark .ask-mic{background:var(--surf);border-color:#3b2a66;color:#c4b5fd}
+.dash-card.card-collapsible{padding:0}
+.dash-card.card-collapsible > summary{padding:.9rem 1.1rem}
+.dash-alerts > div > *{margin-bottom:0!important;margin-top:0!important}
+.dash-alerts > div > * + *{margin-top:.6rem!important}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
 </style>
 <!-- Libreria QR code incorporata (MIT, Kazuhiko Arase) — nessuna dipendenza esterna, funziona anche offline -->
 <script>
@@ -703,7 +934,7 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
     <h1 class="brand-h1">Giardino di Quintilina</h1>
     <p class="brand-sub">Verde e non solo</p>
 
-    <div class="tabs-setup">
+    <div class="tabs-setup" id="setupTabs" style="display:none">
       <button class="tab-setup-btn active" onclick="switchSetupTab('login')">Accedi</button>
       <button class="tab-setup-btn" onclick="switchSetupTab('firebase')">⚙ Firebase</button>
       <button class="tab-setup-btn" onclick="switchSetupTab('utenti')">👥 Utenti</button>
@@ -715,14 +946,15 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
         <label class="form-label">Chi sei?</label>
         <select class="form-control" id="loginUtente"><option value="">— seleziona —</option></select>
         <div id="loginStatus" style="font-size:11px;color:var(--muted);margin-top:4px"></div>
-        <button onclick="reloadUtenti()" style="margin-top:8px;width:100%;padding:8px;background:var(--g1);border:1.5px solid var(--g2);border-radius:var(--rads);color:var(--g7);font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600">↻ Ricarica utenti</button>
-        <div id="debugInfo" style="margin-top:8px;padding:8px;background:#f1f5f9;border-radius:6px;font-size:11px;font-family:monospace;color:#334155;line-height:1.6;word-break:break-all"></div>
+        <button class="link-btn" onclick="reloadUtenti()" style="margin-top:6px;font-size:12px">↻ Non vedi il tuo nome? Ricarica</button>
+        <div id="debugInfo" style="display:none;margin-top:8px;padding:8px;background:#f1f5f9;border-radius:6px;font-size:11px;font-family:monospace;color:#334155;line-height:1.6;word-break:break-all"></div>
       </div>
       <div class="form-group">
         <label class="form-label">PIN</label>
         <input type="password" class="form-control" id="loginPin" maxlength="6" placeholder="••••" inputmode="numeric">
       </div>
       <button class="btn btn-primary" id="loginBtn" onclick="(window.doLogin||function(){document.getElementById('loginBtn').setAttribute('data-pending','1')})()">Accedi</button>
+      <div style="text-align:center;margin-top:1rem"><button class="link-btn" style="font-size:12px;color:var(--muted)" onclick="var t=document.getElementById('setupTabs');t.style.display=t.style.display==='none'?'flex':'none'">⚙ Configurazione iniziale</button></div>
 
     </div>
 
@@ -803,72 +1035,48 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
       </div>
     </div>
     <div class="drawer-nav">
-      <div class="drawer-section">Home</div>
-      <button class="drawer-item active" id="dnavDashboard" onclick="drawerNav('Dashboard')"><i class="ti ti-home"></i>Dashboard</button>
-
-      <div class="drawer-section">Gestione</div>
-      <div class="drawer-item-group">
-        <div class="drawer-item-parent">
-          <button class="drawer-item" id="dnavPiante" onclick="drawerNav('Piante')"><i class="ti ti-trees"></i>Piante</button>
-          <button class="drawer-toggle" id="dtogPiante" onclick="toggleDrawerGroup('Piante', event)"><i class="ti ti-chevron-down"></i></button>
-        </div>
-        <div class="drawer-submenu" id="dsubPiante">
-          <button class="drawer-item drawer-subitem" id="dnavMappa" onclick="drawerNav('Mappa')"><i class="ti ti-map"></i>Mappa</button>
-        </div>
+      <button class="drawer-item active" id="dnavDashboard" onclick="drawerNav('Dashboard')"><i class="ti ti-home"></i><span>Home</span></button>
+      <div class="drawer-section">Giardino</div>
+      <button class="drawer-item" id="dnavPiante" onclick="drawerNav('Piante')"><i class="ti ti-trees"></i><span>Piante</span></button>
+      <button class="drawer-item" id="dnavMappa" onclick="drawerNav('Mappa')"><i class="ti ti-map"></i><span>Mappa</span></button>
+      <button class="drawer-item" id="dnavKanban" onclick="drawerNav('Kanban')"><i class="ti ti-checklist"></i><span>Attività</span></button>
+      <button class="drawer-item" id="dnavScadenze" onclick="drawerNav('Scadenze')"><i class="ti ti-calendar-due"></i><span>Scadenze</span><span id="dnavBadge" class="drawer-badge" style="display:none">0</span></button>
+      <button class="drawer-item" id="dnavCalendario" onclick="drawerNav('Calendario')"><i class="ti ti-calendar-month"></i><span>Calendario</span></button>
+      <div class="drawer-section">Cura e consigli</div>
+      <button class="drawer-item" id="dnavAI" onclick="drawerNav('AI')"><i class="ti ti-sparkles"></i><span>AI Consigli</span></button>
+      <button class="drawer-item" id="dnavDiagnosi" onclick="drawerNav('Diagnosi')"><i class="ti ti-stethoscope"></i><span>Diagnosi malattie</span></button>
+      <button class="drawer-item" id="dnavMeteo" onclick="drawerNav('Meteo')"><i class="ti ti-cloud"></i><span>Meteo e luna</span></button>
+      <button class="drawer-item" id="dnavEnciclopedia" onclick="drawerNav('Enciclopedia')"><i class="ti ti-books"></i><span>Enciclopedia</span></button>
+      <button class="drawer-item" style="display:none" id="dnavRacconto" onclick="drawerNav('Racconto')"><i class="ti ti-feather"></i><span>Racconta il giardino</span></button>
+      <div class="drawer-section">Cantiere e costi</div>
+      <button class="drawer-item" id="dnavCantiere" onclick="drawerNav('Cantiere')"><i class="ti ti-building-cottage"></i><span>Cantiere</span></button>
+      <button class="drawer-item" id="dnavSpese" onclick="drawerNav('Spese')"><i class="ti ti-coins"></i><span>Spese</span></button>
+      <button class="drawer-item" id="dnavStats" onclick="drawerNav('Stats')"><i class="ti ti-chart-bar"></i><span>Statistiche</span></button>
+      <button class="drawer-item" id="dnavRubrica" onclick="drawerNav('Rubrica')"><i class="ti ti-address-book"></i><span>Rubrica</span></button>
+      <div class="drawer-section">Diario</div>
+      <button class="drawer-item" id="dnavBacheca" onclick="drawerNav('Bacheca')"><i class="ti ti-message-circle"></i><span>Bacheca</span></button>
+      <button class="drawer-item" id="dnavStorico" onclick="drawerNav('Storico')"><i class="ti ti-clock-hour-4"></i><span>Storico</span></button>
+      <button class="drawer-item" id="dnavLog" onclick="drawerNav('Log')"><i class="ti ti-history"></i><span>Log modifiche</span></button>
+      <button class="drawer-item" id="dnavRicerca" onclick="drawerNav('Ricerca')"><i class="ti ti-search"></i><span>Cerca</span></button>
       </div>
-      <div class="drawer-item-group">
-        <div class="drawer-item-parent">
-          <button class="drawer-item" id="dnavKanban" onclick="drawerNav('Kanban')"><i class="ti ti-layout-kanban"></i>Kanban</button>
-          <button class="drawer-toggle" id="dtogKanban" onclick="toggleDrawerGroup('Kanban', event)"><i class="ti ti-chevron-down"></i></button>
-        </div>
-        <div class="drawer-submenu" id="dsubKanban">
-          <button class="drawer-item drawer-subitem" id="dnavScadenze" onclick="drawerNav('Scadenze')"><i class="ti ti-calendar-due"></i>Scadenze<span id="dnavBadge" style="display:none;margin-left:auto;background:#dc2626;color:#fff;border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700">0</span></button>
-          <button class="drawer-item drawer-subitem" id="dnavCalendario" onclick="drawerNav('Calendario')"><i class="ti ti-calendar-month"></i>Calendario</button>
-        </div>
+      <div class="drawer-footer">
+      <button class="drawer-item" id="dnavImpostazioni" onclick="drawerNav('Impostazioni')"><i class="ti ti-settings"></i><span>Impostazioni</span></button>
+      <button class="drawer-item" id="darkBtnDrawer" onclick="toggleDark()"><i class="ti ti-moon"></i> Tema scuro</button>
+      <button class="drawer-item" onclick="doLogout()"><i class="ti ti-logout"></i><span>Esci</span></button>
       </div>
-      <button class="drawer-item" id="dnavCantiere" onclick="drawerNav('Cantiere')"><i class="ti ti-building-cottage"></i>Cantiere</button>
-
-      <div class="drawer-section">Analisi</div>
-      <button class="drawer-item" id="dnavSpese" onclick="drawerNav('Spese')"><i class="ti ti-coins"></i>Spese</button>
-      <button class="drawer-item" id="dnavStats" onclick="drawerNav('Stats')"><i class="ti ti-chart-bar"></i>Statistiche</button>
-
-      <div class="drawer-section">Strumenti</div>
-      <button class="drawer-item" id="dnavAI" onclick="drawerNav('AI')"><i class="ti ti-sparkles"></i>AI Consigli</button>
-      <button class="drawer-item" id="dnavDiagnosi" onclick="drawerNav('Diagnosi')"><i class="ti ti-stethoscope"></i>Diagnosi malattie</button>
-      <button class="drawer-item" id="dnavMeteo" onclick="drawerNav('Meteo')"><i class="ti ti-cloud"></i>Meteo</button>
-      <button class="drawer-item" id="dnavEnciclopedia" onclick="drawerNav('Enciclopedia')"><i class="ti ti-books"></i>Enciclopedia</button>
-
-      <div class="drawer-section">Altro</div>
-      <button class="drawer-item" id="dnavBacheca" onclick="drawerNav('Bacheca')"><i class="ti ti-message-circle"></i>Bacheca</button>
-      <button class="drawer-item" id="dnavRubrica" onclick="drawerNav('Rubrica')"><i class="ti ti-address-book"></i>Rubrica</button>
-      <button class="drawer-item" id="dnavRacconto" onclick="drawerNav('Racconto')" style="display:none"><i class="ti ti-feather"></i>Racconta il giardino</button>
-      <button class="drawer-item" id="dnavStorico" onclick="drawerNav('Storico')"><i class="ti ti-clock-hour-4"></i>Storico</button>
-      <button class="drawer-item" id="dnavLog" onclick="drawerNav('Log')"><i class="ti ti-history"></i>Log modifiche</button>
-      <button class="drawer-item" id="dnavRicerca" onclick="drawerNav('Ricerca')"><i class="ti ti-search"></i>Ricerca</button>
-    </div>
-    <div class="drawer-footer">
-      <button onclick="toggleDark()" id="darkBtnDrawer" class="btn btn-secondary" style="margin-bottom:6px">🌙 Modalità scura</button>
-      <button onclick="doLogout()" class="btn btn-secondary"><i class="ti ti-logout"></i> Esci</button>
-    </div>
   </div>
 
   <div class="top-bar">
-    <div style="display:flex;align-items:center;gap:10px">
-      <button class="hamburger" onclick="openDrawer()" aria-label="Menu"><i class="ti ti-menu-2"></i></button>
-      <button onclick="drawerNav('Dashboard')" style="background:transparent;border:none;cursor:pointer;padding:6px;color:var(--g7);font-size:22px;display:flex;align-items:center;transition:transform .2s" title="Home" onmouseover="this.style.transform='scale(1.15)'" onmouseout="this.style.transform='scale(1)'"><i class="ti ti-home"></i></button>
-      <div>
-        <div class="top-brand-name" style="font-size:15px;color:var(--g8);font-family:'Lora',serif">Giardino di Quintilina</div>
-        <div class="top-brand-sub" id="headerSub" style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:4px"><span id="liveDot" style="width:6px;height:6px;border-radius:50%;background:var(--g5);display:none"></span><span id="headerSubText">Caricamento...</span><span id="headerVersion" style="opacity:.65"></span><span id="offlineBadge" style="display:none;background:var(--a1);color:var(--a6);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700;margin-left:4px">📴 Offline</span><span id="syncBadge" style="display:none;background:var(--b1);color:var(--b6);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700;margin-left:4px">🔄 Sincronizzazione...</span></div>
-      </div>
+    <button class="icon-btn" onclick="openDrawer()" aria-label="Menu"><i class="ti ti-menu-2"></i></button>
+    <div class="top-title-wrap" onclick="drawerNav('Dashboard')" title="Home">
+      <div class="top-title" id="topTitle">Giardino di Quintilina</div>
+      <div class="top-brand-sub" id="headerSub"><span id="liveDot" style="width:6px;height:6px;border-radius:50%;background:var(--g5);display:none"></span><span id="headerSubText">Caricamento...</span><span id="headerVersion" style="opacity:.65"></span><span id="offlineBadge" style="display:none;background:var(--a1);color:var(--a6);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700;margin-left:4px">📴 Offline</span><span id="syncBadge" style="display:none;background:var(--b1);color:var(--b6);border-radius:20px;padding:1px 8px;font-size:10px;font-weight:700;margin-left:4px">🔄 Sincronizzazione...</span></div>
     </div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <button onclick="showHelp()" id="helpBtn" style="background:transparent;border:1.5px solid var(--border);border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:15px;color:var(--muted);display:flex;align-items:center;justify-content:center;font-weight:700" title="Aiuto">?</button>
-      <button onclick="toggleDark()" id="darkBtn" style="background:transparent;border:1.5px solid var(--border);border-radius:20px;padding:5px 10px;cursor:pointer;font-size:16px;color:var(--muted)" title="Modalità scura">🌙</button>
-      <div class="user-chip" onclick="openDrawer()">
-        <i class="ti ti-user" style="font-size:14px"></i>
-        <span id="headerUser">—</span>
-      </div>
-    </div>
+    <button class="icon-btn" onclick="drawerNav('Ricerca')" aria-label="Cerca"><i class="ti ti-search"></i></button>
+    <button class="icon-btn" onclick="showHelp()" id="helpBtn" aria-label="Aiuto"><i class="ti ti-help-circle"></i></button>
+    <button class="user-chip" onclick="drawerNav('Impostazioni')" aria-label="Profilo e impostazioni">
+      <i class="ti ti-user-circle"></i><span id="headerUser">—</span>
+    </button>
   </div>
 
   <!-- HELP OVERLAY -->
@@ -974,11 +1182,8 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
         <button class="pill" onclick="filterScad('scadute',this)">🔴 Scadute</button>
         <button class="pill" onclick="filterScad('prossime',this)">🟡 Entro 30gg</button>
         <button class="pill" onclick="filterScad('ok',this)">🟢 In regola</button>
-        <button class="pill" onclick="sendTestEmail()" style="background:var(--g1);color:var(--g7);border-color:var(--g2)">📧 Test mail</button>
-        <button class="pill" onclick="sendTestReport()" style="background:var(--b1);color:var(--b6);border-color:#bfdbfe">📊 Test report</button>
-
+        
       </div>
-      <div id="emailKeyStatus" style="font-size:12px;margin-bottom:.5rem;min-height:16px"></div>
       <div id="scadList" class="scad-list">
         <div class="skeleton-block skeleton-row"></div>
         <div class="skeleton-block skeleton-row"></div>
@@ -1010,38 +1215,9 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
         <div class="section-title" id="calEventsTitle">Scadenze selezionate</div>
       </div>
       <div id="calEvents" class="cal-day-events"></div>
+      <button class="btn btn-sm btn-ghost" style="margin-top:.75rem" onclick="drawerNav('Impostazioni')"><i class="ti ti-brand-google"></i> Collega Google Calendar</button>
 
-      <div class="card" style="margin-top:1rem">
-        <div class="card-title">🔗 Sincronizza con Google Calendar</div>
-        <div id="gcalSetupNotice" class="notice notice-amber" style="margin-bottom:1rem">
-          Serve un <strong>Client ID OAuth</strong> gratuito da Google Cloud Console (una volta sola):
-          <ol class="steps-list" style="margin-top:.5rem;margin-bottom:0">
-            <li>Vai su <strong>console.cloud.google.com</strong> → crea/scegli un progetto</li>
-            <li><strong>API e servizi → Libreria</strong> → abilita "Google Calendar API"</li>
-            <li><strong>API e servizi → Credenziali</strong> → Crea credenziali → ID client OAuth → tipo "App web"</li>
-            <li>In "Origini JavaScript autorizzate" aggiungi l'indirizzo di questa app (es. <code>https://vale196709.github.io</code>)</li>
-            <li>Copia il Client ID (finisce con <code>.apps.googleusercontent.com</code>) e incollalo qui sotto</li>
-          </ol>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Google Client ID</label>
-          <input type="text" class="form-control" id="gcalClientId" placeholder="xxxxx.apps.googleusercontent.com" style="font-size:13px">
-        </div>
-        <div class="btn-row" style="margin-top:0">
-          <button class="btn btn-primary" style="flex:1;width:auto;padding:10px 16px" onclick="saveGcalClientId()">Salva Client ID</button>
-        </div>
-        <div id="gcalStatus" style="font-size:12px;margin-top:.75rem;color:var(--muted)">Non connesso</div>
-        <div style="display:flex;gap:8px;margin-top:.75rem;flex-wrap:wrap">
-          <button class="btn btn-ai" style="flex:1;min-width:160px" onclick="connectGoogleCalendar()" id="gcalConnectBtn">
-            <i class="ti ti-brand-google"></i> Connetti Google Calendar
-          </button>
-          <button class="btn btn-secondary" style="flex:1;min-width:160px" onclick="syncTutteScadenzeGoogleCalendar()" id="gcalSyncBtn">
-            <i class="ti ti-refresh"></i> Sincronizza tutte le scadenze
-          </button>
-        </div>
-        <div class="ai-api-notice">Da questo momento, ogni scadenza con data creata/modificata verrà creata/aggiornata automaticamente anche su Google Calendar. La connessione va rifatta se scade il token (circa 1 ora) — riclicca "Connetti" quando serve.</div>
-      </div>
-    </div>
+          </div>
 
     <!-- STATISTICHE -->
     <div id="panelStats" class="tab-panel">
@@ -1072,35 +1248,8 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
 
     <!-- AI CONSIGLI -->
     <div id="panelAI" class="tab-panel">
-      <details class="card ai-settings" id="aiSettingsCard">
-        <summary class="ai-settings-sum"><i class="ti ti-settings"></i> Impostazioni AI <span id="aiSettingsBadge" class="ai-settings-badge"></span></summary>
-        <div style="font-size:12px;color:var(--muted);line-height:1.6;margin:.5rem 0 1rem">
-          L'app sceglie da sola il modello migliore tra quelli attivi oggi e, se uno viene ritirato, passa automaticamente a un altro. Basta una chiave; con entrambe hai la massima affidabilità. Entrambe gratuite, nessun abbonamento.
-        </div>
-        <div class="form-group">
-          <label class="form-label">Chiave Groq <span class="lbl-hint">— testo veloce · console.groq.com</span></label>
-          <input type="password" class="form-control" id="aiApiKey" placeholder="gsk_..." autocomplete="off">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Chiave Google Gemini <span class="lbl-hint">— testo + foto · aistudio.google.com</span></label>
-          <input type="password" class="form-control" id="aiGeminiKey" placeholder="AIza..." autocomplete="off">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Provider preferito per il testo</label>
-          <select class="form-control" id="aiProviderSel">
-            <option value="auto">Automatico (consigliato)</option>
-            <option value="groq">Groq prima</option>
-            <option value="gemini">Gemini prima</option>
-          </select>
-        </div>
-        <div class="btn-row" style="margin-top:0;gap:8px">
-          <button class="btn btn-primary" style="flex:1;width:auto;padding:10px 16px" onclick="salvaChiaviAI()">Salva e verifica</button>
-          <button class="btn btn-secondary" style="width:auto;padding:10px 14px" onclick="aggiornaModelliAI()" title="Ricontrolla subito i modelli disponibili"><i class="ti ti-refresh"></i></button>
-        </div>
-        <div id="groqKeyStatus" class="ai-status"></div>
-        <div class="ai-api-notice">Chiavi condivise su tutti i dispositivi (salvate su Firebase, mai nel codice).</div>
-      </details>
-      <div class="ai-box" style="background:linear-gradient(135deg,var(--g1) 0%,var(--a0) 100%)">
+      <div id="aiSetupHint"></div>
+            <div class="ai-box" style="background:linear-gradient(135deg,var(--g1) 0%,var(--a0) 100%)">
         <div class="ai-box-header">
           <span style="font-size:24px">🌱</span>
           <div class="ai-box-title">Cosa pianto ora?</div>
@@ -1196,66 +1345,13 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
         <div id="storicoList"></div>
       </div>
     </div>
-  </div>
 
     <!-- METEO -->
     <div id="panelMeteo" class="tab-panel">
-      <div class="card">
-        <div class="card-title">🌤️ Meteo locale</div>
-        <div class="form-group">
-          <label class="form-label">Chiave API OpenWeatherMap</label>
-          <input type="password" class="form-control" id="owmKey" placeholder="abcd1234..." style="font-size:13px">
-          <div class="ai-api-notice">Gratuita su <strong>openweathermap.org</strong> → API keys</div>
-          <div id="owmKeyStatus" style="font-size:12px;margin-top:4px"></div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Città</label>
-          <input type="text" class="form-control" id="owmCitta" placeholder="Es: Milano, Roma, Torino...">
-        </div>
-        <button class="btn btn-primary" onclick="loadMeteo()" style="width:auto;padding:10px 20px">
-          <i class="ti ti-refresh"></i> Aggiorna meteo
-        </button>
+      <div class="panel-toolbar">
+        <button class="btn btn-sm btn-secondary" onclick="loadMeteo()"><i class="ti ti-refresh"></i> Aggiorna</button>
+        <button class="btn btn-sm btn-ghost" onclick="drawerNav('Impostazioni')"><i class="ti ti-settings"></i> Città e notifiche</button>
       </div>
-      <div class="card" style="margin-top:.75rem">
-        <div class="card-title">🔔 Notifiche native (consigliate)</div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:.75rem;line-height:1.6">
-          Ricevi avvisi direttamente dal browser o dall'app installata sulla home, senza dipendere da servizi esterni come WhatsApp. Funzionano quando l'app è aperta o installata come app sulla home del telefono.
-        </div>
-        <div id="notifStatus" style="font-size:13px;margin-bottom:.75rem">⚪ Notifiche non ancora attivate</div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-primary" style="flex:1" onclick="chiedIPermessoNotifiche()" id="notifBtn"><i class="ti ti-bell"></i> Attiva notifiche</button>
-          <button class="btn btn-secondary" onclick="testNotificaNativa()">🔔 Test</button>
-        </div>
-      </div>
-      <details class="card" style="margin-top:.75rem;padding:0" id="waDetails">
-        <summary style="padding:1.25rem;cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px" onclick="setTimeout(()=>document.getElementById('waDetails').scrollIntoView({behavior:'smooth',block:'nearest'}),150)">
-          <i class="ti ti-chevron-right" style="transition:transform .2s"></i>
-          <span style="font-weight:600;font-size:14px">📱 Notifiche WhatsApp <span style="font-weight:400;color:var(--muted);font-size:12px">(sperimentale, servizio esterno spesso non disponibile)</span></span>
-        </summary>
-        <div style="padding:0 1.25rem 1.25rem">
-          <div class="notice notice-amber" style="margin-bottom:1rem">
-            CallMeBot è un servizio gratuito gestito da un singolo sviluppatore, spesso al completo per le nuove registrazioni e soggetto a interruzioni. Le <strong>notifiche native qui sopra</strong> sono l'opzione consigliata: affidabili, gratuite, senza dipendere da terzi. Configura WhatsApp solo se vuoi comunque provarci.
-          </div>
-          <div class="form-group">
-            <label class="form-label">Numero WhatsApp (con prefisso, es: 39333...)</label>
-            <input type="tel" class="form-control" id="waPhone" placeholder="39333123456">
-          </div>
-          <div class="form-group">
-            <label class="form-label">API Key CallMeBot</label>
-            <input type="text" class="form-control" id="waApiKey" placeholder="123456">
-            <div class="ai-api-notice">Manda "I allow callmebot to send me messages" a +34 644 82 80 93 su WhatsApp per ottenere la key. ⚠️ CallMeBot disattiva la chiave se resta inutilizzata per qualche giorno o in caso di uso eccessivo — se i messaggi smettono di arrivare, manda di nuovo quel messaggio per ottenerne una nuova.</div>
-          </div>
-          <div style="display:flex;gap:8px">
-            <button class="btn btn-primary" style="flex:1" onclick="saveWaConfig()"><i class="ti ti-device-floppy"></i> Salva</button>
-            <button class="btn btn-secondary" onclick="testWhatsApp()">📱 Test</button>
-          </div>
-          <div id="waStatus" style="font-size:12px;margin-top:8px"></div>
-          <div class="notice notice-blue" style="margin-top:.75rem">
-            🌦️ <strong>Alert meteo aggressivo attivo:</strong> se sono configurati meteo e WhatsApp, ogni giorno l'app controlla gelo/caldo estremo/pioggia e — se rilevante — ti scrive su WhatsApp incrociando i dati con le piante che rischiano davvero (senza cure recenti), non un messaggio generico.
-          </div>
-          <button class="btn btn-secondary" style="width:100%;margin-top:.5rem" onclick="testAlertMeteo()"><i class="ti ti-cloud-storm"></i> Testa alert meteo ora</button>
-        </div>
-      </details>
       <div class="card" id="lunaCard" style="background:linear-gradient(135deg,#1a2540,#2d3a5f);color:#fff;border:none">
         <div style="display:flex;align-items:center;gap:14px">
           <div id="lunaEmoji" style="font-size:48px">🌙</div>
@@ -1559,13 +1655,200 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
       </div>
     </div>
 
+    <!-- IMPOSTAZIONI -->
+    <div id="panelImpostazioni" class="tab-panel">
+      <div class="settings-section">
+        <div class="settings-label">Account</div>
+        <div class="card settings-account">
+          <div class="settings-avatar"><i class="ti ti-user"></i></div>
+          <div style="flex:1;min-width:0">
+            <div class="settings-user" id="setUserName">—</div>
+            <div class="settings-role" id="setUserRole">—</div>
+          </div>
+          <button class="btn btn-sm btn-secondary" onclick="doLogout()"><i class="ti ti-logout"></i> Esci</button>
+        </div>
+        <div class="card settings-row-card">
+          <div class="settings-row">
+            <div><div class="settings-row-title">Tema scuro</div><div class="settings-row-sub">Più riposante la sera</div></div>
+            <label class="switch"><input type="checkbox" id="setDarkToggle" onchange="toggleDark()"><span></span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section admin-only">
+        <div class="settings-label">Assistente AI</div>
+        <div class="card" id="aiSettingsCard">
+        <div class="card-title"><i class="ti ti-sparkles"></i> Assistente AI <span id="aiSettingsBadge" class="ai-settings-badge"></span></div>
+        <div class="card-desc">
+          L'app sceglie da sola il modello migliore tra quelli attivi oggi e, se uno viene ritirato, passa automaticamente a un altro. Basta una chiave; con entrambe hai la massima affidabilità. Entrambe gratuite, nessun abbonamento.
+        </div>
+        <div class="form-group">
+          <label class="form-label">Chiave Groq <span class="lbl-hint">— testo veloce · console.groq.com</span></label>
+          <input type="password" class="form-control" id="aiApiKey" placeholder="gsk_..." autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Chiave Google Gemini <span class="lbl-hint">— testo + foto · aistudio.google.com</span></label>
+          <input type="password" class="form-control" id="aiGeminiKey" placeholder="AIza..." autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Provider preferito per il testo</label>
+          <select class="form-control" id="aiProviderSel">
+            <option value="auto">Automatico (consigliato)</option>
+            <option value="groq">Groq prima</option>
+            <option value="gemini">Gemini prima</option>
+          </select>
+        </div>
+        <div class="btn-row" style="margin-top:0;gap:8px">
+          <button class="btn btn-primary" style="flex:1;width:auto;padding:10px 16px" onclick="salvaChiaviAI()">Salva e verifica</button>
+          <button class="btn btn-secondary" style="width:auto;padding:10px 14px" onclick="aggiornaModelliAI()" title="Ricontrolla subito i modelli disponibili"><i class="ti ti-refresh"></i></button>
+        </div>
+        <div id="groqKeyStatus" class="ai-status"></div>
+        <div class="ai-api-notice">Chiavi condivise su tutti i dispositivi (salvate su Firebase, mai nel codice).</div>
+      </div>
+      </div>
+
+      <div class="settings-section admin-only">
+        <div class="settings-label">Meteo</div>
+        <div class="card">
+        <div class="card-title"><i class="ti ti-cloud"></i> Meteo</div>
+        <div class="form-group">
+          <label class="form-label">Chiave API OpenWeatherMap</label>
+          <input type="password" class="form-control" id="owmKey" placeholder="abcd1234..." style="font-size:13px">
+          <div class="ai-api-notice">Gratuita su <strong>openweathermap.org</strong> → API keys</div>
+          <div id="owmKeyStatus" style="font-size:12px;margin-top:4px"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Città</label>
+          <input type="text" class="form-control" id="owmCitta" placeholder="Es: Milano, Roma, Torino...">
+        </div>
+        <button class="btn btn-primary" onclick="loadMeteo()"><i class="ti ti-device-floppy"></i> Salva e prova</button>
+      </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label">Notifiche</div>
+        <div class="card">
+        <div class="card-title"><i class="ti ti-bell"></i> Notifiche sul telefono</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:.75rem;line-height:1.6">
+          Ricevi avvisi direttamente dal browser o dall'app installata sulla home, senza dipendere da servizi esterni come WhatsApp. Funzionano quando l'app è aperta o installata come app sulla home del telefono.
+        </div>
+        <div id="notifStatus" style="font-size:13px;margin-bottom:.75rem">⚪ Notifiche non ancora attivate</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" style="flex:1" onclick="chiedIPermessoNotifiche()" id="notifBtn"><i class="ti ti-bell"></i> Attiva notifiche</button>
+          <button class="btn btn-secondary" onclick="testNotificaNativa()">🔔 Test</button>
+        </div>
+      </div>
+        <div class="card admin-only">
+          <div class="card-title"><i class="ti ti-mail"></i> Avvisi via email</div>
+          <div class="card-desc">Le scadenze vengono inviate per email automaticamente (EmailJS). Usa i pulsanti per verificare che il servizio funzioni.</div>
+          <div id="emailKeyStatus" style="font-size:12px;margin-bottom:.5rem;min-height:16px"></div>
+          <div class="btn-row" style="margin-top:.5rem">
+            <button class="btn btn-secondary" style="flex:1" onclick="sendTestEmail()"><i class="ti ti-mail-forward"></i> Email di prova</button>
+            <button class="btn btn-secondary" style="flex:1" onclick="sendTestReport()"><i class="ti ti-report"></i> Report di prova</button>
+          </div>
+        </div>
+        <div class="admin-only"><details class="card card-collapsible" id="waDetails">
+        <summary style="padding:1.25rem;cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px" onclick="setTimeout(()=>document.getElementById('waDetails').scrollIntoView({behavior:'smooth',block:'nearest'}),150)">
+          <i class="ti ti-chevron-right" style="transition:transform .2s"></i>
+          <span style="font-weight:600;font-size:14px">📱 Notifiche WhatsApp <span style="font-weight:400;color:var(--muted);font-size:12px">(sperimentale, servizio esterno spesso non disponibile)</span></span>
+        </summary>
+        <div style="padding:0 1.25rem 1.25rem">
+          <div class="notice notice-amber" style="margin-bottom:1rem">
+            CallMeBot è un servizio gratuito gestito da un singolo sviluppatore, spesso al completo per le nuove registrazioni e soggetto a interruzioni. Le <strong>notifiche native qui sopra</strong> sono l'opzione consigliata: affidabili, gratuite, senza dipendere da terzi. Configura WhatsApp solo se vuoi comunque provarci.
+          </div>
+          <div class="form-group">
+            <label class="form-label">Numero WhatsApp (con prefisso, es: 39333...)</label>
+            <input type="tel" class="form-control" id="waPhone" placeholder="39333123456">
+          </div>
+          <div class="form-group">
+            <label class="form-label">API Key CallMeBot</label>
+            <input type="text" class="form-control" id="waApiKey" placeholder="123456">
+            <div class="ai-api-notice">Manda "I allow callmebot to send me messages" a +34 644 82 80 93 su WhatsApp per ottenere la key. ⚠️ CallMeBot disattiva la chiave se resta inutilizzata per qualche giorno o in caso di uso eccessivo — se i messaggi smettono di arrivare, manda di nuovo quel messaggio per ottenerne una nuova.</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary" style="flex:1" onclick="saveWaConfig()"><i class="ti ti-device-floppy"></i> Salva</button>
+            <button class="btn btn-secondary" onclick="testWhatsApp()">📱 Test</button>
+          </div>
+          <div id="waStatus" style="font-size:12px;margin-top:8px"></div>
+          <div class="notice notice-blue" style="margin-top:.75rem">
+            🌦️ <strong>Alert meteo aggressivo attivo:</strong> se sono configurati meteo e WhatsApp, ogni giorno l'app controlla gelo/caldo estremo/pioggia e — se rilevante — ti scrive su WhatsApp incrociando i dati con le piante che rischiano davvero (senza cure recenti), non un messaggio generico.
+          </div>
+          <button class="btn btn-secondary" style="width:100%;margin-top:.5rem" onclick="testAlertMeteo()"><i class="ti ti-cloud-storm"></i> Testa alert meteo ora</button>
+        </div>
+      </details></div>
+      </div>
+
+      <div class="settings-section admin-only">
+        <div class="settings-label">Calendario</div>
+        <div class="card">
+        <div class="card-title"><i class="ti ti-brand-google"></i> Google Calendar</div>
+        <details class="card-sub"><summary>Come ottenere il Client ID (una volta sola)</summary><div id="gcalSetupNotice" class="notice notice-amber">
+          Serve un <strong>Client ID OAuth</strong> gratuito da Google Cloud Console (una volta sola):
+          <ol class="steps-list" style="margin-top:.5rem;margin-bottom:0">
+            <li>Vai su <strong>console.cloud.google.com</strong> → crea/scegli un progetto</li>
+            <li><strong>API e servizi → Libreria</strong> → abilita "Google Calendar API"</li>
+            <li><strong>API e servizi → Credenziali</strong> → Crea credenziali → ID client OAuth → tipo "App web"</li>
+            <li>In "Origini JavaScript autorizzate" aggiungi l'indirizzo di questa app (es. <code>https://vale196709.github.io</code>)</li>
+            <li>Copia il Client ID (finisce con <code>.apps.googleusercontent.com</code>) e incollalo qui sotto</li>
+          </ol>
+        </div></details>
+        <div class="form-group">
+          <label class="form-label">Google Client ID</label>
+          <input type="text" class="form-control" id="gcalClientId" placeholder="xxxxx.apps.googleusercontent.com" style="font-size:13px">
+        </div>
+        <div class="btn-row" style="margin-top:0">
+          <button class="btn btn-primary" style="flex:1;width:auto;padding:10px 16px" onclick="saveGcalClientId()">Salva Client ID</button>
+        </div>
+        <div id="gcalStatus" style="font-size:12px;margin-top:.75rem;color:var(--muted)">Non connesso</div>
+        <div style="display:flex;gap:8px;margin-top:.75rem;flex-wrap:wrap">
+          <button class="btn btn-ai" style="flex:1;min-width:160px" onclick="connectGoogleCalendar()" id="gcalConnectBtn">
+            <i class="ti ti-brand-google"></i> Connetti Google Calendar
+          </button>
+          <button class="btn btn-secondary" style="flex:1;min-width:160px" onclick="syncTutteScadenzeGoogleCalendar()" id="gcalSyncBtn">
+            <i class="ti ti-refresh"></i> Sincronizza tutte le scadenze
+          </button>
+        </div>
+        <div class="ai-api-notice">Da questo momento, ogni scadenza con data creata/modificata verrà creata/aggiornata automaticamente anche su Google Calendar. La connessione va rifatta se scade il token (circa 1 ora) — riclicca "Connetti" quando serve.</div>
+      </div>
+      </div>
+
+      <div class="settings-section admin-only">
+        <div class="settings-label">Utenti</div>
+        <div class="card" id="setUtentiSlot"></div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label">Dati e backup</div>
+        <div class="card">
+          <div class="card-title"><i class="ti ti-database"></i> Backup automatici settimanali</div>
+          <div id="backupAutoList" style="font-size:12px;color:var(--muted)">Caricamento...</div>
+          <div class="btn-row">
+            <button class="btn btn-secondary" style="flex:1" onclick="esportaBackupCompleto()"><i class="ti ti-database-export"></i> Scarica backup</button>
+            <a class="btn btn-secondary" style="flex:1;text-decoration:none" href="./specifiche-giardino-quintilina.pdf" download target="_blank"><i class="ti ti-file-type-pdf"></i> Specifiche</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-label">App</div>
+        <div class="card">
+          <div class="settings-row">
+            <div><div class="settings-row-title">Versione</div><div class="settings-row-sub" id="setVersion">—</div></div>
+            <button class="btn btn-sm btn-secondary" onclick="forzaAggiornamentoApp()"><i class="ti ti-refresh"></i> Forza aggiornamento</button>
+          </div>
+          <div class="card-desc" style="margin-top:.5rem;margin-bottom:0">Se dopo un aggiornamento su GitHub vedi ancora la versione vecchia, questo pulsante svuota la cache e ricarica l'app.</div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /content -->
+
 
 
   <button class="fab" id="fabVoice" onclick="toggleVoiceMode()" aria-label="Ciao Giardino" style="bottom:76px;left:1.25rem;right:auto;background:linear-gradient(135deg,#7c3aed,#4f46e5)">
     <i class="ti ti-microphone" id="fabVoiceIcon"></i>
   </button>
 
-  <button class="fab" onclick="fabClick()" aria-label="Aggiungi">
+  <button class="fab" id="fabAdd" onclick="fabClick()" aria-label="Aggiungi">
     <i class="ti ti-plus"></i>
   </button>
 
@@ -1573,9 +1856,9 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
     <div class="bottom-nav-inner">
       <button class="bottom-nav-item active" id="bnavDashboard" onclick="drawerNav('Dashboard')"><i class="ti ti-home"></i>Home</button>
       <button class="bottom-nav-item" id="bnavPiante" onclick="drawerNav('Piante')"><i class="ti ti-trees"></i>Piante</button>
-      <button class="bottom-nav-item" id="bnavKanban" onclick="drawerNav('Kanban')"><i class="ti ti-layout-kanban"></i>Kanban<span class="bn-badge" id="bnavBadge" style="display:none">0</span></button>
+      <button class="bottom-nav-item" id="bnavKanban" onclick="drawerNav('Kanban')"><i class="ti ti-checklist"></i>Attività<span class="bn-badge" id="bnavBadge" style="display:none">0</span></button>
       <button class="bottom-nav-item" id="bnavCantiere" onclick="drawerNav('Cantiere')"><i class="ti ti-building-cottage"></i>Cantiere</button>
-      <button class="bottom-nav-item" id="bnavAltro" onclick="openDrawer()"><i class="ti ti-menu-2"></i>Altro</button>
+      <button class="bottom-nav-item" id="bnavAltro" onclick="openDrawer()"><i class="ti ti-dots"></i>Altro</button>
     </div>
   </nav>
 </div>
@@ -2280,7 +2563,7 @@ function showScreen(id) {
 }
 
 window.switchTab = function(name) {
-  const panels = ['Dashboard','Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese','Mappa','Cantiere','Bacheca','Rubrica','Racconto','Ricerca','Log','Kanban','Enciclopedia','Diagnosi'];
+  const panels = ['Dashboard','Scadenze','Piante','Calendario','Stats','AI','Storico','Meteo','Spese','Mappa','Cantiere','Bacheca','Rubrica','Racconto','Ricerca','Log','Kanban','Enciclopedia','Diagnosi','Impostazioni'];
   panels.forEach(t => {
     document.getElementById('panel'+t)?.classList.toggle('active', t===name);
     const nav = document.getElementById('nav'+t);
@@ -2288,7 +2571,7 @@ window.switchTab = function(name) {
   });
   currentTab = name;
   // Mostra/nascondi FAB in base al tab
-  const fab = document.querySelector('.fab');
+  const fab = document.getElementById('fabAdd');
   const tabsConFab = ['Scadenze','Piante','Spese','AI','Storico','Bacheca','Rubrica'];
   if (fab) fab.style.display = (currentRole!=='user' && tabsConFab.includes(name)) ? 'flex' : 'none';
   if (name==='Calendario') { renderCalendar(); initGcalOnLoad(); }
@@ -2307,16 +2590,76 @@ window.switchTab = function(name) {
   if (name==='Enciclopedia') initEnciclopedia();
   if (name==='Diagnosi') initDiagnosi();
   if (name==='Racconto') initRaccontoPagina();
+  if (name==='Impostazioni') initImpostazioni();
+  aggiornaTitoloPagina(name);
+};
+
+// ── TITOLO PAGINA + IMPOSTAZIONI ───────────────────────
+const titoliPagine = {
+  Dashboard:'Giardino di Quintilina', Scadenze:'Scadenze', Piante:'Piante', Calendario:'Calendario', Stats:'Statistiche',
+  AI:'AI Consigli', Storico:'Storico attività', Meteo:'Meteo', Spese:'Spese', Mappa:'Mappa', Cantiere:'Cantiere',
+  Bacheca:'Bacheca', Rubrica:'Rubrica', Racconto:'Racconta il giardino', Ricerca:'Ricerca', Log:'Log modifiche',
+  Kanban:'Attività', Enciclopedia:'Enciclopedia', Diagnosi:'Diagnosi', Impostazioni:'Impostazioni'
+};
+function aggiornaTitoloPagina(name) {
+  const t = document.getElementById('topTitle');
+  if (t) t.textContent = titoliPagine[name] || 'Giardino di Quintilina';
+  document.body.dataset.tab = name;
+}
+
+function initImpostazioni() {
+  const isAdmin = currentRole !== 'user';
+  const un = document.getElementById('setUserName'); if (un) un.textContent = currentUser || '—';
+  const ur = document.getElementById('setUserRole'); if (ur) ur.textContent = isAdmin ? 'Amministratore · può modificare' : 'Sola lettura';
+  const dt = document.getElementById('setDarkToggle'); if (dt) dt.checked = document.body.classList.contains('dark');
+  const v = document.getElementById('setVersion');
+  if (v) v.textContent = 'v' + (window.APP_VERSION||'—') + (window.APP_RELEASE_DATE ? ' · ' + new Date(window.APP_RELEASE_DATE).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}) : '');
+  // Meteo + WhatsApp (riusa i campi esistenti)
+  try {
+    document.getElementById('owmKey').value = localStorage.getItem('owmKey') || '';
+    document.getElementById('owmCitta').value = localStorage.getItem('owmCitta') || 'Terracina';
+    const waPhone = localStorage.getItem(WA_PHONE_KEY); if (waPhone) document.getElementById('waPhone').value = waPhone;
+    const waKey = localStorage.getItem(WA_APIKEY_KEY); if (waKey) document.getElementById('waApiKey').value = waKey;
+  } catch(e) {}
+  try { aggiornaStatoNotifiche(); } catch(e) {}
+  if (isAdmin) {
+    // Chiavi AI
+    document.getElementById('aiApiKey').value = getGroqKey();
+    document.getElementById('aiGeminiKey').value = getGeminiKey();
+    document.getElementById('aiProviderSel').value = localStorage.getItem('aiProvider') || 'auto';
+    verificaChiaveAttiva();
+    try { initGcalOnLoad(); } catch(e) {}
+    // Gestione utenti: sposta qui il pannello utenti della schermata iniziale
+    const slot = document.getElementById('setUtentiSlot');
+    const pu = document.getElementById('setupUtenti');
+    if (slot && pu && pu.parentElement !== slot) { slot.appendChild(pu); }
+    if (pu) { pu.classList.add('active'); pu.style.display = 'block'; }
+    try { loadUtenti(); } catch(e) {}
+  }
+  renderListaBackup();
+}
+window.initImpostazioni = initImpostazioni;
+
+window.forzaAggiornamentoApp = async function() {
+  if (!confirm("Svuotare la cache e ricaricare l'ultima versione dell'app?")) return;
+  try {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    if (window.caches) { const keys = await caches.keys(); await Promise.all(keys.map(k => caches.delete(k))); }
+  } catch(e) {}
+  location.reload();
 };
 
 // ── MODALS ─────────────────────────────────────────────
 window.toggleDark = function() {
   const isDark = document.body.classList.toggle('dark');
   localStorage.setItem('darkMode', isDark ? '1' : '0');
-  ['darkBtn','darkBtnDrawer'].forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) btn.innerHTML = isDark ? '☀️ Modalità chiara' : '🌙 Modalità scura';
-  });
+  const btn = document.getElementById('darkBtnDrawer');
+  if (btn) btn.innerHTML = isDark ? '<i class="ti ti-sun"></i> Tema chiaro' : '<i class="ti ti-moon"></i> Tema scuro';
+  const tg = document.getElementById('setDarkToggle'); if (tg) tg.checked = isDark;
+  const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = isDark ? '#132a16' : '#ffffff';
 };
 
 window.openDrawer = function() {
@@ -2338,9 +2681,9 @@ const helpContent = {
   Piante: {icon:'🌱', title:'Piante', body:'Griglia di tutte le piante del giardino con il loro stato di scadenza. Tocca una pianta per modificarla o eliminarla.<br><br>Il pulsante <strong>📋 in alto a sinistra</strong> di ogni scheda (o \"Registro interventi\" dentro la scheda di modifica) apre la <strong>tabella degli interventi</strong> della pianta: data, tipologia (Piantumazione, Innaffiamento, Potatura, Innesto, Concimazione, Altro) e descrizione.<br><br>Usa le <strong>etichette colorate</strong> (biologico, in vaso, urgente...) per organizzare le piante. Tocca <strong>+</strong> per aggiungerne una nuova.'},
   Calendario: {icon:'📆', title:'Calendario', body:'Vista mensile con un pallino colorato nei giorni che hanno attività programmate. Tocca un giorno per vedere il dettaglio delle attività previste.'},
   Stats: {icon:'📊', title:'Statistiche', body:'Grafici sulle attività svolte: per mese, per tipo (potatura, irrigazione...) e per pianta. In fondo trovi anche la <strong>previsione spese annuali</strong> basata sulla media mensile attuale.'},
-  AI: {icon:'✨', title:'AI Consigli', body:'Tre strumenti AI: il <strong>Piano di cura settimanale</strong> (genera cosa fare nei prossimi 7 giorni per tutte le piante), l\'<strong>Analisi storico</strong> (individua piante trascurate, squilibri e anomalie nelle cure) e i <strong>Consigli su una pianta specifica</strong> (scegli pianta e argomento per un consiglio mirato). Richiede almeno una chiave gratuita (Groq o Google Gemini) da inserire in <strong>Impostazioni AI</strong>, in cima alla pagina. Il modello viene scelto e aggiornato automaticamente.'},
+  AI: {icon:'✨', title:'AI Consigli', body:'Tre strumenti AI: il <strong>Piano di cura settimanale</strong> (genera cosa fare nei prossimi 7 giorni per tutte le piante), l\'<strong>Analisi storico</strong> (individua piante trascurate, squilibri e anomalie nelle cure) e i <strong>Consigli su una pianta specifica</strong> (scegli pianta e argomento per un consiglio mirato). Richiede almeno una chiave gratuita (Groq o Google Gemini) da inserire in <strong>Impostazioni → Assistente AI</strong>. Il modello viene scelto e aggiornato automaticamente.'},
   Storico: {icon:'🕓', title:'Storico', body:'Le ultime 40 attività registrate, in ordine dalla più recente. Utile per ripercorrere cosa è stato fatto di recente in giardino.'},
-  Meteo: {icon:'☁️', title:'Meteo', body:'Meteo attuale e previsioni a 5 giorni per Terracina. In fondo puoi configurare le <strong>notifiche WhatsApp</strong> (tramite CallMeBot) per ricevere avvisi sulle scadenze anche lì, oltre alle email.'},
+  Meteo: {icon:'☁️', title:'Meteo', body:'Meteo attuale, previsioni a 5 giorni e fase lunare con i consigli di semina. Città, chiave meteo e notifiche (telefono, email, WhatsApp) si configurano in <strong>Impostazioni</strong>.'},
   Spese: {icon:'💰', title:'Spese', body:'Registro di tutte le spese del giardino con grafici mensili e per categoria. Usa i pulsanti in fondo per esportare in <strong>PDF</strong> o <strong>Excel</strong>, o per importare lo storico da Google Sheet. Tocca <strong>+</strong> per registrare una nuova spesa.'},
   Mappa: {icon:'🗺️', title:'Mappa', body:'Mappa interattiva del terreno. Seleziona una pianta dalla lista sotto, poi tocca il punto sulla mappa dove si trova per posizionarla.<br><br>Attiva il <strong>🌳 Gemello digitale</strong> per vedere lo stato di salute di ogni pianta direttamente sulla mappa (anello verde/giallo/rosso secondo le scadenze).'},
   Bacheca: {icon:'💬', title:'Bacheca', body:'Spazio di note condivise tra tutti gli utenti del giardino, in tempo reale. Scegli il tipo (nota, osservazione, promemoria, problema) e scrivi liberamente. Utile per comunicare con chi gestisce il giardino con te.'},
@@ -2348,8 +2691,9 @@ const helpContent = {
   Cantiere: {icon:'🏗️', title:'Cantiere', body:'Monitora la costruzione della casa sul terreno: <strong>Fasi/SAL</strong> con percentuale di avanzamento (trascina lo slider per aggiornarla al volo), <strong>Budget</strong> calcolato automaticamente dalle spese contrassegnate come "Spesa di cantiere" nella sezione Spese, e una <strong>Galleria foto</strong> cronologica per documentare i progressi nel tempo.<br><br>Ogni fase ha anche un pulsante <strong>📎 Documenti allegati</strong>: da lì puoi caricare PDF, foto, contratti Word/Excel e altri file (fino a circa 650KB ciascuno) collegati a quella specifica fase, e scaricarli o eliminarli in qualsiasi momento.<br><br>Tocca "+ Fase" per aggiungere una fase personalizzata, o "Aggiungi foto" per la galleria. Ogni fase può essere collegata a un contatto della Rubrica (es. l\'impresa che la esegue).'},
   Ricerca: {icon:'🔍', title:'Ricerca', body:'Cerca in tutto il giardino: piante, attività e spese contemporaneamente. Scrivi almeno 2 caratteri e tocca un risultato per aprirlo direttamente.'},
   Log: {icon:'📝', title:'Log modifiche', body:'Cronologia di tutte le modifiche fatte nell\'app: aggiunte, modifiche ed eliminazioni, con utente e data. Utile per capire chi ha fatto cosa e quando.'},
-  Kanban: {icon:'📋', title:'Kanban', body:'Vista a tre colonne (Scadute / In arrivo / Completate) per gestire velocemente le attività. Usa i pulsanti rapidi <strong>✅ Fatta</strong> e <strong>📅 +7gg</strong> sulle singole card.<br><br>In alto trovi anche i <strong>suggerimenti stagionali</strong> e gli <strong>alert meteo</strong> automatici.'},
+  Kanban: {icon:'📋', title:'Attività', body:'Vista a tre colonne (Scadute / In arrivo / Completate) per gestire velocemente le attività. Usa i pulsanti rapidi <strong>✅ Fatta</strong> e <strong>📅 +7gg</strong> sulle singole card.<br><br>In alto trovi anche i <strong>suggerimenti stagionali</strong> e gli <strong>alert meteo</strong> automatici.'},
   Enciclopedia: {icon:'📚', title:'Enciclopedia', body:'Schede informative per le diverse tipologie di piante (olivo, vite, agrumi...): calendario delle cure, parassiti comuni, curiosità. Tocca una scheda per vedere i dettagli completi.'},
+  Impostazioni: {icon:'⚙️', title:'Impostazioni', body:'Tutte le configurazioni in un posto solo: <strong>tema</strong>, chiavi gratuite dell\'<strong>assistente AI</strong> (Groq e Google Gemini), <strong>meteo</strong>, <strong>notifiche</strong> (telefono, email, WhatsApp), <strong>Google Calendar</strong>, gestione <strong>utenti</strong>, <strong>backup</strong> e il pulsante <strong>Forza aggiornamento</strong> da usare dopo ogni nuova versione caricata su GitHub.'},
   Diagnosi: {icon:'🔬', title:'Diagnosi malattie', body:'Seleziona la pianta colpita, tocca i sintomi visivi che osservi e, se vuoi una diagnosi più precisa, <strong>carica una foto</strong> del problema. L\'AI analizzerà tutto e ti dirà cosa potrebbe essere e come trattarlo.'},
 };
 
@@ -2388,7 +2732,7 @@ window.drawerNav = function(name) {
   if (btn) btn.classList.add('active');
   // Sincronizza lo stato attivo della barra di navigazione in basso (mobile)
   document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
-  const bnavMap = {Dashboard:'bnavDashboard', Piante:'bnavPiante', Kanban:'bnavKanban', Cantiere:'bnavCantiere'};
+  const bnavMap = {Dashboard:'bnavDashboard', Piante:'bnavPiante', Mappa:'bnavPiante', Kanban:'bnavKanban', Scadenze:'bnavKanban', Calendario:'bnavKanban', Cantiere:'bnavCantiere'};
   const bnavBtn = document.getElementById(bnavMap[name] || 'bnavAltro');
   if (bnavBtn) bnavBtn.classList.add('active');
   // Se la voce è dentro un sottomenu, aprilo automaticamente
@@ -2564,6 +2908,10 @@ window.doLogout = function() {
   if (_unsubConfig) { _unsubConfig(); _unsubConfig = null; }
   currentUser = ''; currentRole = 'admin'; piante = []; attivita = []; spese = []; note = []; rubrica = []; cantiereFasi = []; cantiereFoto = []; cantiereDocumenti = []; cantiereChecklist = []; cantiereDiario = []; cantiereNC = []; cantiereMateriali = []; pianteFoto = []; pianteInterventi = [];
   document.getElementById('loginPin').value = '';
+  const pu = document.getElementById('setupUtenti');
+  const pf = document.getElementById('setupFirebase');
+  if (pu && pf && pu.parentElement !== pf.parentElement) { pf.after(pu); pu.classList.remove('active'); pu.style.removeProperty('display'); }
+  document.body.classList.remove('role-user');
   showScreen('screenSetup');
 };
 
@@ -5122,7 +5470,7 @@ window.riconosciPiantaDaFoto = async function(input) {
   const file = input.files[0];
   if (!file) return;
   const apiKey = getAiKey();
-  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); input.value=''; return; }
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in Impostazioni'); input.value=''; return; }
 
   const status = document.getElementById('riconosciFotoStatus');
   const label = document.getElementById('riconosciFotoLabel');
@@ -5145,7 +5493,7 @@ Se non riesci a identificare la pianta con ragionevole certezza, rispondi {"nome
         method:'POST',
         headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
         body:JSON.stringify({
-          model:'openai/gpt-oss-120b',
+          model:'auto',
           messages:[{role:'user', content:[
             {type:'text', text:prompt},
             {type:'image_url', image_url:{url:`data:${mime};base64,${base64}`}}
@@ -5205,7 +5553,7 @@ window.toggleSintomo = function(el) {
 window.getDiagnosi = async function() {
   if (!richiedeConnessione()) return;
   const apiKey = getAiKey();
-  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); return; }
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in Impostazioni'); return; }
 
   const pId = document.getElementById('diagPianta').value;
   const pianta = piante.find(x => x.id === pId);
@@ -5282,8 +5630,7 @@ Usa emoji per rendere la risposta piu leggibile. Sii preciso e pratico.`;
   const fotoMime = hasFoto ? hasFotoEl.src.split(';')[0].split(':')[1] : null;
 
   try {
-    // Se c'è una foto usa llama-vision, altrimenti usa il modello testo
-    const model = hasFoto ? 'openai/gpt-oss-120b' : 'qwen/qwen3.6-27b';
+        const model = 'auto'; // scelto dal motore AI (foto → modello con visione)
     const messages = hasFoto ? [{
       role: 'user',
       content: [
@@ -5385,7 +5732,7 @@ function initRaccontoPagina() {
 window.generaRaccontoPagina = async function() {
   if (!richiedeConnessione()) return;
   const apiKey = getAiKey();
-  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); return; }
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in Impostazioni'); return; }
   const el = document.getElementById('raccontoContentPage');
   const btn = document.getElementById('raccontoBtnPage');
   btn.disabled = true;
@@ -5415,7 +5762,7 @@ Scrivi un racconto (5-6 frasi) in terza persona, in stile narrativo e leggerment
     const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:400,temperature:0.85})
+      body:JSON.stringify({model:'auto',messages:[{role:'user',content:prompt}],max_tokens:400,temperature:0.85})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -5493,200 +5840,167 @@ async function initDashboard() {
   const saluto = ora < 12 ? 'Buongiorno' : ora < 18 ? 'Buon pomeriggio' : 'Buonasera';
   const oggi = new Date().toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long'});
 
-  // Scadenze urgenti
-  const urgenti = attivita.filter(a => {
-    if (!a.data_prossima) return false;
-    const d = Math.round((new Date(a.data_prossima)-new Date())/86400000);
-    return d <= 7;
-  }).sort((a,b) => new Date(a.data_prossima)-new Date(b.data_prossima)).slice(0,3);
+  const isUser = currentRole === 'user';
+  const giorniA = d => Math.round((new Date(d) - new Date(new Date().toDateString())) / 86400000);
 
-  // Meteo mini
-  let meteoHtml = '';
-  const owmKey = localStorage.getItem('owmKey');
-  const owmCity = localStorage.getItem('owmCitta') || 'Terracina';
-  if (owmKey) {
-    try {
-      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(owmCity)}&appid=${owmKey}&units=metric&lang=it`);
-      const w = await res.json();
-      if (w.cod === 200) {
-        const icon = w.weather[0].id >= 500 && w.weather[0].id < 600 ? '🌧️' :
-                     w.weather[0].id === 800 ? '☀️' :
-                     w.weather[0].id <= 804 ? '⛅' : '🌡️';
-        meteoHtml = `<div class="dash-meteo-mini">
-          <div style="font-size:36px">${icon}</div>
-          <div>
-            <div class="dash-meteo-temp">${Math.round(w.main.temp)}°C</div>
-            <div class="dash-meteo-info">${w.weather[0].description} · ${owmCity}<br>Umidità ${w.main.humidity}% · Vento ${Math.round(w.wind.speed*3.6)}km/h</div>
-          </div>
-        </div>`;
-      }
-    } catch(e) {}
-  }
+  // Da fare: scadute + prossimi 7 giorni
+  const daFare = attivita.filter(a => a.data_prossima && giorniA(a.data_prossima) <= 7)
+    .sort((a,b) => new Date(a.data_prossima) - new Date(b.data_prossima));
+  const scadute = daFare.filter(a => giorniA(a.data_prossima) < 0).length;
+  const oggiN = daFare.filter(a => giorniA(a.data_prossima) === 0).length;
 
-  // Stats rapide
+  // Statistiche rapide
   const totPiante = piante.length;
-  const scadOggi = attivita.filter(a => {
-    if (!a.data_prossima) return false;
-    return Math.round((new Date(a.data_prossima)-new Date())/86400000) < 0;
-  }).length;
-  const annoCorrente = new Date().getFullYear();
+  const ora0 = new Date();
   const totSpeseMese = spese.filter(s => {
     if (!s.data) return false;
     const d = new Date(s.data);
-    return d.getFullYear()===annoCorrente && d.getMonth()===new Date().getMonth();
+    return d.getFullYear()===ora0.getFullYear() && d.getMonth()===ora0.getMonth();
   }).reduce((sum,s)=>sum+parseFloat(s.importo||0),0);
-  const noteBacheca = note.length;
+  const cantPct = cantiereFasi.length ? Math.round(cantiereFasi.reduce((s,f) => s + (f.percentuale||0), 0) / cantiereFasi.length) : null;
 
-  // Ultime note bacheca
   const ultimeNote = note.slice(0,2);
   const tipoEmoji = {'nota':'📝','osservazione':'🔍','promemoria':'⏰','problema':'⚠️'};
 
+  const sommario = scadute > 0 ? `<strong>${scadute}</strong> ${scadute===1?'attività scaduta':'attività scadute'}${oggiN?` · ${oggiN} per oggi`:''}`
+    : oggiN > 0 ? `<strong>${oggiN}</strong> ${oggiN===1?'attività':'attività'} per oggi`
+    : daFare.length ? `${daFare.length} ${daFare.length===1?'attività':'attività'} nei prossimi 7 giorni`
+    : 'Nessuna attività urgente questa settimana';
+
+  const rigaDaFare = a => {
+    const ent = attEntity(a); const emoji = ent.emoji; const nome = ent.nome.replace(/^🏗️\s*/,'');
+    const days = giorniA(a.data_prossima);
+    const tc = tipoPillClass[a.tipo]||'tp-altro';
+    const lbl = days < 0 ? `Scaduta da ${Math.abs(days)}g` : days === 0 ? 'Oggi' : days === 1 ? 'Domani' : `Tra ${days}g`;
+    const cls = days < 0 ? 'badge-red' : days <= 1 ? 'badge-amber' : 'badge-gray';
+    return `<div class="todo-item">
+      <div class="todo-emoji">${emoji}</div>
+      <div class="todo-body" onclick="drawerNav('Scadenze')">
+        <div class="todo-name">${nome}</div>
+        <div class="todo-meta"><span class="tipo-pill ${tc}">${a.tipo}</span><span class="scad-badge ${cls}">${lbl}</span></div>
+      </div>
+      ${isUser ? '' : `<button class="todo-done" onclick="dashFatta('${a.id}')" aria-label="Segna come fatta" title="Segna come fatta"><i class="ti ti-check"></i></button>`}
+    </div>`;
+  };
+
   el.innerHTML = `
-    <div id="dashAnomalyAlert"></div>
-    <div id="dashIrrigazioneAlert"></div>
-    <div id="dashCantiereAlert"></div>
-    <div id="dashPromemoriaStagionali"></div>
     <div class="dash-hero dash-animate">
-      <div class="dash-hero-greeting">${saluto},</div>
-      <div class="dash-hero-name">${currentUser} 👋</div>
-      <div class="dash-hero-sub"><i class="ti ti-calendar" style="font-size:14px"></i>${oggi}</div>
-      ${meteoHtml}
+      <div class="dash-hero-top">
+        <div style="min-width:0">
+          <div class="dash-hero-greeting">${saluto}, ${currentUser}</div>
+          <div class="dash-hero-sub">${oggi.charAt(0).toUpperCase()+oggi.slice(1)}</div>
+        </div>
+        <button class="dash-meteo-chip" id="dashMeteo" onclick="drawerNav('Meteo')" aria-label="Meteo"><i class="ti ti-cloud"></i></button>
+      </div>
+      <div class="dash-hero-summary ${scadute>0?'is-alert':''}" onclick="drawerNav('Kanban')">
+        <i class="ti ${scadute>0?'ti-alert-triangle':daFare.length?'ti-calendar-event':'ti-circle-check'}"></i>
+        <span>${sommario}</span>
+        <i class="ti ti-chevron-right" style="margin-left:auto;opacity:.7"></i>
+      </div>
+    </div>
+
+    <div class="dash-alerts">
+      <div id="dashAnomalyAlert"></div>
+      <div id="dashIrrigazioneAlert"></div>
+      <div id="dashCantiereAlert"></div>
+      <div id="dashPromemoriaStagionali"></div>
+    </div>
+
+    <div class="card dash-card dash-animate">
+      <div class="dash-section-title">
+        <span><i class="ti ti-checklist"></i> Da fare</span>
+        <button class="dash-section-link" onclick="drawerNav('Kanban')">Tutte <i class="ti ti-chevron-right"></i></button>
+      </div>
+      ${daFare.length ? daFare.slice(0,5).map(rigaDaFare).join('') + (daFare.length > 5 ? `<button class="dash-more" onclick="drawerNav('Kanban')">Altre ${daFare.length-5} attività</button>` : '')
+        : `<div class="empty-state"><div class="empty-emoji">🎉</div><div class="empty-title">Tutto in ordine</div><div class="empty-sub">Nessuna scadenza nei prossimi 7 giorni</div></div>`}
     </div>
 
     <div class="dash-grid dash-animate">
-      <div class="dash-stat-card" onclick="drawerNav('Piante')">
-        <div class="dash-stat-icon">🌱</div>
+      <button class="dash-stat-card" onclick="drawerNav('Piante')">
+        <i class="ti ti-trees dash-stat-ic"></i>
         <div class="dash-stat-num">${totPiante}</div>
         <div class="dash-stat-label">Piante</div>
-      </div>
-      <div class="dash-stat-card" onclick="drawerNav('Scadenze')" style="${scadOggi>0?'border-color:var(--r6)':''}">
-        <div class="dash-stat-icon">${scadOggi>0?'🔴':'✅'}</div>
-        <div class="dash-stat-num" style="${scadOggi>0?'color:var(--r6)':''}">${scadOggi}</div>
+      </button>
+      <button class="dash-stat-card ${scadute>0?'is-alert':''}" onclick="drawerNav('Scadenze')">
+        <i class="ti ${scadute>0?'ti-alert-circle':'ti-circle-check'} dash-stat-ic"></i>
+        <div class="dash-stat-num">${scadute}</div>
         <div class="dash-stat-label">Scadute</div>
-      </div>
-      <div class="dash-stat-card" onclick="drawerNav('Spese')">
-        <div class="dash-stat-icon">💰</div>
-        <div class="dash-stat-num" style="font-size:18px">€${fmtEur(totSpeseMese)}</div>
-        <div class="dash-stat-label">Spese mese</div>
-      </div>
-      <div class="dash-stat-card" onclick="drawerNav('Bacheca')">
-        <div class="dash-stat-icon">💬</div>
-        <div class="dash-stat-num">${noteBacheca}</div>
+      </button>
+      <button class="dash-stat-card is-cantiere" onclick="drawerNav('Cantiere')">
+        <i class="ti ti-building-cottage dash-stat-ic"></i>
+        <div class="dash-stat-num">${cantPct===null?'—':cantPct+'%'}</div>
+        <div class="dash-stat-label">Cantiere</div>
+        ${cantPct===null?'':`<div class="mini-bar"><span style="width:${cantPct}%"></span></div>`}
+      </button>
+      ${isUser ? `<button class="dash-stat-card" onclick="drawerNav('Bacheca')">
+        <i class="ti ti-message-circle dash-stat-ic"></i>
+        <div class="dash-stat-num">${note.length}</div>
         <div class="dash-stat-label">Note</div>
+      </button>` : `<button class="dash-stat-card" onclick="drawerNav('Spese')">
+        <i class="ti ti-coins dash-stat-ic"></i>
+        <div class="dash-stat-num dash-stat-money">€ ${fmtEur(totSpeseMese)}</div>
+        <div class="dash-stat-label">Spese del mese</div>
+      </button>`}
+    </div>
+
+    <div class="card dash-card dash-ai dash-animate" id="dashAiBox">
+      <div class="dash-section-title">
+        <span><i class="ti ti-sparkles"></i> Consiglio del giorno</span>
+        <span style="display:flex;align-items:center;gap:4px">
+          <button class="icon-btn icon-btn-sm" onclick="toggleSpeak('dashAiContent', this)" aria-label="Ascolta"><i class="ti ti-volume"></i></button>
+          <button class="icon-btn icon-btn-sm" onclick="refreshDashAi()" aria-label="Nuovo consiglio"><i class="ti ti-refresh"></i></button>
+        </span>
+      </div>
+      <div id="dashAiContent" class="dash-ai-text">
+        <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Caricamento consiglio...</span></div>
+      </div>
+      <div class="ask-row">
+        <textarea id="dashAiAsk" class="ask-input" placeholder="Chiedi al giardiniere AI…" rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();askDashAi()}"
+          oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
+        <button class="ask-mic" onclick="toggleVoiceMode()" aria-label="Ciao Giardino: comando vocale" title="Ciao Giardino: registra un'attività a voce"><i class="ti ti-microphone"></i></button>
+        <button id="dashAiAskBtn" class="ask-send" onclick="askDashAi()" aria-label="Invia"><i class="ti ti-send"></i></button>
       </div>
     </div>
 
-    ${urgenti.length ? `
-    <div class="card dash-animate" style="padding:1rem">
-      <div class="dash-section-title">
-        ⚡ Scadenze urgenti
-        <span class="dash-section-link" onclick="drawerNav('Kanban')">Vedi tutte →</span>
-      </div>
-      ${urgenti.map(a => {
-        const {nome, emoji} = attEntity(a);
-        const days = Math.round((new Date(a.data_prossima)-new Date())/86400000);
-        const tc = tipoPillClass[a.tipo]||'tp-altro';
-        return `<div class="dash-scad-item" onclick="drawerNav('Scadenze')">
-          <span style="font-size:22px">${emoji}</span>
-          <div style="flex:1">
-            <div style="font-size:13px;font-weight:600">${nome}</div>
-            <div style="font-size:11px;color:var(--muted)"><span class="tipo-pill ${tc}">${a.tipo}</span></div>
-          </div>
-          <span class="scad-badge ${days<0?'badge-red':'badge-amber'}">${days<0?'Scaduta '+Math.abs(days)+'gg fa':'Fra '+days+'gg'}</span>
-        </div>`;
-      }).join('')}
-    </div>` : `
-    <div class="card dash-animate" style="padding:1rem;text-align:center;background:var(--g0);border-color:var(--g2)">
-      <div style="font-size:36px">🎉</div>
-      <div style="font-size:15px;color:var(--g7);font-weight:700;margin-top:6px;font-family:'Lora',serif">Tutto in ordine!</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px">Nessuna scadenza urgente questa settimana</div>
-    </div>`}
-
     ${ultimeNote.length ? `
-    <div class="card dash-animate" style="padding:1rem">
+    <div class="card dash-card dash-animate">
       <div class="dash-section-title">
-        💬 Bacheca
-        <span class="dash-section-link" onclick="drawerNav('Bacheca')">Vedi tutte →</span>
+        <span><i class="ti ti-message-circle"></i> Bacheca</span>
+        <button class="dash-section-link" onclick="drawerNav('Bacheca')">Tutte <i class="ti ti-chevron-right"></i></button>
       </div>
       ${ultimeNote.map(n => `
         <div class="dash-nota-item" onclick="drawerNav('Bacheca')">
-          ${tipoEmoji[n.tipo]||'📝'} ${n.testo.substring(0,80)}${n.testo.length>80?'…':''}
-          <div class="dash-nota-meta">👤 ${n.autore} · ${new Date(n.timestamp).toLocaleDateString('it-IT')}</div>
+          ${tipoEmoji[n.tipo]||'📝'} ${n.testo.substring(0,90)}${n.testo.length>90?'…':''}
+          <div class="dash-nota-meta">${n.autore} · ${new Date(n.timestamp).toLocaleDateString('it-IT',{day:'numeric',month:'short'})}</div>
         </div>`).join('')}
     </div>` : ''}
 
-    <div class="card dash-animate" id="dashAiBox" style="padding:1rem;background:linear-gradient(135deg,var(--g1),var(--t1));border-color:var(--g2)">
-      <div class="dash-section-title" style="color:var(--g8)">
-        🤖 Consiglio AI del giorno
-        <span style="display:flex;align-items:center;gap:8px">
-          <span class="dash-section-link" onclick="toggleSpeak('dashAiContent', this)" title="Ascolta">🔊</span>
-          <span class="dash-section-link" onclick="refreshDashAi()">↻ Aggiorna</span>
-        </span>
+    <details class="card dash-card card-collapsible dash-animate" id="dashInterventiCard">
+      <summary class="dash-section-title" style="margin:0">
+        <span><i class="ti ti-list-details"></i> Riepilogo interventi <span id="dashIntervCount" class="muted-count"></span></span>
+      </summary>
+      <div style="margin-top:.75rem">
+        <div class="toolbar-row">
+          <select class="form-control form-control-sm" id="dashIntervFiltroTipo" onchange="cambiaFiltroInterventi()">
+            <option value="">Tutte le tipologie</option>
+            <option value="Piantumazione">🌱 Piantumazione</option>
+            <option value="Innaffiamento">💧 Innaffiamento</option>
+            <option value="Potatura">✂️ Potatura</option>
+            <option value="Innesto">🌿 Innesto</option>
+            <option value="Concimazione">🧪 Concimazione</option>
+            <option value="Altro">📋 Altro</option>
+          </select>
+          <button class="btn btn-sm btn-secondary" onclick="esportaInterventiPDF()"><i class="ti ti-file-type-pdf"></i> PDF</button>
+          <button class="btn btn-sm btn-secondary" onclick="esportaInterventiExcel()"><i class="ti ti-file-spreadsheet"></i> Excel</button>
+        </div>
+        <div id="dashIntervTable"></div>
       </div>
-      <div id="dashAiContent" style="font-size:13px;color:var(--g9);line-height:1.7;min-height:60px">
-        <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Caricamento consiglio...</span></div>
-      </div>
-      <div style="display:flex;gap:6px;margin-top:.75rem;align-items:flex-end">
-        <textarea id="dashAiAsk" placeholder="Chiedi qualcosa al giardiniere AI..." rows="1"
-          style="flex:1;padding:9px 12px;border:1.5px solid var(--g2);border-radius:18px;font-size:13px;background:var(--surf);color:var(--text);font-family:'DM Sans',sans-serif;outline:none;resize:none;max-height:90px;min-height:38px"
-          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();askDashAi()}"
-          oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea>
-        <button id="dashAiAskBtn" onclick="askDashAi()" style="width:38px;height:38px;border-radius:50%;background:var(--g7);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">
-          <i class="ti ti-send"></i>
-        </button>
-      </div>
-    </div>
-
-
-
-    <div class="card dash-animate" style="padding:1rem" id="dashInterventiCard">
-      <div class="dash-section-title">
-        📋 Riepilogo interventi
-        <span id="dashIntervCount" style="font-size:11px;color:var(--muted);font-weight:500"></span>
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.6rem">
-        <select class="form-control" id="dashIntervFiltroTipo" onchange="cambiaFiltroInterventi()" style="flex:1;min-width:130px;padding:7px 10px;font-size:13px">
-          <option value="">Tutte le tipologie</option>
-          <option value="Piantumazione">🌱 Piantumazione</option>
-          <option value="Innaffiamento">💧 Innaffiamento</option>
-          <option value="Potatura">✂️ Potatura</option>
-          <option value="Innesto">🌿 Innesto</option>
-          <option value="Concimazione">🧪 Concimazione</option>
-          <option value="Altro">📋 Altro</option>
-        </select>
-        <button class="btn btn-sm" style="background:var(--g1);color:var(--g8);border:1.5px solid var(--g2)" onclick="esportaInterventiPDF()"><i class="ti ti-file-type-pdf"></i> PDF</button>
-        <button class="btn btn-sm" style="background:#e8f5e9;color:#2e7d32;border:1.5px solid #a5d6a7" onclick="esportaInterventiExcel()"><i class="ti ti-file-spreadsheet"></i> Excel</button>
-      </div>
-      <div id="dashIntervTable"></div>
-    </div>
-
-    <div class="card dash-animate" style="padding:1rem">
-      <div class="dash-section-title">🚀 Accesso rapido</div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px">
-        ${[['Kanban','ti-layout-kanban','Kanban'],['Mappa','ti-map','Mappa'],['AI','ti-sparkles','AI'],
-           ['Meteo','ti-cloud','Meteo'],['Spese','ti-coins','Spese'],['Cerca','ti-search','Ricerca']].map(([label,icon,tab])=>`
-          <button onclick="drawerNav('${tab}')" style="padding:10px 6px;border-radius:var(--rads);border:1px solid var(--border);background:var(--surf);cursor:pointer;font-size:11px;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:4px" onmouseover="this.style.background='var(--g1)';this.style.color='var(--g7)'" onmouseout="this.style.background='var(--surf)';this.style.color='var(--muted)'">
-            <i class="ti ${icon}" style="font-size:20px"></i>${label}
-          </button>`).join('')}
-      </div>
-    </div>
-
-    <div class="card dash-animate" style="padding:1rem">
-      <div class="dash-section-title">💾 Backup automatici settimanali</div>
-      <div id="backupAutoList" style="font-size:12px;color:var(--muted)">Caricamento...</div>
-    </div>
-
-    <div class="dash-animate" style="text-align:center;padding:.5rem 0 1rem">
-      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap">
-        <button onclick="esportaBackupCompleto()" style="background:transparent;border:1px solid var(--border);border-radius:20px;padding:6px 16px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px">
-          <i class="ti ti-database-export" style="font-size:15px"></i> Backup dati
-        </button>
-        <a href="./specifiche-giardino-quintilina.pdf" download target="_blank" style="background:transparent;border:1px solid var(--border);border-radius:20px;padding:6px 16px;font-size:12px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;display:flex;align-items:center;gap:6px;text-decoration:none">
-          <i class="ti ti-file-type-pdf" style="font-size:15px"></i> Specifiche v4.1
-        </a>
-      </div>
-    </div>
+    </details>
   `;
+
+  // Meteo caricato in background: la dashboard appare subito
+  caricaMeteoDashboard();
 
   // Mostra eventuale alert anomalia AI gia rilevato
   renderAiAnomalyAlert();
@@ -5709,6 +6023,34 @@ async function initDashboard() {
   // Carica consiglio AI
   getDashAiSuggestion();
 }
+
+async function caricaMeteoDashboard() {
+  const chip = document.getElementById('dashMeteo');
+  if (!chip) return;
+  const owmKey = localStorage.getItem('owmKey');
+  const owmCity = localStorage.getItem('owmCitta') || 'Terracina';
+  if (!owmKey) { chip.style.display = 'none'; return; }
+  try {
+    const cached = JSON.parse(sessionStorage.getItem('dashMeteoCache') || 'null');
+    let w = cached && Date.now() - cached.t < 15*60*1000 ? cached.w : null;
+    if (!w) {
+      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(owmCity)}&appid=${owmKey}&units=metric&lang=it`);
+      w = await res.json();
+      if (w.cod === 200) sessionStorage.setItem('dashMeteoCache', JSON.stringify({t:Date.now(), w}));
+    }
+    if (w.cod !== 200) { chip.style.display = 'none'; return; }
+    const id = w.weather[0].id;
+    const icon = id >= 200 && id < 300 ? 'ti-cloud-storm' : id >= 300 && id < 600 ? 'ti-cloud-rain' : id >= 600 && id < 700 ? 'ti-snowflake' : id === 800 ? 'ti-sun' : 'ti-cloud';
+    chip.innerHTML = `<i class="ti ${icon}"></i><span class="dash-meteo-t">${Math.round(w.main.temp)}°</span><span class="dash-meteo-d">${w.weather[0].description}</span>`;
+    chip.title = `${owmCity} · Umidità ${w.main.humidity}% · Vento ${Math.round(w.wind.speed*3.6)} km/h`;
+  } catch(e) { chip.style.display = 'none'; }
+}
+
+window.dashFatta = async function(id) {
+  if (currentRole === 'user') return;
+  try { await segnaFatta(id); } catch(e) { showToast('❌ ' + e.message); }
+  if (currentTab === 'Dashboard') initDashboard();
+};
 
 async function costruisciBackupObject() {
   let mappaData = {};
@@ -5843,7 +6185,7 @@ window.askDashAi = async function() {
   const msg = input.value.trim();
   if (!msg) return;
   const apiKey = getAiKey();
-  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); return; }
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in Impostazioni'); return; }
 
   const el = document.getElementById('dashAiContent');
   const btn = document.getElementById('dashAiAskBtn');
@@ -5873,7 +6215,7 @@ Rispondi in italiano, breve e pratico (max 4-5 frasi), con 1-2 emoji.`;
     const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:300,temperature:0.7})
+      body:JSON.stringify({model:'auto',messages:[{role:'user',content:prompt}],max_tokens:300,temperature:0.7})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -6005,7 +6347,7 @@ async function processVoiceTranscript(transcript) {
   document.getElementById('voiceStatus').textContent = 'Sto elaborando...';
   const apiKey = getAiKey();
   if (!apiKey) {
-    document.getElementById('voiceText').textContent = 'Configura una chiave AI gratuita in AI Consigli → Impostazioni AI per usare questa funzione.';
+    document.getElementById('voiceText').textContent = 'Configura una chiave AI gratuita in Impostazioni per usare questa funzione.';
     return;
   }
 
@@ -6023,7 +6365,7 @@ Se la frase non descrive un'attivita di giardinaggio, rispondi con {"pianta": nu
     const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.2})
+      body:JSON.stringify({model:'auto',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.2})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -6079,7 +6421,7 @@ window.confermaVoiceAttivita = async function() {
 
 window.raccontaGiardino = async function() {
   const apiKey = getAiKey();
-  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); return; }
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in Impostazioni'); return; }
 
   const el = document.getElementById('raccontoContent');
   el.innerHTML = '<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Sto scrivendo il racconto...</span></div>';
@@ -6124,7 +6466,7 @@ Scrivi un breve racconto (massimo 4-5 frasi) in terza persona, in stile narrativ
     const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:400,temperature:0.85})
+      body:JSON.stringify({model:'auto',messages:[{role:'user',content:prompt}],max_tokens:400,temperature:0.85})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -6149,7 +6491,7 @@ async function getDashAiSuggestion() {
 
   const apiKey = getAiKey();
   if (!apiKey) {
-    el.innerHTML = '<span style="color:var(--muted);font-size:12px">Configura una chiave AI gratuita in AI Consigli → Impostazioni AI per ricevere consigli personalizzati.</span>';
+    el.innerHTML = '<span style="color:var(--muted);font-size:12px">Configura una chiave AI gratuita in Impostazioni per ricevere consigli personalizzati.</span>';
     return;
   }
 
@@ -6184,7 +6526,7 @@ Massimo 3 frasi. Usa 1-2 emoji. Sii diretto e concreto.`;
     const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.7})
+      body:JSON.stringify({model:'auto',messages:[{role:'user',content:prompt}],max_tokens:200,temperature:0.7})
     });
     const data = await res.json();
     const text = data.choices?.[0]?.message?.content || 'Nessun consiglio disponibile.';
@@ -6726,7 +7068,7 @@ Rispondi SOLO con un oggetto JSON, nessun testo extra:
     const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:150,temperature:0.3})
+      body:JSON.stringify({model:'auto',messages:[{role:'user',content:prompt}],max_tokens:150,temperature:0.3})
     });
     const data = await res.json();
     if (data.error) { localStorage.setItem('lastAiAnomalyCheck', oggi); return; }
@@ -7071,7 +7413,7 @@ window.reloadUtenti = async function() {
   const status = document.getElementById('loginStatus');
   const debug = document.getElementById('debugInfo');
   let log = '';
-  const addLog = msg => { log += msg + '\n'; if(debug) debug.textContent = log; };
+  const addLog = msg => { log += msg + '\n'; if(debug) { debug.style.display = 'block'; debug.textContent = log; } };
   addLog('▶ Avvio ricarica...');
   if (status) status.textContent = '⏳ Connessione...';
   const cfg = JSON.parse(localStorage.getItem('fbConfig')||'null');
@@ -7092,7 +7434,9 @@ window.reloadUtenti = async function() {
 function applyRoleUI() {
   const isUser = currentRole === 'user';
   // Nascondi FAB (pulsante +)
-  document.querySelector('.fab').style.display = isUser ? 'none' : 'flex';
+  const fabAdd = document.getElementById('fabAdd');
+  if (fabAdd) fabAdd.style.display = isUser ? 'none' : 'flex';
+  document.body.classList.toggle('role-user', isUser);
   // Nascondi tab Storico edit (items non cliccabili)
   document.documentElement.style.setProperty('--pointer-scad', isUser ? 'none' : 'pointer');
   // Mostra banner readonly se user
@@ -8355,9 +8699,9 @@ async function aiComplete(req) {
   const needsVision = (req.messages||[]).some(m => Array.isArray(m.content) && m.content.some(p => p.type === 'image_url'));
   let { list, invalid } = await _aiCandidates(needsVision);
   if (!list.length) {
-    if (invalid.length) throw new Error('Chiave AI non valida (' + invalid.join(', ') + ') — aggiornala in AI Consigli → Impostazioni AI');
-    if (needsVision && !getGeminiKey()) throw new Error('Per analizzare le foto serve la chiave gratuita Gemini (AI Consigli → Impostazioni AI)');
-    throw new Error('Nessuna chiave AI configurata — aggiungila in AI Consigli → Impostazioni AI');
+    if (invalid.length) throw new Error('Chiave AI non valida (' + invalid.join(', ') + ') — aggiornala in Impostazioni');
+    if (needsVision && !getGeminiKey()) throw new Error('Per analizzare le foto serve la chiave gratuita Gemini (Impostazioni → Assistente AI)');
+    throw new Error('Nessuna chiave AI configurata — aggiungila in Impostazioni');
   }
   let lastErr = '';
   for (let i = 0; i < list.length && i < 6; i++) {
@@ -8486,7 +8830,8 @@ function fillAiPianteSel() {
   document.getElementById('aiApiKey').value = getGroqKey();
   const gk = document.getElementById('aiGeminiKey'); if (gk) gk.value = getGeminiKey();
   const ps = document.getElementById('aiProviderSel'); if (ps) ps.value = localStorage.getItem('aiProvider') || 'auto';
-  const card = document.getElementById('aiSettingsCard'); if (card && !getAiKey()) card.open = true;
+  const hint = document.getElementById('aiSetupHint');
+  if (hint) hint.innerHTML = getAiKey() ? '' : `<div class="notice notice-amber" style="margin:0 0 1rem;display:flex;align-items:center;gap:10px"><span style="flex:1">Per usare l'AI serve una chiave gratuita (Groq o Google Gemini).</span><button class="btn btn-sm btn-primary" style="width:auto" onclick="drawerNav('Impostazioni')">Configura</button></div>`;
   // Controllo automatico silenzioso della chiave
   verificaChiaveAttiva();
 }
@@ -8496,7 +8841,7 @@ window.salvaEVerificaChiave = (...a) => window.salvaChiaviAI(...a);
 window.getCosaPianto = async function() {
   if (!richiedeConnessione()) return;
   const apiKey = getAiKey();
-  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); return; }
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in Impostazioni'); return; }
 
   const esposizione = document.getElementById('cpoEsposizione').value;
   const terreno = document.getElementById('cpoTerreno').value;
@@ -8533,7 +8878,7 @@ Evita di riproporre piante già presenti a meno che non abbia senso raddoppiarle
     const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:700,temperature:0.6})
+      body:JSON.stringify({model:'auto',messages:[{role:'user',content:prompt}],max_tokens:700,temperature:0.6})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -8564,7 +8909,7 @@ Evita di riproporre piante già presenti a meno che non abbia senso raddoppiarle
 window.generaPianoSettimanale = async function() {
   if (!richiedeConnessione()) return;
   const apiKey = getAiKey();
-  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); return; }
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in Impostazioni'); return; }
   if (!piante.length) { showToast('Aggiungi prima delle piante al giardino'); return; }
 
   const btn = document.getElementById('pianoBtnGenera');
@@ -8635,7 +8980,7 @@ Sii pratico e specifico, massimo 2-3 attivita per giorno. Usa emoji per ogni tip
     const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:1800,temperature:0.5})
+      body:JSON.stringify({model:'auto',messages:[{role:'user',content:prompt}],max_tokens:1800,temperature:0.5})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -8673,7 +9018,7 @@ Sii pratico e specifico, massimo 2-3 attivita per giorno. Usa emoji per ogni tip
 window.analizzaStoricoAnomalie = async function() {
   if (!richiedeConnessione()) return;
   const apiKey = getAiKey();
-  if (!apiKey) { showToast('Configura una chiave AI gratuita in AI Consigli → Impostazioni AI'); return; }
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in Impostazioni'); return; }
   if (!piante.length) { showToast('Aggiungi prima delle piante al giardino'); return; }
   if (attivita.length < 3) { showToast('Servono almeno alcune attività registrate per fare un\'analisi utile'); return; }
 
@@ -8748,7 +9093,7 @@ Sii specifico citando nomi di piante e numeri reali dai dati. Usa emoji per ogni
     const res = await aiFetch('https://api.groq.com/openai/v1/chat/completions', {
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},
-      body:JSON.stringify({model:'qwen/qwen3.6-27b',reasoning_effort:'none',messages:[{role:'user',content:prompt}],max_tokens:1500,temperature:0.4})
+      body:JSON.stringify({model:'auto',messages:[{role:'user',content:prompt}],max_tokens:1500,temperature:0.4})
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
@@ -8786,7 +9131,7 @@ Sii specifico citando nomi di piante e numeri reali dai dati. Usa emoji per ogni
 window.getAiSuggestion = async function() {
   if (!richiedeConnessione()) return;
   const apiKey = getAiKey();
-  if (!apiKey) { showToast('Configura una chiave AI gratuita in Impostazioni AI'); return; }
+  if (!apiKey) { showToast('Configura una chiave AI gratuita in Impostazioni'); return; }
 
   const pId = document.getElementById('aiPianta').value;
   const arg = document.getElementById('aiArgomento').value;
@@ -8831,8 +9176,7 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
         'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        model: 'qwen/qwen3.6-27b',
-        reasoning_effort: 'none',
+        model: 'auto',
         messages: [{role: 'user', content: prompt}],
         max_tokens: 1000,
         temperature: 0.7
@@ -8901,7 +9245,7 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
   });
 
   // Inizializza EmailJS
-  emailjs.init('9YVGzzNQ_0ByT8JI8');
+  try { emailjs.init('9YVGzzNQ_0ByT8JI8'); } catch(e) { console.warn('EmailJS non disponibile:', e); }
 
   // Registra il Service Worker per le notifiche native + cache offline
   if ('serviceWorker' in navigator) {
@@ -8929,10 +9273,9 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
   // Carica preferenza dark mode
   if (localStorage.getItem('darkMode') === '1') {
     document.body.classList.add('dark');
-    ['darkBtn','darkBtnDrawer'].forEach(id => {
-      const btn = document.getElementById(id);
-      if (btn) btn.innerHTML = '☀️ Modalità chiara';
-    });
+    const btn = document.getElementById('darkBtnDrawer');
+    if (btn) btn.innerHTML = '<i class="ti ti-sun"></i> Tema chiaro';
+    const meta = document.querySelector('meta[name="theme-color"]'); if (meta) meta.content = '#132a16';
   }
 
   // Listener per funzioni chiamate dall'HTML
