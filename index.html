@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="6.4" data-date="2026-11-01">
+<meta name="app-version" content="6.5" data-date="2026-11-01">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Giardino di Quintilina</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
@@ -642,6 +642,47 @@ body.dark .m7-nota{background:var(--bg);color:var(--text)}
 body.dark .m7-mm{color:#60a5fa}
 .m7-fonte{font-size:10.5px;color:var(--muted);text-align:right}
 @media(max-width:440px){.meteo7{grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;overflow:visible}.m7-day{padding:.5rem 0 .4rem;border-radius:11px}.m7-nome{font-size:10px}.m7-num{font-size:9.5px}.m7-ic{font-size:21px}.m7-max{font-size:13.5px}.m7-min{font-size:11px}.m7-rain{font-size:10px}.m7-rain i{display:none}.m7-mm{font-size:9px}.m7-bar{width:78%}}
+.pf-bar{display:flex;gap:6px;overflow-x:auto;padding:2px 0 10px;scrollbar-width:none;position:sticky;top:0;z-index:5;background:var(--bg)}
+.pf-bar::-webkit-scrollbar{display:none}
+.pf-chip{white-space:nowrap;border:1px solid var(--border);background:var(--surf);color:var(--muted);border-radius:20px;padding:7px 12px;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer}
+.pf-chip b{font-weight:700;color:var(--text);margin-left:2px}
+.pf-chip.on{background:var(--g7);border-color:var(--g7);color:#fff}
+.pf-chip.on b{color:#fff}
+.pf-chip.red:not(.on){border-color:#fecaca;color:var(--r6)}
+.pf-chip.red:not(.on) b{color:var(--r6)}
+.plant-grid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px}
+.pc2{background:var(--surf);border:1px solid var(--border);border-radius:18px;overflow:hidden;cursor:pointer;box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column}
+.pc2:active{transform:scale(.98)}
+@media(hover:hover){.pc2:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}}
+.pc2-cover{position:relative;height:118px;overflow:visible}
+.pc2-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:17px 17px 0 0}
+.pc2-emoji{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:46px;filter:drop-shadow(0 4px 8px rgba(0,0,0,.18))}
+.pc2-shade{position:absolute;inset:0;border-radius:17px 17px 0 0;background:linear-gradient(180deg,rgba(0,0,0,.18) 0%,rgba(0,0,0,0) 35%,rgba(0,0,0,0) 60%,rgba(0,0,0,.35) 100%);pointer-events:none}
+.pc2-btn{position:absolute;top:8px;width:30px;height:30px;border-radius:50%;border:none;background:rgba(255,255,255,.88);color:#166534;display:flex;align-items:center;justify-content:center;font-size:15px;cursor:pointer;box-shadow:0 1px 4px rgba(0,0,0,.15);z-index:2}
+.pc2-btn.l{left:8px}.pc2-btn.r{right:8px}
+.pc2-src{position:absolute;left:8px;bottom:7px;font-size:9.5px;color:rgba(255,255,255,.92);background:rgba(0,0,0,.28);padding:1px 6px;border-radius:8px;z-index:2}
+.pc2-ring{position:absolute;right:10px;bottom:-20px;width:44px;height:44px;border-radius:50%;background:conic-gradient(var(--c) calc(var(--v) * 1%), var(--border) 0);display:flex;align-items:center;justify-content:center;z-index:3;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.pc2-ring span{width:34px;height:34px;border-radius:50%;background:var(--surf);display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:800;color:var(--text)}
+.pc2-body{padding:.65rem .8rem .8rem;display:flex;flex-direction:column;flex:1}
+.pc2-nome{font-family:'Lora',serif;font-size:16px;font-weight:600;color:var(--text);padding-right:42px;line-height:1.25}
+.pc2-sub{font-size:11.5px;color:var(--muted);margin-top:2px;padding-right:38px}
+.pc2-next{margin-top:auto;padding-top:0;font-size:11.5px;font-weight:600;border-radius:8px;padding:5px 8px;margin-top:10px;line-height:1.35}
+.pc2-next.red{background:var(--r1);color:var(--r6)}
+.pc2-next.amber{background:var(--a1);color:var(--a6)}
+.pc2-next.blue{background:var(--b1);color:var(--b6)}
+.pc2-next.gray{background:var(--bg);color:var(--muted)}
+.pc2-next.ok{background:var(--g1);color:var(--g7)}
+body.dark .pc2-next.blue{color:#93c5fd}
+.pc2-add{border-style:dashed;align-items:center;justify-content:center;gap:6px;color:var(--muted);font-size:13px;min-height:200px;box-shadow:none}
+.pc2-add i{font-size:26px}
+.pc2 .plant-tags{display:flex;flex-wrap:wrap;gap:4px}
+.pc2 .tag-pill{display:inline-block;font-size:10.5px;line-height:1.5;padding:1px 8px;border-radius:10px;font-weight:600}
+.pf-credit{font-size:10.5px;color:var(--muted);margin-top:12px;text-align:center}
+.ep-foto{display:flex;gap:10px;align-items:flex-start}
+.ep-foto img,.ep-foto-vuota{width:84px;height:84px;object-fit:cover;border-radius:12px;flex-shrink:0;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:34px}
+.ep-foto-info{font-size:11.5px;color:var(--muted);line-height:1.5;flex:1;min-width:0;word-break:break-word}
+.ep-foto-info a{color:var(--g7)}
+.ep-foto-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
 .update-banner{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#155a2e,#1a7a3e);color:#fff;border-radius:var(--rad);padding:.7rem .9rem;margin-bottom:1rem;font-size:13px;font-weight:600;box-shadow:var(--shadow-md)}
 .update-banner-btn{background:#fff;color:#155a2e;border:none;border-radius:20px;padding:6px 14px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
 .update-banner-x{background:transparent;border:none;color:rgba(255,255,255,.8);font-size:16px;cursor:pointer;padding:2px}
@@ -1428,12 +1469,9 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
 
     <!-- PIANTE -->
     <div id="panelPiante" class="tab-panel">
-      <div class="stats-row" id="statsRow">
-        <div class="stat-box"><div class="stat-num" id="sTot">—</div><div class="stat-label">Totale</div></div>
-        <div class="stat-box"><div class="stat-num" id="sAlb">—</div><div class="stat-label">Alberi</div></div>
-        <div class="stat-box"><div class="stat-num" id="sVeg">—</div><div class="stat-label">Verdure</div></div>
-      </div>
-      <div id="plantGrid" class="plant-grid"></div>
+      <div class="pf-bar" id="pianteFiltri"></div>
+      <div id="plantGrid" class="plant-grid2"></div>
+      <div class="pf-credit">Foto senza la tua immagine: Wikipedia / Wikimedia Commons, con licenza libera. Autore e licenza nella scheda di ogni pianta.</div>
     </div>
 
     <!-- CALENDARIO -->
@@ -2352,6 +2390,10 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
       <label class="form-label">Etichette (separate da virgola)</label>
       <input type="text" class="form-control" id="epTags" placeholder="Es: biologico, in vaso, nuovo impianto">
     </div>
+    <div class="form-group">
+      <label class="form-label">Foto della scheda</label>
+      <div id="epFotoWiki" class="ep-foto"></div>
+    </div>
     <div class="btn-row" style="margin-top:0">
       <button class="btn btn-secondary" style="flex:1;width:auto" onclick="generaQRPiantaCorrente()"><i class="ti ti-qrcode"></i> Genera QR Code</button>
       <button class="btn btn-secondary" style="flex:1;width:auto" onclick="apriGalleriaPianta()"><i class="ti ti-photo"></i> Galleria foto</button>
@@ -3025,7 +3067,7 @@ window.closeDrawer = function() {
 const helpContent = {
   Dashboard: {icon:'🏠', title:'Dashboard', body:'La tua home page. Qui trovi: il meteo del giorno, le scadenze più urgenti, le statistiche rapide, le ultime note in bacheca e il consiglio AI del giorno.<br><br>Tocca "✨ Genera" nel box arancione per ricevere un breve racconto poetico di cosa è successo nel giardino di recente.<br><br>Il <strong>📋 Riepilogo interventi</strong> mostra in un\'unica tabella gli interventi di tutte le piante (filtrabili per tipologia) ed è esportabile in <strong>PDF</strong> o <strong>Excel</strong>.<br><br>Usa la sezione "🚀 Accesso rapido" per saltare velocemente alle altre schermate.<br><br>In fondo trovi il pulsante <strong>"Backup completo dati"</strong> che scarica tutte le piante, attività, spese e note in un file di sicurezza, e il numero di versione dell\'app.'},
   Scadenze: {icon:'📅', title:'Scadenze', body:'Elenco di tutte le attività programmate, con codice colore: <span style="color:#dc2626">🔴 rosso</span> = scaduta, <span style="color:#d97706">🟡 giallo</span> = entro 30 giorni, <span style="color:#16a34a">🟢 verde</span> = in regola.<br><br>Usa i filtri in alto per vedere solo scadute o in arrivo. Tocca il pulsante <strong>+</strong> in basso per aggiungere una nuova attività.'},
-  Piante: {icon:'🌱', title:'Piante', body:'Griglia di tutte le piante del giardino con il loro stato di scadenza. Tocca una pianta per modificarla o eliminarla.<br><br>Il pulsante <strong>📋 in alto a sinistra</strong> di ogni scheda (o \"Registro interventi\" dentro la scheda di modifica) apre la <strong>tabella degli interventi</strong> della pianta: data, tipologia (Piantumazione, Innaffiamento, Potatura, Innesto, Concimazione, Altro) e descrizione.<br><br>Usa le <strong>etichette colorate</strong> (biologico, in vaso, urgente...) per organizzare le piante. Tocca <strong>+</strong> per aggiungerne una nuova.'},
+  Piante: {icon:'🌱', title:'Piante', body:'Ogni scheda mostra la <strong>foto</strong> della pianta (la tua ultima dalla galleria, altrimenti una foto vera da Wikipedia/Wikimedia Commons con licenza libera: autore e licenza sono nella scheda di modifica, dove puoi anche <strong>cambiarla</strong>), il <strong>voto di cura</strong> da 0 a 100 (scende quando le cure sono scadute o imminenti) e la <strong>prossima cosa da fare</strong>. In alto i filtri: Tutte, Da curare e i gruppi per tipo.<br><br>Griglia di tutte le piante del giardino con il loro stato di scadenza. Tocca una pianta per modificarla o eliminarla.<br><br>Il pulsante <strong>📋 in alto a sinistra</strong> di ogni scheda (o \"Registro interventi\" dentro la scheda di modifica) apre la <strong>tabella degli interventi</strong> della pianta: data, tipologia (Piantumazione, Innaffiamento, Potatura, Innesto, Concimazione, Altro) e descrizione.<br><br>Usa le <strong>etichette colorate</strong> (biologico, in vaso, urgente...) per organizzare le piante. Tocca <strong>+</strong> per aggiungerne una nuova.'},
   Calendario: {icon:'📆', title:'Calendario', body:'Vista mensile con un pallino colorato nei giorni che hanno attività programmate. Tocca un giorno per vedere il dettaglio delle attività previste.'},
   Stats: {icon:'📊', title:'Statistiche', body:'Grafici sulle attività svolte: per mese, per tipo (potatura, irrigazione...) e per pianta. In fondo trovi anche la <strong>previsione spese annuali</strong> basata sulla media mensile attuale.'},
   AI: {icon:'✨', title:'AI Consigli', body:'Tre strumenti AI: il <strong>Piano di cura settimanale</strong> (genera cosa fare nei prossimi 7 giorni per tutte le piante), l\'<strong>Analisi storico</strong> (individua piante trascurate, squilibri e anomalie nelle cure) e i <strong>Consigli su una pianta specifica</strong> (scegli pianta e argomento per un consiglio mirato). Richiede almeno una chiave gratuita (Groq o Google Gemini) da inserire in <strong>Impostazioni → Assistente AI</strong>. Il modello viene scelto e aggiornato automaticamente.'},
@@ -8163,6 +8205,12 @@ window.testWhatsApp = async function() {
 })();
 
 const APP_CHANGELOG = [
+  {v:'6.5', data:'2026-11-01', titolo:'Nuove schede delle piante', novita:[
+    '🖼️ Ogni pianta ha una foto: la tua ultima dalla galleria oppure una foto vera da Wikipedia / Wikimedia Commons (con autore e licenza)',
+    '⭕ Voto di cura da 0 a 100 in base alle cure scadute o vicine, e in evidenza la prossima cosa da fare',
+    '🏷️ Filtri compatti in alto (Tutte, Da curare, Alberi da frutto, Orto…) al posto dei grandi riquadri dei totali',
+    '🔄 Nella scheda di modifica: "Cambia foto" se quella trovata non ti piace',
+  ]},
   {v:'6.4', data:'2026-11-01', titolo:'Meteo della settimana', novita:[
     '🌤️ In Home le previsioni dei prossimi 7 giorni: icona, massima e minima, probabilità e millimetri di pioggia',
     '🌱 Sotto le previsioni i consigli per il giardino: pioggia in arrivo (salta l\'irrigazione), gelo, caldo, vento forte',
@@ -9161,43 +9209,216 @@ window.filterScad = function(f, btn) {
 };
 
 // ── PIANTE ─────────────────────────────────────────────
+// ── PIANTE: schede con foto, voto di cura e prossima azione ──
+const PIANTE_GRUPPI = [
+  {k:'frutto', label:'Alberi da frutto', tipi:['Albero da frutto']},
+  {k:'olivi', label:'Olivi e viti', tipi:['Olivo','Vite']},
+  {k:'orto', label:'Orto e aromatiche', tipi:['Verdura','Erba aromatica']},
+  {k:'fiori', label:'Fiori e arbusti', tipi:['Fiore','Arbusto','Albero ornamentale']},
+  {k:'altro', label:'Altro', tipi:['Altro','']},
+];
+const PIANTA_COVER = {'Albero da frutto':['#86efac','#15803d'], 'Albero ornamentale':['#a7f3d0','#047857'], 'Olivo':['#d9f99d','#4d7c0f'], 'Vite':['#ddd6fe','#6d28d9'],
+  'Verdura':['#fecaca','#b91c1c'], 'Erba aromatica':['#bbf7d0','#166534'], 'Fiore':['#fbcfe8','#be185d'], 'Arbusto':['#bef264','#3f6212'], 'Altro':['#e2e8f0','#475569']};
+const CURA_ICONA = t => /irrig|innaff|acqua/i.test(t) ? '💧' : /potat/i.test(t) ? '✂️' : /concim/i.test(t) ? '🧪' : /tratt|antiparass|rame|zolfo/i.test(t) ? '🧴' : /raccol/i.test(t) ? '🧺' : /semin|piant/i.test(t) ? '🌱' : '📌';
+let pianteFiltro = 'tutte';
+
+function curaPianta(p) {
+  const atts = attivita.filter(a => a.pianta_id === p.id && a.data_prossima).map(a => ({a, d: daysLeft(a.data_prossima)})).filter(x => x.d !== null).sort((x,y) => x.d - y.d);
+  let score = atts.length ? 100 : null;
+  atts.forEach(({d}) => { if (d < 0) score -= Math.min(45, 15 + 2 * Math.abs(d)); else if (d === 0) score -= 8; else if (d <= 3) score -= 3; });
+  if (score !== null) score = Math.max(5, Math.min(100, Math.round(score)));
+  const next = atts[0];
+  let azione;
+  if (!next) azione = {cls:'ok', txt:'✅ Nessuna cura in programma'};
+  else {
+    const ic = CURA_ICONA(next.a.tipo), t = next.a.tipo, d = next.d;
+    azione = d < 0 ? {cls:'red', txt:`${ic} ${t} scaduta da ${-d} gg`}
+      : d === 0 ? {cls:'amber', txt:`${ic} ${t} oggi`}
+      : d === 1 ? {cls:'amber', txt:`${ic} ${t} domani`}
+      : d <= 7 ? {cls:'blue', txt:`${ic} ${t} tra ${d} gg`}
+      : {cls:'gray', txt:`${ic} ${t} il ${new Date(next.a.data_prossima + 'T12:00:00').toLocaleDateString('it-IT',{day:'numeric', month:'short'})}`};
+  }
+  return {score, azione, daCurare: atts.some(x => x.d <= 1)};
+}
+function gruppoPianta(p) { return (PIANTE_GRUPPI.find(g => g.tipi.includes(p.tipo || '')) || PIANTE_GRUPPI[PIANTE_GRUPPI.length-1]).k; }
+window.filtraPiante = function(f) { pianteFiltro = f; renderPiante(); };
+
 function renderPiante() {
-  document.getElementById('sTot').textContent = piante.length;
-  document.getElementById('sAlb').textContent = piante.filter(p => ['Albero da frutto','Albero ornamentale','Olivo','Vite'].includes(p.tipo)).length;
-  document.getElementById('sVeg').textContent = piante.filter(p => ['Verdura','Erba aromatica'].includes(p.tipo)).length;
   const g = document.getElementById('plantGrid');
-  const cards = piante.map(p => {
-    const emoji = emojiTipo[p.tipo]||'🪴';
-    const atts = attivita.filter(a => a.pianta_id===p.id);
-    const prossimaGiorni = atts.filter(a=>a.data_prossima).map(a=>daysLeft(a.data_prossima)).filter(d=>d!==null).sort((a,b)=>a-b)[0];
-    let tagCls='badge-gray', tagTxt='Nessuna scad.';
-    if (prossimaGiorni !== undefined) {
-      if (prossimaGiorni<0){tagCls='badge-red';tagTxt='Scaduta';}
-      else if (prossimaGiorni<=14){tagCls='badge-amber';tagTxt='Fra '+prossimaGiorni+'gg';}
-      else{tagCls='badge-green';tagTxt='Fra '+prossimaGiorni+'gg';}
-    }
+  if (!g) return;
+  const info = piante.map(p => ({p, c: curaPianta(p), gr: gruppoPianta(p)}));
+  // filtri compatti
+  const fb = document.getElementById('pianteFiltri');
+  if (fb) {
+    const nCura = info.filter(x => x.c.daCurare).length;
+    const chips = [{k:'tutte', label:'Tutte', n: info.length}, {k:'cura', label:'Da curare', n: nCura, red: nCura > 0}]
+      .concat(PIANTE_GRUPPI.map(gr => ({k: gr.k, label: gr.label, n: info.filter(x => x.gr === gr.k).length})).filter(x => x.n));
+    if (!chips.some(c => c.k === pianteFiltro) && pianteFiltro !== 'tutte') pianteFiltro = 'tutte';
+    fb.innerHTML = chips.map(c => `<button class="pf-chip${pianteFiltro === c.k ? ' on' : ''}${c.red ? ' red' : ''}" onclick="filtraPiante('${c.k}')">${c.label} <b>${c.n}</b></button>`).join('');
+  }
+  let lista = info.filter(x => pianteFiltro === 'tutte' || (pianteFiltro === 'cura' ? x.c.daCurare : x.gr === pianteFiltro));
+  lista.sort((a,b) => (b.c.daCurare - a.c.daCurare) || ((a.c.score ?? 101) - (b.c.score ?? 101)) || String(a.p.nome).localeCompare(String(b.p.nome), 'it'));
+  const cards = lista.map(({p, c}) => {
+    const emoji = emojiTipo[p.tipo] || '🪴';
+    const [c1, c2] = PIANTA_COVER[p.tipo] || PIANTA_COVER.Altro;
+    const fotoMia = pianteFoto.filter(f => f.pianta_id === p.id).sort((a,b) => new Date(b.data) - new Date(a.data))[0];
+    const wiki = fotoWikiDi(p);
+    const img = fotoMia ? fotoMia.foto : (wiki && wiki.url) || '';
+    const ringCol = c.score === null ? 'var(--border)' : c.score >= 80 ? '#16a34a' : c.score >= 50 ? '#f59e0b' : '#dc2626';
     const tagColors = {'urgente':'#fee2e2,#c92828','biologico':'#dcfce7,#16a34a','in vaso':'#dbeafe,#1d4ed8','nuovo':'#fef9c3,#854d0e','ornamentale':'#f3e8ff,#7e22ce'};
-    const tagsHtml = (p.tags||[]).map(t => {
-      const [bg,col] = (tagColors[t]||'#f1f5f9,#64748b').split(',');
-      return `<span class="tag-pill" style="background:${bg};color:${col}">${t}</span>`;
-    }).join('');
-    const fotoRecenti = pianteFoto.filter(f => f.pianta_id === p.id).sort((a,b) => new Date(b.data)-new Date(a.data));
-    const fotoCover = fotoRecenti[0];
-    const nInterv = pianteInterventi.filter(i => i.pianta_id === p.id).length;
-    return `<div class="plant-card" onclick="openEditPianta('${p.id}')" style="position:relative">
-      <button onclick="event.stopPropagation();apriInterventiPianta('${p.id}')" title="Registro interventi" style="position:absolute;top:8px;left:8px;z-index:2;background:var(--g0);border:1px solid var(--g2);border-radius:20px;height:26px;padding:0 8px;cursor:pointer;color:var(--g7);display:flex;align-items:center;gap:4px;font-size:12px;font-weight:700"><i class="ti ti-list-details"></i>${nInterv||''}</button>
-      <button onclick="event.stopPropagation();generaQRPianta('${p.id}')" title="QR Code" style="position:absolute;top:8px;right:8px;background:var(--g0);border:1px solid var(--g2);border-radius:50%;width:26px;height:26px;cursor:pointer;color:var(--g7);display:flex;align-items:center;justify-content:center;font-size:13px"><i class="ti ti-qrcode"></i></button>
-      ${fotoCover
-        ? `<img src="${fotoCover.foto}" style="width:100%;height:70px;object-fit:cover;border-radius:var(--rads);margin-bottom:8px" loading="lazy">`
-        : `<div class="plant-emoji">${emoji}</div>`}
-      <div class="plant-name">${escH(p.nome)}</div>
-      <div class="plant-type">${p.tipo||''}${p.posizione?' · '+p.posizione:''}</div>
-      ${tagsHtml ? '<div class="plant-tags">'+tagsHtml+'</div>' : ''}
-      <span class="plant-scad-tag scad-badge ${tagCls}">${tagTxt}</span>
+    const tagsHtml = (p.tags||[]).slice(0,3).map(t => { const [bg,col] = (tagColors[t]||'#f1f5f9,#64748b').split(','); return `<span class="tag-pill" style="background:${bg};color:${col}">${escH(t)}</span>`; }).join('');
+    return `<div class="pc2" onclick="openEditPianta('${p.id}')">
+      <div class="pc2-cover" style="background:linear-gradient(135deg,${c1},${c2})">
+        <div class="pc2-emoji">${emoji}</div>
+        ${img ? `<img src="${escH(img)}" loading="lazy" alt="" onerror="this.remove()">` : ''}
+        <div class="pc2-shade"></div>
+        <button class="pc2-btn l" onclick="event.stopPropagation();apriInterventiPianta('${p.id}')" title="Registro interventi" aria-label="Registro interventi"><i class="ti ti-list-details"></i></button>
+        <button class="pc2-btn r" onclick="event.stopPropagation();generaQRPianta('${p.id}')" title="QR Code" aria-label="QR Code"><i class="ti ti-qrcode"></i></button>
+        ${!fotoMia && wiki && wiki.url ? `<span class="pc2-src" title="${escH((wiki.autore||'') + ' · ' + (wiki.licenza||'') + ' · ' + (wiki.fonte||''))}">${escH(wiki.fonte === 'Wikipedia' ? 'Wikipedia' : 'Wikimedia')}</span>` : ''}
+        <div class="pc2-ring" style="--v:${c.score ?? 0};--c:${ringCol}" title="${c.score === null ? 'Nessuna cura programmata' : 'Stato di cura: ' + c.score + '/100'}"><span>${c.score ?? '—'}</span></div>
+      </div>
+      <div class="pc2-body">
+        <div class="pc2-nome">${escH(p.nome)}</div>
+        <div class="pc2-sub">${escH(p.tipo || '')}${p.posizione ? ' · ' + escH(p.posizione) : ''}</div>
+        ${tagsHtml ? `<div class="plant-tags" style="margin-top:4px">${tagsHtml}</div>` : ''}
+        <div class="pc2-next ${c.azione.cls}">${escH(c.azione.txt)}</div>
+      </div>
     </div>`;
   });
-  g.innerHTML = cards.join('') + `<div class="plant-card add-card" onclick="openModal('modalPianta')"><i class="ti ti-plus" style="font-size:24px"></i><span>Nuova pianta</span></div>`;
+  g.innerHTML = (cards.length ? cards.join('') : '<div class="empty-state" style="grid-column:1/-1"><i class="ti ti-plant-2"></i><p>Nessuna pianta in questo filtro.</p></div>')
+    + `<div class="pc2 pc2-add" onclick="openModal('modalPianta')"><i class="ti ti-plus"></i><span>Nuova pianta</span></div>`;
+  accodaFotoWiki();
 }
+
+// ── FOTO DA WIKIPEDIA / WIKIMEDIA COMMONS ──
+// La foto trovata viene salvata nella pianta (campo foto_wiki), così la ricerca avviene una volta sola per tutti i dispositivi.
+const FOTO_ILLUSTRAZIONE = /k%c3%b6hler|köhler|medizinal|histoire|illustrat|drawing|tafel|plate|flora_von|thom%c3%a9|thomé|bentley|blackwell|herbarium|botanical|\.svg$|\.png$|\.gif$|\.tif/i;
+function fotoWikiDi(p) {
+  if (p.foto_wiki) return p.foto_wiki.nessuna ? null : p.foto_wiki;
+  try { return JSON.parse(localStorage.getItem('fotoWiki_' + (p.nome || '').toLowerCase()) || 'null'); } catch(e) { return null; }
+}
+async function infoFileCommons(file) {
+  const d = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&titles=${encodeURIComponent('File:' + file)}&prop=imageinfo&iiprop=url|extmetadata&iiurlwidth=640&format=json&origin=*`).then(r => r.json());
+  const pg = Object.values(d.query?.pages || {})[0], ii = pg?.imageinfo?.[0];
+  if (!ii) return null;
+  const pulisci = v => String(v || '').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim().slice(0, 80);
+  return {url: ii.thumburl || ii.url, file, pagina: ii.descriptionurl, autore: pulisci(ii.extmetadata?.Artist?.value) || 'autore sconosciuto', licenza: pulisci(ii.extmetadata?.LicenseShortName?.value) || 'licenza libera'};
+}
+// Nome comune → voce Wikipedia della specie, per le piante più diffuse (evita omonimi: "Pera" genere tropicale, "Limone" paese…)
+const SPECIE_COMUNI = [
+  [/^per[aoei]\b/i,'Pyrus communis'], [/^mel[aoei]\b/i,'Malus domestica'], [/^noc[ei]\b/i,'Juglans regia'], [/^limon/i,'Citrus × limon'],
+  [/^aranc/i,'Citrus × sinensis'], [/^mandarin/i,'Citrus reticulata'], [/^clementin/i,'Citrus × clementina'], [/^pompelm/i,'Citrus × paradisi'],
+  [/^fic[oh]i?\b/i,'Ficus carica'], [/^cilieg/i,'Prunus avium'], [/^amaren|^visciol/i,'Prunus cerasus'], [/^albicocc/i,'Prunus armeniaca'],
+  [/^pesc[ahoi]\b|^pesco|^nettarin|^merendell/i,'Prunus persica'], [/^susin|^prugn/i,'Prunus domestica'], [/^mandorl/i,'Prunus dulcis'],
+  [/^kaki|^cach/i,'Diospyros kaki'], [/^oliv/i,'Olea europaea'], [/^vite\b|^uva\b/i,'Vitis vinifera'], [/^melograno/i,'Punica granatum'],
+  [/^nespolo del giappone|^nespolo giapponese/i,'Eriobotrya japonica'], [/^kiwi/i,'Actinidia deliciosa'], [/^nocciol/i,'Corylus avellana'],
+  [/^castagn/i,'Castanea sativa'], [/^pomodor/i,'Solanum lycopersicum'], [/^melanzan/i,'Solanum melongena'], [/^peperon/i,'Capsicum annuum'],
+  [/^peperoncin/i,'Capsicum annuum'], [/^zucchin/i,'Cucurbita pepo'], [/^zucca/i,'Cucurbita maxima'], [/^lattug|^insalat/i,'Lactuca sativa'],
+  [/^fragol/i,'Fragaria × ananassa'], [/^cetriol/i,'Cucumis sativus'], [/^fagiol/i,'Phaseolus vulgaris'], [/^pisell/i,'Pisum sativum'],
+  [/^patat/i,'Solanum tuberosum'], [/^cipoll/i,'Allium cepa'], [/^agli/i,'Allium sativum'], [/^carciof/i,'Cynara cardunculus var. scolymus'],
+  [/^lavand/i,'Lavandula angustifolia'], [/^rosmarin/i,'Salvia rosmarinus'], [/^basilic/i,'Ocimum basilicum'], [/^salvia\b/i,'Salvia officinalis'],
+  [/^allor/i,'Laurus nobilis'], [/^prezzemol/i,'Petroselinum crispum'], [/^menta\b/i,'Mentha'], [/^timo\b/i,'Thymus vulgaris'], [/^origan/i,'Origanum vulgare'],
+  [/^oleandr/i,'Nerium oleander'], [/^gelsomin/i,'Jasminum officinale'], [/^rosa\b|^rose\b/i,'Rosa (botanica)'], [/^ortensi/i,'Hydrangea macrophylla'],
+  [/^bougain|^buganvill/i,'Bougainvillea'], [/^glicin/i,'Wisteria sinensis'], [/^pitosfor/i,'Pittosporum tobira'], [/^agrifogli/i,'Ilex aquifolium'],
+  [/^palm/i,'Phoenix canariensis'], [/^pino\b|^pini\b/i,'Pinus pinea'], [/^cipress/i,'Cupressus sempervirens'], [/^leccio/i,'Quercus ilex'], [/^carrub/i,'Ceratonia siliqua'],
+];
+function specieDaNome(nome) { const n = (nome || '').trim(); const m = SPECIE_COMUNI.find(([re]) => re.test(n)); return m ? m[1] : ''; }
+
+async function cercaFotoPianta(p, escludi) {
+  escludi = escludi || [];
+  const nome = (p.nome || '').trim(); if (!nome) return null;
+  let titolo = '';
+  // 1) voce della SPECIE su Wikipedia (solo pagine con il riquadro botanico "Tassobox", così "Limone" non porta al paese sul Garda)
+  const cercaVoce = async q => {
+    const d = await fetch(`https://it.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(q)}&gsrlimit=3&prop=pageimages&piprop=name&format=json&origin=*`).then(r => r.json());
+    return Object.values(d.query?.pages || {}).sort((a,b) => a.index - b.index)[0] || null;
+  };
+  let voce = (p.foto_wiki && p.foto_wiki.voce) ? {title: p.foto_wiki.voce} : null;
+  const specie = !voce && specieDaNome(nome);
+  if (specie) {
+    const d = await fetch(`https://it.wikipedia.org/w/api.php?action=query&titles=${encodeURIComponent(specie)}&redirects=1&prop=pageimages&piprop=name&format=json&origin=*`).then(r => r.json());
+    const pg = Object.values(d.query?.pages || {})[0];
+    if (pg && !pg.missing && pg.title) voce = pg;
+  }
+  if (!voce) {
+    voce = await cercaVoce(nome + ' hastemplate:Tassobox Plantae');
+    // se ha trovato solo il genere (es. "Ficus") e il nome ha più parole, prova con la prima parola ("Fico" → Ficus carica)
+    if ((!voce || !/\s/.test(voce.title)) && /\s/.test(nome)) {
+      const v2 = await cercaVoce(nome.split(/\s+/)[0] + ' hastemplate:Tassobox Plantae');
+      if (v2 && /\s/.test(v2.title)) voce = v2;
+    }
+    if (!voce) voce = await cercaVoce(nome + ' pianta');
+  }
+  titolo = voce?.title || '';
+  if (!escludi.length && voce?.pageimage && /\.jpe?g$/i.test(voce.pageimage) && !FOTO_ILLUSTRAZIONE.test(voce.pageimage)) {
+    const inf = await infoFileCommons(voce.pageimage); if (inf) return {...inf, fonte: 'Wikipedia', voce: titolo};
+  }
+  // 2) foto su Wikimedia Commons
+  const cosa = ['Albero da frutto','Olivo','Albero ornamentale'].includes(p.tipo) ? 'tree' : p.tipo === 'Fiore' ? 'flower' : p.tipo === 'Vite' ? 'grapevine' : 'plant';
+  const base = titolo || nome;
+  const cercaFile = async q => {
+    const d2 = await fetch(`https://commons.wikimedia.org/w/api.php?action=query&generator=search&gsrnamespace=6&gsrsearch=${encodeURIComponent(q + ' filetype:bitmap')}&gsrlimit=20&prop=info&format=json&origin=*`).then(r => r.json());
+    return Object.values(d2.query?.pages || {}).sort((a,b) => a.index - b.index).map(x => x.title.replace(/^File:/, ''))
+      .filter(f => /\.jpe?g$/i.test(f) && !FOTO_ILLUSTRAZIONE.test(f) && !/stamp|francobollo|map|mappa|logo|coat.of.arms|stemma/i.test(f) && !escludi.includes(f));
+  };
+  let files = await cercaFile(base.replace('× ', '') + ' ' + cosa);
+  if (!files.length) files = await cercaFile(base.replace('× ', ''));   // secondo tentativo, ricerca più ampia
+  for (const f of files.slice(0, 3)) {
+    const inf = await infoFileCommons(f).catch(() => null);
+    if (inf) return {...inf, fonte: 'Wikimedia Commons', voce: base};
+  }
+  return null;
+}
+async function salvaFotoWiki(p, foto) {
+  p.foto_wiki = foto;
+  try { localStorage.setItem('fotoWiki_' + (p.nome || '').toLowerCase(), JSON.stringify(foto)); } catch(e) {}
+  if (db && currentRole === 'admin') { try { await updateDoc(doc(db,'piante',p.id), {foto_wiki: foto}); } catch(e) { console.warn('Foto pianta non salvata:', e); } }
+}
+let _fotoWikiCoda = false;
+async function accodaFotoWiki() {
+  if (_fotoWikiCoda || !navigator.onLine) return;
+  _fotoWikiCoda = true;
+  try {
+    for (const p of [...piante]) {
+      if (p.foto_wiki || fotoWikiDi(p) || pianteFoto.some(f => f.pianta_id === p.id)) continue;
+      if (localStorage.getItem('fotoWikiNo_' + (p.nome || '').toLowerCase())) continue;
+      try {
+        const f = await cercaFotoPianta(p);
+        if (f) { await salvaFotoWiki(p, f); renderPiante(); }
+        else localStorage.setItem('fotoWikiNo_' + (p.nome || '').toLowerCase(), '1');
+      } catch(e) { break; } // rete: si riprova alla prossima apertura
+    }
+  } finally { _fotoWikiCoda = false; }
+}
+function renderEpFotoWiki() {
+  const el = document.getElementById('epFotoWiki'); if (!el) return;
+  const p = piante.find(x => x.id === editingPiantaId); if (!p) return;
+  const mia = pianteFoto.some(f => f.pianta_id === p.id);
+  const w = fotoWikiDi(p);
+  el.innerHTML = `${w && w.url ? `<img src="${escH(w.url)}" alt="">` : '<div class="ep-foto-vuota">' + (emojiTipo[p.tipo] || '🪴') + '</div>'}
+    <div class="ep-foto-info">${mia ? '<div>📷 La scheda usa la tua ultima foto dalla galleria.</div>' : ''}
+      ${w && w.url ? `<div>Foto: <a href="${escH(w.pagina || '#')}" target="_blank" rel="noopener">${escH(w.file || 'immagine')}</a> di ${escH(w.autore)}, ${escH(w.licenza)} (${escH(w.fonte)})</div>` : '<div>Nessuna foto da Wikipedia.</div>'}
+      <div class="ep-foto-btns"><button class="btn btn-sm btn-secondary" onclick="cambiaFotoWiki()"><i class="ti ti-refresh"></i> ${w && w.url ? 'Cambia foto' : 'Cerca foto'}</button>
+      ${w && w.url ? '<button class="btn btn-sm btn-secondary" onclick="togliFotoWiki()"><i class="ti ti-photo-off"></i> Nessuna</button>' : ''}</div></div>`;
+}
+window.cambiaFotoWiki = async function() {
+  const p = piante.find(x => x.id === editingPiantaId); if (!p) return;
+  const el = document.getElementById('epFotoWiki'); if (el) el.querySelector('.ep-foto-btns').innerHTML = '<span style="font-size:12px;color:var(--muted)">⏳ Cerco un\'altra foto…</span>';
+  const viste = JSON.parse(sessionStorage.getItem('fotoWikiViste_' + p.id) || '[]');
+  const att = fotoWikiDi(p); if (att && att.file && !viste.includes(att.file)) viste.push(att.file);
+  try {
+    const f = await cercaFotoPianta(p, viste.length ? viste : ['__nessuna__']);
+    if (f) { viste.push(f.file); sessionStorage.setItem('fotoWikiViste_' + p.id, JSON.stringify(viste)); await salvaFotoWiki(p, f); }
+    else { sessionStorage.removeItem('fotoWikiViste_' + p.id); showToast('Nessun\'altra foto trovata: si riparte dalla prima'); }
+  } catch(e) { showToast('❌ Ricerca foto non riuscita'); }
+  renderEpFotoWiki(); renderPiante();
+};
+window.togliFotoWiki = async function() {
+  const p = piante.find(x => x.id === editingPiantaId); if (!p) return;
+  await salvaFotoWiki(p, {nessuna: true});
+  try { localStorage.removeItem('fotoWiki_' + (p.nome || '').toLowerCase()); } catch(e) {}
+  renderEpFotoWiki(); renderPiante();
+};
 
 // ── STORICO ────────────────────────────────────────────
 function renderStorico() {
@@ -9419,6 +9640,7 @@ window.openEditPianta = function(id) {
   document.getElementById('epPos').value  = p.posizione||'';
   document.getElementById('epNote').value = p.note||'';
   document.getElementById('epTags').value = (p.tags||[]).join(', ');
+  renderEpFotoWiki();
   openModal('modalEditPianta');
 };
 
