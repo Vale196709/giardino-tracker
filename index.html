@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="6.2.1" data-date="2026-11-01">
+<meta name="app-version" content="6.3" data-date="2026-11-01">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Giardino di Quintilina</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
@@ -478,6 +478,43 @@ body.dark .wa-anteprima{background:#10301a;color:var(--text);border-color:#1e4d2
 .cant-hero-label{font-family:'Lora',serif;font-size:19px;font-weight:600}
 .cant-hero-sub{font-size:11.5px;opacity:.75;margin-top:2px}
 .cant-hero-info .wa-btn{margin-top:.75rem}
+.cant-casa{width:52%;max-width:220px;flex-shrink:0;margin:-4px 0 -6px -6px}
+.cant-casa svg{width:100%;height:auto;display:block;overflow:visible}
+.cant-casa .cz-off{opacity:.45}
+.cant-casa g[onclick]:active{opacity:.7}
+.cz-anim .cz-pz{animation:czIn .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:var(--d)}
+@keyframes czIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.cz-fumo{animation:czFumo 2.4s ease-in-out infinite}
+@keyframes czFumo{0%{opacity:0;transform:translateY(4px)}40%{opacity:.8}100%{opacity:0;transform:translateY(-6px)}}
+.cant-hero-pct2{font-family:'Lora',serif;font-size:40px;font-weight:700;line-height:1.05;margin-top:2px}
+.cant-hero2 .cant-hero-label{font-size:15px;opacity:.9}
+.cant-hero2 .cant-hero-sub{font-size:11px}
+.cant-hero2 .cant-hero-info .wa-btn{padding:6px 12px;font-size:12px;white-space:nowrap}
+.percorso{position:relative}
+.pc-stop{display:flex;gap:10px;cursor:pointer;min-height:48px}
+.pc-rail{position:relative;width:22px;flex-shrink:0;display:flex;justify-content:center}
+.pc-line{position:absolute;top:0;bottom:0;left:50%;width:4px;margin-left:-2px;background:var(--border)}
+.pc-stop:first-child .pc-line{top:12px}
+.pc-stop:last-child .pc-line{bottom:calc(100% - 12px)}
+.pc-line.full{background:var(--g6)}
+.pc-line.half{background:linear-gradient(var(--g6) 50%,var(--border) 50%)}
+.pc-dot{position:relative;z-index:1;margin-top:3px;width:18px;height:18px;border-radius:50%;background:var(--surf);border:3px solid var(--border);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;box-sizing:border-box}
+.st-done .pc-dot{background:var(--g6);border-color:var(--g6)}
+.st-run .pc-dot{border-color:#0891b2;background:#cffafe}
+.st-late .pc-dot{border-color:var(--r6);background:#fee2e2}
+.qui .pc-dot{width:22px;height:22px;margin-top:1px;box-shadow:0 0 0 4px rgba(8,145,178,.18);animation:pcPulse 2s ease-in-out infinite}
+.qui.st-late .pc-dot{box-shadow:0 0 0 4px rgba(220,38,38,.15)}
+@keyframes pcPulse{50%{box-shadow:0 0 0 7px rgba(8,145,178,.06)}}
+.pc-body{flex:1;min-width:0;padding:2px 0 12px}
+.pc-nome{font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.st-todo .pc-nome{color:var(--muted);font-weight:500}
+.pc-qui{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;background:#0891b2;color:#fff;border-radius:20px;padding:1px 7px}
+.st-late .pc-qui{background:var(--r6)}
+.pc-sub{font-size:11.5px;color:var(--muted);margin-top:1px}
+.pc-sub .late{color:var(--r6);font-weight:700}
+.pc-body .fase-bar{margin:6px 0 0;height:5px}
+.pc-pct{font-size:13px;font-weight:700;color:#0e7490;min-width:34px;text-align:right;padding-top:2px}
+.st-late .pc-pct{color:var(--r6)}
 .cant-kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:1rem;position:relative;z-index:1}
 .cant-kpi{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:.6rem .75rem;cursor:pointer;transition:background .15s}
 .cant-kpi:active{background:rgba(255,255,255,.2)}
@@ -1610,11 +1647,12 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
     <div id="panelCantiere" class="tab-panel">
       <div class="cant-hero2">
         <div class="cant-hero-top">
-          <div class="cant-ring" id="cantRing"></div>
+          <div class="cant-casa" id="cantCasa" aria-label="Disegno della casa: ogni parte si completa con la sua fase"></div>
           <div class="cant-hero-info">
             <div class="cant-hero-label">Avanzamento lavori</div>
-            <div class="cant-hero-sub">media pesata sul budget di ogni fase</div>
-            <button class="wa-btn" onclick="condividiAvanzamentoCantiere()"><i class="ti ti-brand-whatsapp"></i> Invia avanzamento</button>
+            <div class="cant-hero-pct2" id="cantPctBig">—</div>
+            <div class="cant-hero-sub">pesato sul budget<br>tocca la casa per le fasi</div>
+            <button class="wa-btn" onclick="condividiAvanzamentoCantiere()"><i class="ti ti-brand-whatsapp"></i> Invia</button>
           </div>
         </div>
         <div class="cant-kpi-grid" id="cantKpi"></div>
@@ -1642,8 +1680,11 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
           <div id="cantCurvaTesto" class="cant-curva-testo"></div>
         </div>
         <div class="card">
-          <div class="card-title">🔨 In corso ora</div>
-          <div id="cantInCorso"></div>
+          <div class="section-header">
+            <div class="section-title">🚇 Percorso dei lavori</div>
+            <span id="cantPercorsoInfo" style="font-size:12px;color:var(--muted)"></span>
+          </div>
+          <div id="cantInCorso" class="percorso"></div>
         </div>
         <div class="card">
           <div class="card-title">📌 Prossime tappe</div>
@@ -2956,7 +2997,7 @@ const helpContent = {
   Mappa: {icon:'🗺️', title:'Mappa', body:'Mappa interattiva del terreno. Seleziona una pianta dalla lista sotto, poi tocca il punto sulla mappa dove si trova per posizionarla.<br><br>Attiva il <strong>🌳 Gemello digitale</strong> per vedere lo stato di salute di ogni pianta direttamente sulla mappa (anello verde/giallo/rosso secondo le scadenze).'},
   Bacheca: {icon:'💬', title:'Bacheca', body:'Spazio di note condivise tra tutti gli utenti del giardino, in tempo reale. Scegli il tipo (nota, osservazione, promemoria, problema) e scrivi liberamente. Utile per comunicare con chi gestisce il giardino con te.'},
   Rubrica: {icon:'📇', title:'Rubrica', body:'Contatti utili legati al giardino: geometra, agronomo/vivaio, idraulico, elettricista, fornitori e altro. Ogni contatto ha telefono, email e note, con pulsanti rapidi per <strong>chiamare</strong>, scrivere su <strong>WhatsApp</strong> o mandare una <strong>email</strong> con un tocco.<br><br>Usa i filtri per categoria in alto, oppure cerca per nome. Tocca <strong>+</strong> per aggiungere un nuovo contatto.'},
-  Cantiere: {icon:'🏗️', title:'Cantiere', body:'La sezione è divisa in schede: <strong>Panoramica</strong> (cosa tenere d\'occhio, fasi in corso, prossime tappe, Gantt, ultime dal diario), <strong>Fasi</strong>, <strong>Costi</strong>, <strong>Qualità</strong> e <strong>Diario e foto</strong>. Tocca una fase per aprirne il <strong>dettaglio</strong>: lì <strong>registri gli avanzamenti</strong> (percentuale, nota e foto: restano nello storico) e trovi documenti, checklist, materiali e contatti.<br><br>Dagli avanzamenti registrati nascono la <strong>curva reale vs prevista</strong>, la <strong>data di fine stimata</strong> al ritmo attuale, l\'avviso sulle fasi ferme da oltre 14 giorni e il <strong>report settimanale</strong> (WhatsApp o PDF). Nella scheda Costi lo speso è confrontato con il <strong>valore dei lavori già fatti</strong>, con la stima del costo finale.<br><br>Monitora la costruzione della casa sul terreno: <strong>Fasi/SAL</strong> con percentuale di avanzamento (trascina lo slider per aggiornarla al volo; la % complessiva in alto è <strong>pesata sul budget</strong> di ogni fase), <strong>Budget</strong> calcolato automaticamente dalle spese contrassegnate come "Spesa di cantiere" nella sezione Spese, e una <strong>Galleria foto</strong> cronologica per documentare i progressi nel tempo.<br><br>Ogni fase ha anche un pulsante <strong>📎 Documenti allegati</strong>: da lì puoi caricare PDF, foto, contratti Word/Excel e altri file (fino a circa 650KB ciascuno) collegati a quella specifica fase, e scaricarli o eliminarli in qualsiasi momento.<br><br>Tocca "+ Fase" per aggiungere una fase personalizzata, o "Aggiungi foto" per la galleria. Ogni fase può essere collegata a un contatto della Rubrica (es. l\'impresa che la esegue).'},
+  Cantiere: {icon:'🏗️', title:'Cantiere', body:'In alto la <strong>casa che cresce</strong>: ogni pezzo (fondamenta, struttura, pareti, tetto, comignolo per gli impianti, infissi, albero per le finiture, foglio del progetto) è collegato alle fasi in base al nome e si riempie con la loro percentuale. Contorno tratteggiato = da iniziare, rosso = in ritardo o fermo. Tocca un pezzo per aprire la fase.<br><br>La sezione è divisa in schede: <strong>Panoramica</strong> (cosa tenere d\'occhio, curva di avanzamento, percorso dei lavori, prossime tappe, Gantt, report, ultime dal diario), <strong>Fasi</strong>, <strong>Costi</strong>, <strong>Qualità</strong> e <strong>Diario e foto</strong>. Tocca una fase per aprirne il <strong>dettaglio</strong>: lì <strong>registri gli avanzamenti</strong> (percentuale, nota e foto: restano nello storico) e trovi documenti, checklist, materiali e contatti.<br><br>Dagli avanzamenti registrati nascono la <strong>curva reale vs prevista</strong>, la <strong>data di fine stimata</strong> al ritmo attuale, l\'avviso sulle fasi ferme da oltre 14 giorni e il <strong>report settimanale</strong> (WhatsApp o PDF). Nella scheda Costi lo speso è confrontato con il <strong>valore dei lavori già fatti</strong>, con la stima del costo finale.<br><br>Monitora la costruzione della casa sul terreno: <strong>Fasi/SAL</strong> con percentuale di avanzamento (trascina lo slider per aggiornarla al volo; la % complessiva in alto è <strong>pesata sul budget</strong> di ogni fase), <strong>Budget</strong> calcolato automaticamente dalle spese contrassegnate come "Spesa di cantiere" nella sezione Spese, e una <strong>Galleria foto</strong> cronologica per documentare i progressi nel tempo.<br><br>Ogni fase ha anche un pulsante <strong>📎 Documenti allegati</strong>: da lì puoi caricare PDF, foto, contratti Word/Excel e altri file (fino a circa 650KB ciascuno) collegati a quella specifica fase, e scaricarli o eliminarli in qualsiasi momento.<br><br>Tocca "+ Fase" per aggiungere una fase personalizzata, o "Aggiungi foto" per la galleria. Ogni fase può essere collegata a un contatto della Rubrica (es. l\'impresa che la esegue).'},
   Ricerca: {icon:'🔍', title:'Ricerca', body:'Cerca in tutto il giardino: piante, attività e spese contemporaneamente. Scrivi almeno 2 caratteri e tocca un risultato per aprirlo direttamente.'},
   Log: {icon:'📝', title:'Log modifiche', body:'Cronologia di tutte le modifiche fatte nell\'app: aggiunte, modifiche ed eliminazioni, con utente e data. Utile per capire chi ha fatto cosa e quando.'},
   Kanban: {icon:'📋', title:'Attività', body:'Vista a tre colonne (Scadute / In arrivo / Completate) per gestire velocemente le attività. Usa i pulsanti rapidi <strong>✅ Fatta</strong> e <strong>📅 +7gg</strong> sulle singole card.<br><br>In alto trovi anche i <strong>suggerimenti stagionali</strong> e gli <strong>alert meteo</strong> automatici.'},
@@ -3938,12 +3979,12 @@ function avanzamentoPesatoCantiere() {
 }
 
 function aggiornaHeroCantiere() {
-  const ring = document.getElementById('cantRing');
-  if (!ring) return;
+  const casaEl = document.getElementById('cantCasa');
+  if (!casaEl) return;
   const nFasi = cantiereFasi.length;
   const pct = nFasi ? Math.round(avanzamentoPesatoCantiere()) : 0;
-  const C = 2 * Math.PI * 42;
-  ring.innerHTML = `<svg viewBox="0 0 100 100"><circle class="rb" cx="50" cy="50" r="42"/><circle class="rf" cx="50" cy="50" r="42" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C*(1-pct/100)).toFixed(1)}" transform="rotate(-90 50 50)"/></svg><div class="cant-ring-val">${nFasi ? pct + '%' : '—'}</div>`;
+  renderCasaCantiere(casaEl);
+  const big = document.getElementById('cantPctBig'); if (big) big.textContent = nFasi ? pct + '%' : '—';
 
   const oggiD = new Date(); oggiD.setHours(0,0,0,0);
   const done = cantiereFasi.filter(f => (f.percentuale||0) >= 100).length;
@@ -3982,6 +4023,76 @@ function aggiornaHeroCantiere() {
   setBadge('cantBadgeCosti', fasiSforate, true);
 
   renderCantierePanoramica();
+}
+
+// ── LA CASA CHE CRESCE ──
+// Ogni pezzo della casa è collegato alle fasi in base al nome; si riempie dal basso con la loro percentuale.
+const CASA_PEZZI = [
+  {k:'progetto',   re:/progett|permess|pratic|autorizz|titolo/i},
+  {k:'fondamenta', re:/scav|fondaz|fondam|platea|sbanc/i},
+  {k:'struttura',  re:/struttur|pilastr|solai|telai|cemento|murat|portant/i},
+  {k:'tetto',      re:/tett|copertur|coppi|tegol/i},
+  {k:'impianti',   re:/impiant|elettric|idraul|termic|riscald|fotovolt/i},
+  {k:'infissi',    re:/infiss|tampon|serrament|finestr|porte/i},
+  {k:'intonaci',   re:/intonac|pavim|massett|rasat|tinteg|piastrell/i},
+  {k:'finiture',   re:/finitur|collaud|esterni|giardin|recinz|sistemaz/i},
+];
+function statoPezziCasa() {
+  const st = {};
+  CASA_PEZZI.forEach(pz => {
+    const fasi = cantiereFasi.filter(f => pz.re.test(f.nome || ''));
+    if (!fasi.length) { st[pz.k] = {pct: 0, nessuna: true}; return; }
+    const pesi = pesiFasi(fasi), W = pesi.reduce((a,b) => a+b, 0);
+    const pct = fasi.reduce((t,f,i) => t + (f.percentuale||0) * pesi[i], 0) / W;
+    const late = fasi.some(f => faseInRitardoGg(f) > 0 || giorniFermaFase(f) >= FASE_FERMA_GG);
+    const target = fasi.find(f => (f.percentuale||0) > 0 && (f.percentuale||0) < 100) || fasi.find(f => (f.percentuale||0) < 100) || fasi[0];
+    st[pz.k] = {pct, late, faseId: target.id, nomi: fasi.map(f => f.nome).join(', ')};
+  });
+  return st;
+}
+let _casaAnimata = false;
+function renderCasaCantiere(el) {
+  const st = statoPezziCasa();
+  const E = 'rgba(255,255,255,.5)';   // contorno pezzo da iniziare
+  const R = '#fca5a5';                // contorno pezzo in ritardo
+  let defs = '', body = '', n = 0;
+  // pezzo che si riempie dal basso: contorno + forma colorata ritagliata alla % raggiunta
+  const pezzo = (k, shape, box, colore) => {
+    const s0 = st[k]; const p = Math.max(0, Math.min(100, s0.pct));
+    const [x,y,w,h] = box, id = 'cz' + k;
+    defs += `<clipPath id="${id}"><rect x="${x-2}" y="${(y + h * (1 - p/100)).toFixed(1)}" width="${w+4}" height="${(h * p/100 + 2).toFixed(1)}"/></clipPath>`;
+    const stroke = s0.late ? R : p >= 100 ? 'none' : E;
+    const dash = p === 0 && !s0.late ? ' stroke-dasharray="3 2.5"' : '';
+    const tap = s0.faseId ? ` onclick="apriDettaglioFase('${s0.faseId}')" style="cursor:pointer"` : '';
+    const ord = n++;
+    body += `<g class="cz-pz${s0.nessuna ? ' cz-off' : ''}" style="--d:${ord*90}ms"${tap}><title>${escH(s0.nessuna ? 'Nessuna fase collegata' : s0.nomi + ': ' + Math.round(p) + '%')}</title>
+      ${p > 0 ? shape.replace('/>', ` fill="${colore}" clip-path="url(#${id})" stroke="none"/>`) : ''}
+      ${shape.replace('/>', ` fill="none" stroke="${stroke}" stroke-width="${s0.late ? 1.8 : 1.2}"${dash}/>`)}
+    </g>`;
+  };
+  // progetto: foglio del progetto sullo sfondo
+  pezzo('progetto', '<rect x="122" y="4" width="32" height="22" rx="2"/>', [122,4,32,22], '#7dd3fc');
+  if (st.progetto.pct >= 100) body += '<path d="M128 10h20M128 15h14M128 20h17" stroke="#0c4a6e" stroke-width="1.2" opacity=".6" pointer-events="none"/>';
+  // impianti: comignolo (dietro il tetto)
+  pezzo('impianti', '<rect x="104" y="24" width="11" height="24"/>', [104,24,11,24], '#cbd5e1');
+  // tetto
+  pezzo('tetto', '<polygon points="14,62 80,22 146,62"/>', [14,22,132,40], '#e07a5f');
+  // pareti intonacate
+  pezzo('intonaci', '<rect x="28" y="62" width="104" height="46"/>', [28,62,104,46], '#fde7c8');
+  // struttura: pilastri e trave (sopra le pareti)
+  pezzo('struttura', '<path d="M28 108V62h104v46h-6V68H86v40h-6V68H34v40z"/>', [28,62,104,46], '#e2e8f0');
+  // infissi: finestre e porta
+  pezzo('infissi', '<path d="M40 72h18v16H40zM102 72h18v16h-18zM71 84h18v24H71z"/>', [40,72,80,36], '#bae6fd');
+  // fondamenta
+  pezzo('fondamenta', '<rect x="20" y="108" width="120" height="9"/>', [20,108,120,9], '#94a3b8');
+  // finiture: albero e vialetto
+  body += `<path d="M146 117v-11" stroke="${st.finiture.pct >= 100 ? '#a16207' : 'rgba(255,255,255,.5)'}" stroke-width="2.5" stroke-linecap="round" pointer-events="none"/>`;
+  pezzo('finiture', '<path d="M146 107a9 9 0 1 1 .1 0zM74 117l-6 10h24l-6-10z"/>', [68,88,88,39], '#4ade80');
+  // fumo dal comignolo quando gli impianti sono completi
+  if (st.impianti.pct >= 100) body += '<path class="cz-fumo" d="M110 20c-4-4 4-6 0-10" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.5" stroke-linecap="round" pointer-events="none"/>';
+  const ground = '<path d="M4 117.5h152" stroke="rgba(255,255,255,.55)" stroke-width="1.5"/>';
+  el.innerHTML = `<svg viewBox="0 0 160 130" class="${_casaAnimata ? '' : 'cz-anim'}"><defs>${defs}</defs>${ground}${body}</svg>`;
+  _casaAnimata = true;
 }
 
 // ── ANALISI AVANZAMENTO ──
@@ -4120,23 +4231,44 @@ function renderCantierePanoramica() {
       }).join('')
     : '<div class="cant-att-ok"><i class="ti ti-circle-check" style="font-size:20px"></i>Tutto sotto controllo: tempi, budget e qualità senza criticità</div>';
 
-  // In corso ora
-  const inCorso = sorted.filter(f => (f.percentuale||0) > 0 && (f.percentuale||0) < 100);
-  const testoAggiornata = f => { const u = ultimoAggiornamentoFase(f); if (!u) return ''; const g = Math.floor((Date.now() - new Date(u).getTime()) / GIORNO_MS); return g >= FASE_FERMA_GG ? ` · <span class="late">⏸️ ferma da ${g} gg</span>` : ' · agg. ' + (g === 0 ? 'oggi' : g === 1 ? 'ieri' : g + ' gg fa'); };
+  // Percorso dei lavori: linea della metro con una fermata per fase
   const elIC = document.getElementById('cantInCorso');
   if (elIC) {
-    if (!sorted.length) elIC.innerHTML = '<div class="empty-state" style="padding:1rem"><i class="ti ti-building-cottage"></i><p>Nessuna fase creata. Vai su <strong>Fasi</strong> per iniziare.</p></div>';
-    else if (!inCorso.length) {
-      const prox = sorted.find(f => !(f.percentuale||0));
-      elIC.innerHTML = `<div style="font-size:13px;color:var(--muted)">Nessuna fase in corso.${prox ? ' Prossima: <strong style="color:var(--text)">' + escH(prox.nome) + '</strong>' + (prox.data_inizio ? ' (inizio previsto ' + dataBreveIt(prox.data_inizio) + ')' : '') : ''}</div>`;
-    } else elIC.innerHTML = inCorso.map(f => {
-      const pct = f.percentuale||0, rit = faseInRitardoGg(f);
-      const sub = (rit ? `<span class="late">⏰ in ritardo di ${rit} gg</span>` : f.data_fine ? `fine prevista ${dataBreveIt(f.data_fine)} · tra ${traGg(f.data_fine)} gg` : 'nessuna data di fine') + testoAggiornata(f);
-      return `<div class="cant-mini" onclick="apriDettaglioFase('${f.id}')">
-        <div class="cant-mini-body"><div class="cant-mini-nome">${escH(f.nome)}</div><div class="cant-mini-sub">${sub}</div>
-        <div class="fase-bar"><div class="fase-bar-fill" style="width:${pct}%${rit?';background:linear-gradient(90deg,#dc2626,#f87171)':''}"></div></div></div>
-        <div class="cant-mini-pct">${pct}%</div></div>`;
-    }).join('');
+    if (!sorted.length) { elIC.innerHTML = '<div class="empty-state" style="padding:1rem"><i class="ti ti-building-cottage"></i><p>Nessuna fase creata. Vai su <strong>Fasi</strong> per iniziare.</p></div>'; }
+    else {
+      const qui = sorted.find(f => (f.percentuale||0) > 0 && (f.percentuale||0) < 100) || sorted.find(f => (f.percentuale||0) < 100);
+      const fatte = sorted.filter(f => (f.percentuale||0) >= 100).length;
+      const info = document.getElementById('cantPercorsoInfo'); if (info) info.textContent = fatte + ' di ' + sorted.length + ' fermate';
+      elIC.innerHTML = sorted.map((f, i) => {
+        const pct = f.percentuale || 0, rit = faseInRitardoGg(f), ferma = giorniFermaFase(f);
+        const stato = pct >= 100 ? 'done' : (rit || ferma >= FASE_FERMA_GG) ? 'late' : pct > 0 ? 'run' : 'todo';
+        const prossimaDone = i < sorted.length - 1 && (sorted[i+1].percentuale || 0) > 0;
+        const lineaCls = pct >= 100 ? (prossimaDone ? 'full' : 'half') : '';
+        let sub = '';
+        if (pct >= 100) sub = f.data_fine_reale ? 'completata il ' + dataBreveIt(f.data_fine_reale, true) : 'completata';
+        else if (pct > 0) {
+          const parti = [];
+          if (rit) parti.push(`<span class="late">in ritardo di ${rit} gg</span>`);
+          else if (f.data_fine) parti.push('fine prevista ' + dataBreveIt(f.data_fine) + ' · tra ' + traGg(f.data_fine) + ' gg');
+          if (ferma >= FASE_FERMA_GG) parti.push(`<span class="late">ferma da ${ferma} gg</span>`);
+          else { const u = ultimoAggiornamentoFase(f); if (u) { const g = Math.floor((Date.now() - new Date(u).getTime()) / GIORNO_MS); parti.push('agg. ' + (g === 0 ? 'oggi' : g === 1 ? 'ieri' : g + ' gg fa')); } }
+          sub = parti.join(' · ');
+        } else if (f.data_inizio) {
+          const g = traGg(f.data_inizio);
+          sub = g >= 0 ? 'inizio ' + dataBreveIt(f.data_inizio) + ' · tra ' + g + ' gg' : `<span class="late">doveva iniziare ${dataBreveIt(f.data_inizio)}</span>`;
+        } else sub = 'da programmare';
+        const isQui = qui && qui.id === f.id;
+        return `<div class="pc-stop st-${stato}${isQui ? ' qui' : ''}" onclick="apriDettaglioFase('${f.id}')">
+          <div class="pc-rail"><span class="pc-line ${lineaCls}"></span><span class="pc-dot">${pct >= 100 ? '<i class="ti ti-check"></i>' : ''}</span></div>
+          <div class="pc-body">
+            <div class="pc-nome">${escH(f.nome)}${isQui ? '<span class="pc-qui">sei qui</span>' : ''}</div>
+            <div class="pc-sub">${sub}</div>
+            ${pct > 0 && pct < 100 ? `<div class="fase-bar"><div class="fase-bar-fill" style="width:${pct}%${stato==='late'?';background:linear-gradient(90deg,#dc2626,#f87171)':''}"></div></div>` : ''}
+          </div>
+          <div class="pc-pct">${pct > 0 && pct < 100 ? pct + '%' : ''}</div>
+        </div>`;
+      }).join('');
+    }
   }
 
   if (cantSezioneAttiva === 'panoramica' && document.getElementById('panelCantiere')?.classList.contains('active')) renderCantiereCurva();
@@ -7985,6 +8117,11 @@ window.testWhatsApp = async function() {
 })();
 
 const APP_CHANGELOG = [
+  {v:'6.3', data:'2026-11-01', titolo:'La casa che cresce', novita:[
+    '🏠 In alto nel Cantiere una casa disegnata che si costruisce con le fasi: fondamenta, struttura, pareti, tetto, impianti, infissi e finiture si riempiono con la loro percentuale',
+    '🔴 I pezzi in ritardo o fermi hanno il contorno rosso; tocca un pezzo della casa per aprire la sua fase',
+    '🚇 Nella Panoramica il percorso dei lavori: una fermata per fase, con "sei qui", ritardi e prossimi inizi',
+  ]},
   {v:'6.2.1', data:'2026-11-01', titolo:'Menu più ordinato', novita:[
     '📋 Scadenze e Calendario sono ora un sottomenu di Attività',
     '⚙️ Storico e Log modifiche sono ora un sottomenu di Impostazioni',
