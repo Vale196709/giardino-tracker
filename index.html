@@ -410,6 +410,7 @@ canvas{max-width:100%}
 .budget-fase-bar{width:100%;height:6px;background:var(--bg);border-radius:6px;overflow:hidden}
 .budget-fase-bar-fill{height:100%;border-radius:6px}
 .cantiere-foto-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px}
+.cantiere-foto-grid > .empty-state{grid-column:1/-1}
 .cantiere-foto-item{position:relative;aspect-ratio:1;border-radius:var(--rads);overflow:hidden;cursor:pointer;border:1px solid var(--border)}
 .cantiere-foto-item img{width:100%;height:100%;object-fit:cover}
 .cantiere-foto-date{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:#fff;font-size:9px;padding:2px 4px;text-align:center}
@@ -443,11 +444,16 @@ canvas{max-width:100%}
 .scost-badge.ok{background:var(--g1);color:var(--g7)}
 .scost-badge.warn{background:var(--r1);color:var(--r6)}
 .scost-badge.mid{background:var(--a1);color:var(--a6)}
+.scost-badge.neutro{background:var(--bg);color:var(--muted);font-weight:600;border:1px solid var(--border)}
 .scost-time-chip{font-size:10px;font-weight:600;padding:1px 7px;border-radius:20px;white-space:nowrap;display:inline-flex;align-items:center;gap:3px}
 .scost-time-chip.late{background:var(--r1);color:var(--r6)}
 .scost-time-chip.early{background:var(--g1);color:var(--g7)}
 .scost-time-chip.onrisk{background:var(--a1);color:var(--a6)}
-.gantt-scroll{overflow-x:auto}
+.gantt-scroll{overflow-x:auto;scroll-behavior:smooth}
+.cant-btn{background:#ecfeff;color:#0e7490;border:1px solid #a5f3fc}
+body.dark .cant-btn{background:#083344;color:#67e8f9;border-color:#155e75}
+.gantt-row .gantt-label{position:sticky;left:0;z-index:3;background:var(--surf);padding-right:4px;box-shadow:6px 0 6px -6px rgba(0,0,0,.15)}
+.gantt-legend{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:10px;color:var(--muted);justify-content:flex-end}
 .gantt-wrap{position:relative;min-width:520px}
 .gantt-axis{display:flex;position:relative;height:20px;margin-bottom:4px;border-bottom:1px solid var(--border)}
 .gantt-axis-tick{position:absolute;top:0;font-size:9px;color:var(--muted);white-space:nowrap;transform:translateX(-2px)}
@@ -1443,6 +1449,7 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
     <div id="panelCantiere" class="tab-panel">
       <div class="cantiere-hero">
         <div class="cantiere-hero-label">Avanzamento complessivo cantiere</div>
+        <div style="font-size:11px;opacity:.75;margin-top:2px">media pesata sul budget di ogni fase</div>
         <div class="cantiere-hero-pct" id="cantierePctTot">—%</div>
         <div class="cantiere-hero-bar"><div class="cantiere-hero-bar-fill" id="cantierePctBarTot" style="width:0%"></div></div>
       </div>
@@ -1450,10 +1457,7 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
       <div class="card" id="cantiereGanttCard" style="display:none">
         <div class="section-header">
           <div class="section-title">📅 Timeline lavori (Gantt)</div>
-          <div style="display:flex;gap:10px;font-size:10px;color:var(--muted)">
-            <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#0891b2;display:inline-block"></span>Previsto</span>
-            <span style="display:flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:2px;background:#16a34a;display:inline-block"></span>Reale</span>
-          </div>
+          <div class="gantt-legend"><span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:7px;border-radius:3px;background:rgba(8,145,178,.4);border:1px solid rgba(8,145,178,.7);display:inline-block"></span>Previsto</span><span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:7px;border-radius:3px;background:#0891b2;border:1px solid #0891b2;display:inline-block"></span>Fatto %</span><span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:7px;border-radius:3px;background:rgba(22,163,74,.55);border:1px solid rgba(22,163,74,.85);display:inline-block"></span>Reale</span><span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:7px;border-radius:3px;background:rgba(220,38,38,.55);border:1px solid rgba(220,38,38,.85);display:inline-block"></span>In ritardo</span></div>
         </div>
         <div class="gantt-scroll">
           <div class="gantt-wrap" id="ganttWrap"></div>
@@ -1463,7 +1467,7 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
       <div class="card">
         <div class="section-header">
           <div class="section-title">🏗️ Fasi di lavorazione (SAL)</div>
-          <button class="btn btn-sm" style="background:var(--g1);color:var(--g7);border:1px solid var(--g2)" onclick="apriNuovaFase()"><i class="ti ti-plus"></i> Fase</button>
+          <button class="btn btn-sm cant-btn" onclick="apriNuovaFase()"><i class="ti ti-plus"></i> Fase</button>
         </div>
         <div id="cantiereFasiList"><div class="skeleton-block skeleton-card"></div></div>
       </div>
@@ -1508,7 +1512,7 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
       <div class="card">
         <div class="section-header">
           <div class="section-title">📸 Galleria foto cantiere</div>
-          <label style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--g1);border:1.5px solid var(--g2);border-radius:var(--rads);color:var(--g7);font-size:12px;cursor:pointer;font-weight:600">
+          <label style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#ecfeff;border:1.5px solid #a5f3fc;border-radius:var(--rads);color:#0e7490;font-size:12px;cursor:pointer;font-weight:600">
             <i class="ti ti-camera-plus"></i> Aggiungi foto
             <input type="file" id="cantiereFotoInput" accept="image/*" capture="environment" style="display:none" onchange="uploadCantiereFoto(this)">
           </label>
@@ -1522,7 +1526,7 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
           <textarea class="form-control" id="diarioTesto" placeholder="Cosa è successo oggi in cantiere..." style="min-height:70px;margin-bottom:.5rem"></textarea>
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.5rem">
             <select class="form-control" id="diarioFase" style="flex:1;min-width:140px"><option value="">— nessuna fase collegata —</option></select>
-            <label style="display:inline-flex;align-items:center;gap:6px;padding:9px 12px;background:var(--g1);border:1.5px solid var(--g2);border-radius:var(--rads);color:var(--g7);font-size:12px;cursor:pointer;font-weight:600;white-space:nowrap">
+            <label style="display:inline-flex;align-items:center;gap:6px;padding:9px 12px;background:#ecfeff;border:1.5px solid #a5f3fc;border-radius:var(--rads);color:#0e7490;font-size:12px;cursor:pointer;font-weight:600;white-space:nowrap">
               <i class="ti ti-camera-plus"></i> Foto
               <input type="file" id="diarioFotoInput" accept="image/*" capture="environment" style="display:none" onchange="previewDiarioFoto(this)">
             </label>
@@ -1531,7 +1535,7 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
             <img id="diarioFotoImg" style="width:100%;border-radius:var(--rads);border:1px solid var(--border)">
             <button onclick="removeDiarioFoto()" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px">×</button>
           </div>
-          <button class="btn btn-primary" style="width:100%" onclick="saveDiarioEntry()"><i class="ti ti-send"></i> Pubblica nel diario</button>
+          <button class="btn btn-primary" style="width:100%;background:#0891b2;border-color:#0891b2" onclick="saveDiarioEntry()"><i class="ti ti-send"></i> Pubblica nel diario</button>
         </div>
         <div id="diarioList" style="margin-top:1rem"></div>
       </div>
@@ -1763,7 +1767,7 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
           <div class="form-group">
             <label class="form-label">API Key CallMeBot</label>
             <input type="text" class="form-control" id="waApiKey" placeholder="123456">
-            <div class="ai-api-notice">Manda "I allow callmebot to send me messages" a +34 644 82 80 93 su WhatsApp per ottenere la key. ⚠️ CallMeBot disattiva la chiave se resta inutilizzata per qualche giorno o in caso di uso eccessivo — se i messaggi smettono di arrivare, manda di nuovo quel messaggio per ottenerne una nuova.</div>
+            <div class="ai-api-notice">Salva in rubrica il numero del bot <strong>+34 644 87 21 57</strong> e mandagli su WhatsApp "I allow callmebot to send me messages" per ottenere la key. 🔄 <strong>Avevi già una key?</strong> CallMeBot ha cambiato numero: manda lo stesso messaggio al nuovo bot e la tua key torna a funzionare (resta la stessa). Se la risposta non arriva entro 2 minuti, riprova dopo 24 ore. ⚠️ CallMeBot disattiva la chiave se resta inutilizzata per qualche giorno o in caso di uso eccessivo — se i messaggi smettono di arrivare, manda di nuovo quel messaggio per ottenerne una nuova.</div>
           </div>
           <div style="display:flex;gap:8px">
             <button class="btn btn-primary" style="flex:1" onclick="saveWaConfig()"><i class="ti ti-device-floppy"></i> Salva</button>
@@ -2468,6 +2472,18 @@ let currentTab = 'Scadenze';
 let currentRole = 'admin'; // 'admin' o 'user'
 let piante = [], attivita = [], utenti = [], spese = [], note = [], rubrica = [], cantiereFasi = [], cantiereFoto = [], cantiereDocumenti = [], cantiereChecklist = [], cantiereDiario = [], cantiereNC = [], cantiereMateriali = [], pianteFoto = [], pianteInterventi = [];
 let currentFilter = 'tutte';
+// Data locale (Europe/Rome) in formato YYYY-MM-DD: toISOString() usa UTC e dopo mezzanotte restituirebbe "ieri"
+// Protegge il testo inserito dagli utenti quando finisce dentro innerHTML (apostrofi, <, & non rompono più la grafica)
+function escH(v) {
+  return String(v ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+window.escH = escH;
+
+function isoLocale(d) {
+  const x = d ? new Date(d) : new Date();
+  return x.getFullYear() + '-' + String(x.getMonth()+1).padStart(2,'0') + '-' + String(x.getDate()).padStart(2,'0');
+}
+window.isoLocale = isoLocale;
 let editingAttId = null, editingPiantaId = null;
 let calYear, calMonth, calSelectedDate = null;
 let chartMesiInst = null, chartTipiInst = null, chartPianteInst = null, chartCostoPiantaInst = null;
@@ -2688,7 +2704,7 @@ const helpContent = {
   Mappa: {icon:'🗺️', title:'Mappa', body:'Mappa interattiva del terreno. Seleziona una pianta dalla lista sotto, poi tocca il punto sulla mappa dove si trova per posizionarla.<br><br>Attiva il <strong>🌳 Gemello digitale</strong> per vedere lo stato di salute di ogni pianta direttamente sulla mappa (anello verde/giallo/rosso secondo le scadenze).'},
   Bacheca: {icon:'💬', title:'Bacheca', body:'Spazio di note condivise tra tutti gli utenti del giardino, in tempo reale. Scegli il tipo (nota, osservazione, promemoria, problema) e scrivi liberamente. Utile per comunicare con chi gestisce il giardino con te.'},
   Rubrica: {icon:'📇', title:'Rubrica', body:'Contatti utili legati al giardino: geometra, agronomo/vivaio, idraulico, elettricista, fornitori e altro. Ogni contatto ha telefono, email e note, con pulsanti rapidi per <strong>chiamare</strong>, scrivere su <strong>WhatsApp</strong> o mandare una <strong>email</strong> con un tocco.<br><br>Usa i filtri per categoria in alto, oppure cerca per nome. Tocca <strong>+</strong> per aggiungere un nuovo contatto.'},
-  Cantiere: {icon:'🏗️', title:'Cantiere', body:'Monitora la costruzione della casa sul terreno: <strong>Fasi/SAL</strong> con percentuale di avanzamento (trascina lo slider per aggiornarla al volo), <strong>Budget</strong> calcolato automaticamente dalle spese contrassegnate come "Spesa di cantiere" nella sezione Spese, e una <strong>Galleria foto</strong> cronologica per documentare i progressi nel tempo.<br><br>Ogni fase ha anche un pulsante <strong>📎 Documenti allegati</strong>: da lì puoi caricare PDF, foto, contratti Word/Excel e altri file (fino a circa 650KB ciascuno) collegati a quella specifica fase, e scaricarli o eliminarli in qualsiasi momento.<br><br>Tocca "+ Fase" per aggiungere una fase personalizzata, o "Aggiungi foto" per la galleria. Ogni fase può essere collegata a un contatto della Rubrica (es. l\'impresa che la esegue).'},
+  Cantiere: {icon:'🏗️', title:'Cantiere', body:'Monitora la costruzione della casa sul terreno: <strong>Fasi/SAL</strong> con percentuale di avanzamento (trascina lo slider per aggiornarla al volo; la % complessiva in alto è <strong>pesata sul budget</strong> di ogni fase), <strong>Budget</strong> calcolato automaticamente dalle spese contrassegnate come "Spesa di cantiere" nella sezione Spese, e una <strong>Galleria foto</strong> cronologica per documentare i progressi nel tempo.<br><br>Ogni fase ha anche un pulsante <strong>📎 Documenti allegati</strong>: da lì puoi caricare PDF, foto, contratti Word/Excel e altri file (fino a circa 650KB ciascuno) collegati a quella specifica fase, e scaricarli o eliminarli in qualsiasi momento.<br><br>Tocca "+ Fase" per aggiungere una fase personalizzata, o "Aggiungi foto" per la galleria. Ogni fase può essere collegata a un contatto della Rubrica (es. l\'impresa che la esegue).'},
   Ricerca: {icon:'🔍', title:'Ricerca', body:'Cerca in tutto il giardino: piante, attività e spese contemporaneamente. Scrivi almeno 2 caratteri e tocca un risultato per aprirlo direttamente.'},
   Log: {icon:'📝', title:'Log modifiche', body:'Cronologia di tutte le modifiche fatte nell\'app: aggiunte, modifiche ed eliminazioni, con utente e data. Utile per capire chi ha fatto cosa e quando.'},
   Kanban: {icon:'📋', title:'Attività', body:'Vista a tre colonne (Scadute / In arrivo / Completate) per gestire velocemente le attività. Usa i pulsanti rapidi <strong>✅ Fatta</strong> e <strong>📅 +7gg</strong> sulle singole card.<br><br>In alto trovi anche i <strong>suggerimenti stagionali</strong> e gli <strong>alert meteo</strong> automatici.'},
@@ -2828,7 +2844,7 @@ function renderUtentiList() {
   if (!utenti.length) { el.innerHTML = '<div style="font-size:13px;color:var(--muted);margin-bottom:.5rem">Nessun utente creato ancora.</div>'; return; }
   el.innerHTML = utenti.map(u => `
     <div class="utente-item">
-      <span class="utente-name">${u.ruolo==='admin'?'🔑':'👁'} ${u.nome}</span>
+      <span class="utente-name">${u.ruolo==='admin'?'🔑':'👁'} ${escH(u.nome)}</span>
       <span class="utente-pin">${u.ruolo==='admin'?'Admin':'User'}</span>
       <button class="btn btn-sm btn-danger" onclick="deleteUtente('${u.id}')"><i class="ti ti-trash"></i></button>
     </div>`).join('');
@@ -3173,7 +3189,7 @@ function renderBacheca() {
         <span class="nota-autore">👤 ${n.autore||'—'}</span>
         ${currentRole==='admin'?`<button class="btn btn-sm btn-danger" style="padding:3px 8px" onclick="deleteNota('${n.id}')"><i class="ti ti-trash"></i></button>`:''}
       </div>
-      <div class="nota-testo">${n.testo}</div>
+      <div class="nota-testo">${escH(n.testo)}</div>
       <div class="nota-data">${d}</div>
     </div>`;
   }).join('');
@@ -3267,7 +3283,7 @@ function rubricaCardHtml(c) {
   return `<div class="rubrica-item" onclick="openEditContatto('${c.id}')">
     ${photoHtml}
     <div class="rubrica-body">
-      <div class="rubrica-name">${c.preferito?'<i class="ti ti-star-filled" style="color:#f59e0b;font-size:13px;margin-right:3px"></i>':''}${c.nome}</div>
+      <div class="rubrica-name">${c.preferito?'<i class="ti ti-star-filled" style="color:#f59e0b;font-size:13px;margin-right:3px"></i>':''}${escH(c.nome)}</div>
       <div class="rubrica-meta">
         <span class="rubrica-cat-pill">${rubricaCatLabel[cat]||'Altro'}</span>
         ${pianta ? `<span class="rubrica-plant-pill">🌱 ${pianta.nome}</span>` : ''}
@@ -3585,48 +3601,23 @@ function lightboxDelete() { if (lightboxDeleteFn) lightboxDeleteFn(); }
 
 async function initCantiere() {
   if (!db) return;
-  if (!cantiereFasi.length) {
+  // Carica in parallelo solo le collezioni non ancora arrivate dai listener in tempo reale
+  const carica = async (nome, campo, dir, setter, attuale) => {
+    if (attuale.length) return;
     try {
-      const snap = await getDocs(query(collection(db,'cantiere_fasi'), orderBy('ordine')));
-      cantiereFasi = snap.docs.map(d => ({id:d.id, ...d.data()}));
-    } catch(e) { console.log('Cantiere fasi load:', e); }
-  }
-  if (!cantiereFoto.length) {
-    try {
-      const snap2 = await getDocs(query(collection(db,'cantiere_foto'), orderBy('data','desc')));
-      cantiereFoto = snap2.docs.map(d => ({id:d.id, ...d.data()}));
-    } catch(e) { console.log('Cantiere foto load:', e); }
-  }
-  if (!cantiereDocumenti.length) {
-    try {
-      const snap3 = await getDocs(query(collection(db,'cantiere_documenti'), orderBy('data','desc')));
-      cantiereDocumenti = snap3.docs.map(d => ({id:d.id, ...d.data()}));
-    } catch(e) { console.log('Cantiere documenti load:', e); }
-  }
-  if (!cantiereChecklist.length) {
-    try {
-      const snap4 = await getDocs(query(collection(db,'cantiere_checklist'), orderBy('data','asc')));
-      cantiereChecklist = snap4.docs.map(d => ({id:d.id, ...d.data()}));
-    } catch(e) { console.log('Cantiere checklist load:', e); }
-  }
-  if (!cantiereDiario.length) {
-    try {
-      const snap5 = await getDocs(query(collection(db,'cantiere_diario'), orderBy('data','desc')));
-      cantiereDiario = snap5.docs.map(d => ({id:d.id, ...d.data()}));
-    } catch(e) { console.log('Cantiere diario load:', e); }
-  }
-  if (!cantiereNC.length) {
-    try {
-      const snap6 = await getDocs(query(collection(db,'cantiere_nonconformita'), orderBy('data_apertura','desc')));
-      cantiereNC = snap6.docs.map(d => ({id:d.id, ...d.data()}));
-    } catch(e) { console.log('Cantiere non conformità load:', e); }
-  }
-  if (!cantiereMateriali.length) {
-    try {
-      const snap7 = await getDocs(query(collection(db,'cantiere_materiali'), orderBy('data','desc')));
-      cantiereMateriali = snap7.docs.map(d => ({id:d.id, ...d.data()}));
-    } catch(e) { console.log('Cantiere materiali load:', e); }
-  }
+      const snap = await getDocs(query(collection(db, nome), orderBy(campo, dir)));
+      setter(snap.docs.map(d => ({id:d.id, ...d.data()})));
+    } catch(e) { console.warn('Cantiere load ' + nome + ':', e); }
+  };
+  await Promise.all([
+    carica('cantiere_fasi','ordine','asc', v => cantiereFasi = v, cantiereFasi),
+    carica('cantiere_foto','data','desc', v => cantiereFoto = v, cantiereFoto),
+    carica('cantiere_documenti','data','desc', v => cantiereDocumenti = v, cantiereDocumenti),
+    carica('cantiere_checklist','data','asc', v => cantiereChecklist = v, cantiereChecklist),
+    carica('cantiere_diario','data','desc', v => cantiereDiario = v, cantiereDiario),
+    carica('cantiere_nonconformita','data_apertura','desc', v => cantiereNC = v, cantiereNC),
+    carica('cantiere_materiali','data','desc', v => cantiereMateriali = v, cantiereMateriali),
+  ]);
   if (!cantiereFasi.length && currentRole === 'admin') {
     if (confirm('Nessuna fase di cantiere trovata. Vuoi creare le fasi standard (progettazione, fondamenta, struttura, tetto, impianti, finiture...)? Potrai modificarle in seguito.')) {
       await creaFasiStandard();
@@ -3673,12 +3664,27 @@ function statoFase(pct) {
   return 'non_iniziata';
 }
 
+// Avanzamento complessivo pesato sul budget di ogni fase (una fase da 40.000€ conta più di una da 8.000€).
+// Le fasi senza budget pesano come la media delle fasi con budget; se nessuna ha budget, media semplice.
+function avanzamentoPesatoCantiere() {
+  if (!cantiereFasi.length) return 0;
+  const budgets = cantiereFasi.map(f => parseFloat(f.budget_previsto||0)).filter(b => b > 0);
+  const pesoMedio = budgets.length ? budgets.reduce((a,b) => a+b, 0) / budgets.length : 1;
+  let somma = 0, pesi = 0;
+  cantiereFasi.forEach(f => {
+    const b = parseFloat(f.budget_previsto||0);
+    const peso = b > 0 ? b : pesoMedio;
+    somma += (f.percentuale||0) * peso; pesi += peso;
+  });
+  return pesi ? somma / pesi : 0;
+}
+
 function aggiornaHeroCantiere() {
   const pctEl = document.getElementById('cantierePctTot');
   const barEl = document.getElementById('cantierePctBarTot');
   if (!pctEl) return;
   if (!cantiereFasi.length) { pctEl.textContent = '—%'; if(barEl) barEl.style.width='0%'; return; }
-  const tot = cantiereFasi.reduce((s,f) => s + (f.percentuale||0), 0) / cantiereFasi.length;
+  const tot = avanzamentoPesatoCantiere();
   pctEl.textContent = Math.round(tot) + '%';
   if (barEl) barEl.style.width = Math.round(tot) + '%';
 }
@@ -3700,7 +3706,7 @@ function renderCantiereFasi() {
     const ritardoGg = (!f.data_fine_reale && f.data_fine && pct < 100) ? Math.round((new Date() - new Date(f.data_fine)) / 86400000) : null;
     return `<div class="fase-card">
       <div class="fase-card-header">
-        <div class="fase-nome" onclick="openEditFase('${f.id}')" style="cursor:pointer">${f.nome}</div>
+        <div class="fase-nome" onclick="openEditFase('${f.id}')" style="cursor:pointer">${escH(f.nome)}</div>
         <span class="fase-status-pill fs-${stato}">${statoLabelMap[stato]}</span>
       </div>
       <div class="fase-bar"><div class="fase-bar-fill ${pct>=100?'done':''}" style="width:${pct}%"></div></div>
@@ -3714,10 +3720,10 @@ function renderCantiereFasi() {
         const c = rubrica.find(x => x.id === cid);
         if (!c) return '';
         const tel = c.telefono ? c.telefono.replace(/[^0-9+]/g,'') : '';
-        return `<span class="fase-contatto-chip">${rubricaCatEmoji[c.categoria]||'📇'} ${c.nome}${tel?`<a href="tel:${tel}" onclick="event.stopPropagation();registraContattoUsato('${c.id}')" title="Chiama ${c.nome}"><i class="ti ti-phone"></i></a>`:''}</span>`;
+        return `<span class="fase-contatto-chip">${rubricaCatEmoji[c.categoria]||'📇'} ${escH(c.nome)}${tel?`<a href="tel:${tel}" onclick="event.stopPropagation();registraContattoUsato('${c.id}')" title="Chiama ${escH(c.nome)}"><i class="ti ti-phone"></i></a>`:''}</span>`;
       }).join('')}</div>` : ''}
       ${currentRole==='admin' ? `<input type="range" class="fase-slider" min="0" max="100" step="5" value="${pct}" onchange="updateFasePercentualeRapida('${f.id}', this.value)">` : ''}
-      ${currentRole==='admin' ? `<button class="btn btn-sm" style="margin-top:8px;width:100%;background:var(--g1);color:var(--g7);border:1px solid var(--g2)" onclick="apriScadenzaFase('${f.id}')"><i class="ti ti-calendar-plus"></i> + Scadenza per questa fase</button>` : ''}
+      ${currentRole==='admin' ? `<button class="btn btn-sm cant-btn" style="margin-top:8px;width:100%" onclick="apriScadenzaFase('${f.id}')"><i class="ti ti-calendar-plus"></i> + Scadenza per questa fase</button>` : ''}
       <button class="fase-doc-btn" onclick="apriDocumentiFase('${f.id}')"><i class="ti ti-paperclip"></i> Documenti allegati ${cantiereDocumenti.filter(d=>d.fase_id===f.id).length ? `<span class="doc-count">${cantiereDocumenti.filter(d=>d.fase_id===f.id).length}</span>` : ''}</button>
       <button class="fase-doc-btn" onclick="apriChecklistFase('${f.id}')"><i class="ti ti-list-check"></i> Checklist ${(() => { const items = cantiereChecklist.filter(c=>c.fase_id===f.id); return items.length ? `<span class="doc-count" style="background:${items.every(i=>i.fatto)?'var(--g7)':'#0891b2'}">${items.filter(i=>i.fatto).length}/${items.length}</span>` : ''; })()}</button>
       <button class="fase-doc-btn" onclick="apriMaterialiFase('${f.id}')"><i class="ti ti-package"></i> Materiali ${(() => { const items = cantiereMateriali.filter(m=>m.fase_id===f.id); if (!items.length) return ''; const mancanti = items.filter(m=>m.stato==='mancante').length; return `<span class="doc-count" style="background:${mancanti?'var(--r6)':'var(--g7)'}">${items.length}${mancanti?' ⚠️'+mancanti:''}</span>`; })()}</button>
@@ -3731,7 +3737,7 @@ window.updateFasePercentualeRapida = async function(id, val) {
   const pct = parseInt(val);
   f.percentuale = pct;
   const upd = {percentuale: pct};
-  if (pct >= 100 && !f.data_fine_reale) { upd.data_fine_reale = new Date().toISOString().split('T')[0]; f.data_fine_reale = upd.data_fine_reale; }
+  if (pct >= 100 && !f.data_fine_reale) { upd.data_fine_reale = isoLocale(); f.data_fine_reale = upd.data_fine_reale; }
   await updateDoc(doc(db,'cantiere_fasi',id), upd);
   renderCantiereFasi();
   renderCantiereGantt();
@@ -3752,7 +3758,7 @@ function fillFaseContattoSel(selezionati) {
   el.innerHTML = rubrica.map(c => `
     <label class="diag-check">
       <input type="checkbox" value="${c.id}" ${sel.includes(c.id)?'checked':''}>
-      ${rubricaCatEmoji[c.categoria]||'📇'} ${c.nome}
+      ${rubricaCatEmoji[c.categoria]||'📇'} ${escH(c.nome)}
     </label>`).join('');
 }
 
@@ -3772,7 +3778,7 @@ window.apriScadenzaFase = function(faseId) {
   if (currentRole === 'user') { showToast('👁 Modalità sola lettura'); return; }
   setAttModalMode('cantiere', faseId);
   document.getElementById('attTipo').value = 'Sopralluogo';
-  document.getElementById('attDataEs').value = new Date().toISOString().split('T')[0];
+  document.getElementById('attDataEs').value = isoLocale();
   openModal('modalAtt');
 };
 
@@ -3823,7 +3829,7 @@ window.saveFase = async function() {
   const data_inizio = document.getElementById('fDataInizio').value;
   const data_fine = document.getElementById('fDataFine').value;
   let data_fine_reale = document.getElementById('fDataFineReale').value;
-  if (percentuale >= 100 && !data_fine_reale) data_fine_reale = new Date().toISOString().split('T')[0];
+  if (percentuale >= 100 && !data_fine_reale) data_fine_reale = isoLocale();
   const budget_previsto = parseFloat(document.getElementById('fBudget').value) || 0;
   const contatti_ids = faseContattiSelezionati();
   const note = document.getElementById('fNote').value.trim();
@@ -3848,7 +3854,7 @@ window.updateFase = async function() {
   if (!nome) { showToast('Il nome non può essere vuoto'); return; }
   const percentuale = parseInt(document.getElementById('fPct').value) || 0;
   let data_fine_reale = document.getElementById('fDataFineReale').value;
-  if (percentuale >= 100 && !data_fine_reale) data_fine_reale = new Date().toISOString().split('T')[0];
+  if (percentuale >= 100 && !data_fine_reale) data_fine_reale = isoLocale();
   const upd = {
     nome,
     percentuale,
@@ -3909,7 +3915,7 @@ function renderCantiereBudget() {
     const overBudget = budget > 0 && spesoFase > budget;
     return `<div class="budget-fase-row">
       <div class="budget-fase-top">
-        <span>${f.nome}</span>
+        <span>${escH(f.nome)}</span>
         <span style="font-weight:600;${overBudget?'color:var(--r6)':''}">€ ${fmtEur(spesoFase)}${budget>0?' / €'+fmtEur(budget):''}</span>
       </div>
       ${budget>0?`<div class="budget-fase-bar"><div class="budget-fase-bar-fill" style="width:${pctBudget}%;background:${overBudget?'var(--r6)':'var(--g6)'}"></div></div>`:''}
@@ -3956,7 +3962,7 @@ function renderCantiereScostamento() {
     const previsto = parseFloat(f.budget_previsto||0);
     const delta = speso - previsto;
     const deltaPct = previsto > 0 ? Math.round(delta/previsto*100) : 0;
-    return {nome: f.nome, previsto, speso, delta, deltaPct, tempo: scostamentoTempoFase(f)};
+    return {nome: f.nome, previsto, speso, delta, deltaPct, pct: f.percentuale||0, tempo: scostamentoTempoFase(f)};
   });
 
   const totPrevisto = dati.reduce((s,d) => s+d.previsto, 0);
@@ -4001,18 +4007,16 @@ function renderCantiereScostamento() {
       }
     });
   };
-  if (!window.Chart) {
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
-    s.onload = drawChart;
-    document.head.appendChild(s);
-  } else drawChart();
+  loadChartJs().then(drawChart).catch(e => console.warn(e));
 
   // ── Lista dettaglio per fase: scostamento budget + tempo ──
-  const ordinati = [...dati].sort((a,b) => Math.abs(b.delta) - Math.abs(a.delta));
+  const ordinati = [...dati].sort((a,b) => ((a.speso===0&&a.pct===0) - (b.speso===0&&b.pct===0)) || (Math.abs(b.delta) - Math.abs(a.delta)));
   listEl.innerHTML = ordinati.map(d => {
-    const badgeCls = d.deltaPct > 10 ? 'warn' : d.deltaPct > 0 ? 'mid' : 'ok';
-    const badgeTxt = d.delta === 0 ? 'in linea' : (d.delta>0?'+':'') + '€' + fmtEur(Math.abs(d.delta)) + ' (' + (d.deltaPct>=0?'+':'') + d.deltaPct + '%)';
+    const nonIniziata = d.speso === 0 && d.pct === 0;
+    const badgeCls = nonIniziata ? 'neutro' : d.deltaPct > 10 ? 'warn' : d.deltaPct > 0 ? 'mid' : 'ok';
+    const badgeTxt = nonIniziata ? 'non iniziata · budget €' + fmtEur(d.previsto)
+      : d.delta === 0 ? 'in linea'
+      : (d.delta>0?'+':'−') + '€' + fmtEur(Math.abs(d.delta)) + ' (' + (d.deltaPct>0?'+':'') + d.deltaPct + '%)';
     let timeChip = '';
     if (d.tempo) {
       const g = Math.abs(d.tempo.giorni);
@@ -4020,7 +4024,7 @@ function renderCantiereScostamento() {
       else if (d.tempo.stato === 'early') timeChip = `<span class="scost-time-chip early"><i class="ti ti-clock-check" style="font-size:11px"></i>${g}gg in anticipo</span>`;
     }
     return `<div class="scost-fase-row">
-      <span class="scost-fase-nome">${d.nome}</span>
+      <span class="scost-fase-nome">${escH(d.nome)}</span>
       ${timeChip}
       <span class="scost-badge ${badgeCls}">${badgeTxt}</span>
     </div>`;
@@ -4082,7 +4086,7 @@ function renderCantiereGantt() {
     }
 
     return `<div class="gantt-row">
-      <div class="gantt-label" onclick="openEditFase('${f.id}')" title="${f.nome}">${f.nome}</div>
+      <div class="gantt-label" onclick="openEditFase('${f.id}')" title="${escH(f.nome)}">${escH(f.nome)}</div>
       <div class="gantt-track">
         <div class="gantt-bar gantt-bar-prev ${fillCls}" style="left:${leftPct}%;width:${widthPct}%" onclick="openEditFase('${f.id}')" title="Previsto: ${start.toLocaleDateString('it-IT')} → ${end.toLocaleDateString('it-IT')}">
           <div class="gantt-bar-fill" style="width:${pct}%;background:${fillColor}"></div>
@@ -4100,6 +4104,14 @@ function renderCantiereGantt() {
       <div class="gantt-today-line" style="left:${todayPct}%"></div>
       <div class="gantt-today-label" style="left:${todayPct}%;top:-20px">Oggi</div>
     </div>`;
+  // Porta in vista la linea di "oggi" (sul telefono il Gantt è più largo dello schermo)
+  requestAnimationFrame(() => {
+    const sc = wrap.closest('.gantt-scroll');
+    if (sc && sc.scrollWidth > sc.clientWidth) {
+      const x = 118 + (wrap.clientWidth - 118) * todayPct / 100;
+      sc.scrollLeft = Math.max(0, x - sc.clientWidth * 0.4);
+    }
+  });
 }
 
 let chartCantiereBurndownInst = null;
@@ -4181,12 +4193,7 @@ function renderCantiereBurndown() {
       }
     });
   };
-  if (!window.Chart) {
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
-    s.onload = drawChart;
-    document.head.appendChild(s);
-  } else drawChart();
+  loadChartJs().then(drawChart).catch(e => console.warn(e));
 }
 
 window.uploadCantiereFoto = function(input) {
@@ -4265,7 +4272,7 @@ window.apriInterventiPianta = function(piantaId) {
 
 function resetFormIntervento() {
   editingInterventoId = null;
-  document.getElementById('intervData').value = new Date().toISOString().split('T')[0];
+  document.getElementById('intervData').value = isoLocale();
   document.getElementById('intervTipo').value = 'Piantumazione';
   document.getElementById('intervDesc').value = '';
   document.getElementById('intervFormTitle').textContent = 'Nuovo intervento';
@@ -4426,7 +4433,7 @@ window.esportaInterventiPDF = async function() {
       headStyles: { fillColor: [26,122,62] },
       columnStyles: { 0:{cellWidth:24}, 1:{cellWidth:40}, 2:{cellWidth:30}, 3:{cellWidth:'auto'} }
     });
-    docPdf.save('interventi-giardino-quintilina-' + new Date().toISOString().split('T')[0] + '.pdf');
+    docPdf.save('interventi-giardino-quintilina-' + isoLocale() + '.pdf');
     showToast('✅ PDF scaricato');
     addLog('add','📄','Esportato riepilogo interventi in PDF', currentUser);
   } catch(e) {
@@ -4451,7 +4458,7 @@ window.esportaInterventiExcel = async function() {
     ws['!cols'] = [{wch:12},{wch:26},{wch:16},{wch:60},{wch:16}];
     const wb = window.XLSX.utils.book_new();
     window.XLSX.utils.book_append_sheet(wb, ws, 'Interventi');
-    window.XLSX.writeFile(wb, 'interventi-giardino-quintilina-' + new Date().toISOString().split('T')[0] + '.xlsx');
+    window.XLSX.writeFile(wb, 'interventi-giardino-quintilina-' + isoLocale() + '.xlsx');
     showToast('✅ Excel scaricato');
     addLog('add','📊','Esportato riepilogo interventi in Excel', currentUser);
   } catch(e) {
@@ -4660,9 +4667,9 @@ function renderCantiereDiario() {
     return `<div class="diario-item">
       ${d.foto ? `<img src="${d.foto}" class="diario-item-photo" onclick="apriDiarioFotoLightbox('${d.id}')">` : ''}
       <div class="diario-item-body">
-        ${d.testo ? `<div class="diario-item-testo">${d.testo}</div>` : ''}
+        ${d.testo ? `<div class="diario-item-testo">${escH(d.testo)}</div>` : ''}
         <div class="diario-item-meta">
-          ${f ? `<span class="diario-item-fase">🏗️ ${f.nome}</span>` : ''}
+          ${f ? `<span class="diario-item-fase">🏗️ ${escH(f.nome)}</span>` : ''}
           <span>👤 ${d.autore||'—'} · ${data}</span>
         </div>
       </div>
@@ -4829,10 +4836,10 @@ function renderNCList() {
       <div class="nc-badges">
         <span class="nc-badge st-${n.stato}">${ncStatoLabel[n.stato]}</span>
         <span class="nc-badge pr-${n.priorita}">${ncPrioritaLabel[n.priorita]}</span>
-        ${f ? `<span class="nc-badge" style="background:var(--g1);color:var(--g7)">🏗️ ${f.nome}</span>` : ''}
+        ${f ? `<span class="nc-badge" style="background:var(--g1);color:var(--g7)">🏗️ ${escH(f.nome)}</span>` : ''}
       </div>
       ${n.foto ? `<img src="${n.foto}" class="nc-item-photo" onclick="apriNCFotoLightbox('${n.id}')">` : ''}
-      <div class="nc-item-testo">${n.testo}</div>
+      <div class="nc-item-testo">${escH(n.testo)}</div>
       <div class="nc-item-meta" style="margin-top:6px">👤 ${n.autore||'—'} · ${data}${c?' · 📇 '+c.nome:''}</div>
       ${azioni ? `<div class="nc-item-actions">${azioni}</div>` : ''}
     </div>`;
@@ -4930,7 +4937,7 @@ function renderMaterialiFaseList() {
       : `<span class="mat-stato-sel ${m.stato}">${matStatoLabel[m.stato]}</span>`;
     return `<div class="mat-item">
       <div class="mat-item-body">
-        <div class="mat-item-nome">${m.nome}${qta?' — '+qta:''}</div>
+        <div class="mat-item-nome">${escH(m.nome)}${qta?' — '+qta:''}</div>
         <div class="mat-item-meta">${m.note?m.note+' · ':''}${m.autore||'—'}${dataPrevista}</div>
       </div>
       ${selettore}
@@ -4986,7 +4993,7 @@ function renderDocumentiFaseList() {
     <div class="doc-item">
       <div class="doc-item-icon">${docIconFor(d.nome)}</div>
       <div class="doc-item-body">
-        <div class="doc-item-name">${d.nome}</div>
+        <div class="doc-item-name">${escH(d.nome)}</div>
         <div class="doc-item-meta">${fmtBytes(d.dimensione)} · ${new Date(d.data).toLocaleDateString('it-IT',{day:'numeric',month:'short',year:'numeric'})} · ${d.utente||'—'}</div>
       </div>
       <div class="doc-item-actions">
@@ -5086,7 +5093,7 @@ function renderChecklistFaseList() {
   el.innerHTML = items.map(i => `
     <div class="checklist-item">
       <input type="checkbox" ${i.fatto?'checked':''} ${currentRole!=='admin'?'disabled':''} onchange="toggleChecklistItem('${i.id}', this.checked)">
-      <span class="cl-text ${i.fatto?'done':''}">${i.testo}</span>
+      <span class="cl-text ${i.fatto?'done':''}">${escH(i.testo)}</span>
       ${currentRole==='admin' ? `<button class="cl-del" onclick="deleteChecklistItem('${i.id}')"><i class="ti ti-x"></i></button>` : ''}
     </div>`).join('');
 }
@@ -5718,7 +5725,7 @@ window.aggiungiTrattamento = function(piantaId) {
   const sel = document.getElementById('attPianta');
   if (sel) sel.value = piantaId;
   document.getElementById('attTipo').value = 'Trattamento';
-  document.getElementById('attDataEs').value = new Date().toISOString().split('T')[0];
+  document.getElementById('attDataEs').value = isoLocale();
   openModal('modalAtt');
 };
 
@@ -5810,7 +5817,7 @@ function loadLog() {
         <div class="log-icon">${l.icon}</div>
         <div class="log-body">
           <div class="log-azione">
-            <span class="log-badge ${badgeClass}">${badgeText}</span>${l.azione}
+            <span class="log-badge ${badgeClass}">${badgeText}</span>${escH(l.azione)}
           </div>
           <div class="log-meta">👤 ${l.utente||'—'} · ${d}</div>
         </div>
@@ -5857,7 +5864,7 @@ async function initDashboard() {
     const d = new Date(s.data);
     return d.getFullYear()===ora0.getFullYear() && d.getMonth()===ora0.getMonth();
   }).reduce((sum,s)=>sum+parseFloat(s.importo||0),0);
-  const cantPct = cantiereFasi.length ? Math.round(cantiereFasi.reduce((s,f) => s + (f.percentuale||0), 0) / cantiereFasi.length) : null;
+  const cantPct = cantiereFasi.length ? Math.round(avanzamentoPesatoCantiere()) : null;
 
   const ultimeNote = note.slice(0,2);
   const tipoEmoji = {'nota':'📝','osservazione':'🔍','promemoria':'⏰','problema':'⚠️'};
@@ -5972,7 +5979,7 @@ async function initDashboard() {
       ${ultimeNote.map(n => `
         <div class="dash-nota-item" onclick="drawerNav('Bacheca')">
           ${tipoEmoji[n.tipo]||'📝'} ${n.testo.substring(0,90)}${n.testo.length>90?'…':''}
-          <div class="dash-nota-meta">${n.autore} · ${new Date(n.timestamp).toLocaleDateString('it-IT',{day:'numeric',month:'short'})}</div>
+          <div class="dash-nota-meta">${escH(n.autore)} · ${new Date(n.timestamp).toLocaleDateString('it-IT',{day:'numeric',month:'short'})}</div>
         </div>`).join('')}
     </div>` : ''}
 
@@ -6081,7 +6088,7 @@ window.esportaBackupCompleto = async function() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'backup-giardino-quintilina-' + new Date().toISOString().split('T')[0] + '.json';
+    a.download = 'backup-giardino-quintilina-' + isoLocale() + '.json';
     a.click();
     URL.revokeObjectURL(url);
 
@@ -6111,7 +6118,7 @@ async function checkAndRunAutoBackup() {
       localStorage.setItem('lastAutoBackupWeek', settimanaKey);
       return;
     }
-    const backupId = oggi.toISOString().split('T')[0];
+    const backupId = isoLocale(oggi);
     await setDoc(doc(db,'backups',backupId), {
       json,
       data: oggi.toISOString(),
@@ -6401,7 +6408,7 @@ Se la frase non descrive un'attivita di giardinaggio, rispondi con {"pianta": nu
 
 window.confermaVoiceAttivita = async function() {
   if (!voiceParsedActivity) return;
-  const oggi = new Date().toISOString().split('T')[0];
+  const oggi = isoLocale();
   try {
     const ref = await addDoc(collection(db,'attivita'), {
       pianta_id: voiceParsedActivity.piantaId,
@@ -6595,11 +6602,11 @@ function renderKanban() {
 
 window.segnaFatta = async function(id) {
   const a = attivita.find(x=>x.id===id); if (!a) return;
-  const oggi = new Date().toISOString().split('T')[0];
+  const oggi = isoLocale();
   let newProx = null;
   if (a.ripeti && a.ripeti > 0) {
     const d = new Date(); d.setDate(d.getDate()+a.ripeti);
-    newProx = d.toISOString().split('T')[0];
+    newProx = isoLocale(d);
   }
   await updateDoc(doc(db,'attivita',id), {data_eseguita:oggi, data_prossima:newProx||''});
   Object.assign(a, {data_eseguita:oggi, data_prossima:newProx||''});
@@ -6614,7 +6621,7 @@ window.posticipa = async function(id) {
   const a = attivita.find(x=>x.id===id); if (!a) return;
   const d = new Date(a.data_prossima||new Date());
   d.setDate(d.getDate()+7);
-  const newDate = d.toISOString().split('T')[0];
+  const newDate = isoLocale(d);
   await updateDoc(doc(db,'attivita',id), {data_prossima:newDate});
   a.data_prossima = newDate;
   renderAll(); renderKanban();
@@ -6711,7 +6718,7 @@ async function renderAlertMeteo() {
 // ALERT METEO AGGRESSIVO — notifica WhatsApp con incrocio piante
 // ══════════════════════════════════════════
 async function checkAndSendWeatherAlert() {
-  const oggi = new Date().toISOString().split('T')[0];
+  const oggi = isoLocale();
   const lastCheck = localStorage.getItem('lastWeatherAlertCheck');
   if (lastCheck === oggi) return;
 
@@ -6960,7 +6967,7 @@ const MAKE_WEBHOOK = 'https://hook.eu1.make.com/kad6otco6fk4pgqs1gv6vxaaa6mb3gs9
 
 async function checkAndNotify() {
   // Controlla se abbiamo già notificato oggi
-  const oggi = new Date().toISOString().split('T')[0];
+  const oggi = isoLocale();
   const lastCheck = localStorage.getItem('lastNotifyCheck');
   if (lastCheck === oggi) { console.log('Notifiche già controllate oggi'); return; }
 
@@ -7002,18 +7009,29 @@ async function checkAndNotify() {
     console.error('Errore webhook Make:', e);
   }
 
-  // Invia anche via EmailJS direttamente per ogni scadenza
-  for (const s of scadenzeData) {
-    try {
-      await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, s);
-      console.log('Mail inviata per:', s.pianta);
-    } catch(e) {
-      console.error('Errore EmailJS:', e);
+  // Invia via EmailJS UNA sola mail riepilogativa (prima: una mail per ogni scadenza, consumava la quota gratuita)
+  try {
+    let payload;
+    if (scadenzeData.length === 1) {
+      payload = scadenzeData[0];
+    } else {
+      const nScadute = urgenti.filter(a => new Date(a.data_prossima) < new Date()).length;
+      const nInArrivo = scadenzeData.length - nScadute;
+      payload = {
+        pianta: scadenzeData.length + ' scadenze del giardino',
+        tipo: 'Riepilogo giornaliero',
+        data: new Date().toLocaleDateString('it-IT'),
+        stato: [nScadute ? nScadute + ' scadute' : '', nInArrivo ? nInArrivo + ' in arrivo' : ''].filter(Boolean).join(', '),
+        note: scadenzeData.map(s => '• ' + s.pianta + ' - ' + s.tipo + ' (' + s.data + '): ' + s.stato).join('\n')
+      };
     }
+    await emailjs.send(EMAILJS_SERVICE, EMAILJS_TEMPLATE, payload);
+  } catch(e) {
+    console.error('Errore EmailJS:', e);
   }
 
   localStorage.setItem('lastNotifyCheck', oggi);
-  showToast('📧 Inviate ' + urgenti.length + ' notifiche email');
+  showToast('📧 Inviata email di riepilogo (' + urgenti.length + ' scadenze)');
   showNativeNotification('📅 Scadenze giardino', urgenti.length + ' attività da controllare: ' + scadenzeData.slice(0,3).map(s=>s.pianta).join(', ') + (urgenti.length>3?'...':''));
 
   // Invia anche su WhatsApp se configurato
@@ -7030,7 +7048,7 @@ window.resetNotify = function() {
 // NOTIFICA PROATTIVA AI (anomalie senza scadenza programmata)
 // ══════════════════════════════════════════
 async function checkAnomalieAI() {
-  const oggi = new Date().toISOString().split('T')[0];
+  const oggi = isoLocale();
   const lastCheck = localStorage.getItem('lastAiAnomalyCheck');
   if (lastCheck === oggi) return; // gia controllato oggi
 
@@ -7105,7 +7123,7 @@ function renderAiAnomalyAlert() {
   try {
     const alert = JSON.parse(raw);
     // Mostra solo se e' di oggi
-    const oggi = new Date().toISOString().split('T')[0];
+    const oggi = isoLocale();
     if (alert.data !== oggi) { el.innerHTML = ''; return; }
     el.innerHTML = `
       <div class="dash-animate" style="background:linear-gradient(135deg,#fff7ed,#fffbeb);border:1px solid #fed7aa;border-radius:var(--rad);padding:.85rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:10px">
@@ -7152,7 +7170,7 @@ function renderIrrigazioneAlert() {
 }
 
 function checkIrrigazioneMancataPush() {
-  const oggi = new Date().toISOString().split('T')[0];
+  const oggi = isoLocale();
   const lastCheck = localStorage.getItem('lastIrrigazionePush');
   if (lastCheck === oggi) return;
   localStorage.setItem('lastIrrigazionePush', oggi);
@@ -7277,7 +7295,7 @@ function renderCantiereDashboardAlert() {
 }
 
 function checkCantiereAlertPush() {
-  const oggi = new Date().toISOString().split('T')[0];
+  const oggi = isoLocale();
   const lastCheck = localStorage.getItem('lastCantiereAlertPush');
   if (lastCheck === oggi) return;
   localStorage.setItem('lastCantiereAlertPush', oggi);
@@ -7288,7 +7306,7 @@ function checkCantiereAlertPush() {
 }
 
 function checkPromemoriaStagionaliPush() {
-  const oggi = new Date().toISOString().split('T')[0];
+  const oggi = isoLocale();
   const lastCheck = localStorage.getItem('lastPromemoriaStagionaliPush');
   if (lastCheck === oggi) return;
   localStorage.setItem('lastPromemoriaStagionaliPush', oggi);
@@ -7375,8 +7393,8 @@ Totale: €${fmtEur(totSpese)}`
     showToast('📊 Report mensile inviato!', 4000);
   } catch(e) {
     console.error('Errore report mensile completo:', e);
-    const errMsg = typeof e === 'object' ? JSON.stringify(e) : String(e);
-    showToast('❌ Report: ' + errMsg, 5000);
+    const errMsg = (e && (e.text || e.message)) || (e && e.status ? 'errore ' + e.status : 'servizio email non raggiungibile');
+    showToast('⚠️ Report mensile non inviato (' + errMsg + ') — riprovo al prossimo avvio', 5000);
   }
 }
 
@@ -7797,7 +7815,7 @@ function renderPiante() {
       ${fotoCover
         ? `<img src="${fotoCover.foto}" style="width:100%;height:70px;object-fit:cover;border-radius:var(--rads);margin-bottom:8px" loading="lazy">`
         : `<div class="plant-emoji">${emoji}</div>`}
-      <div class="plant-name">${p.nome}</div>
+      <div class="plant-name">${escH(p.nome)}</div>
       <div class="plant-type">${p.tipo||''}${p.posizione?' · '+p.posizione:''}</div>
       ${tagsHtml ? '<div class="plant-tags">'+tagsHtml+'</div>' : ''}
       <span class="plant-scad-tag scad-badge ${tagCls}">${tagTxt}</span>
@@ -7921,7 +7939,7 @@ window.saveAttivita = async function() {
   if (ripeti > 0 && dataEs) {
     const d = new Date(dataEs);
     d.setDate(d.getDate() + ripeti);
-    dataP = d.toISOString().split('T')[0];
+    dataP = isoLocale(d);
   }
   const ref = await addDoc(collection(db,'attivita'), {pianta_id:finalPId,cantiere_fase_id:cantiereFaseId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,ripeti,contatto_id:contattoId,utente:currentUser});
   const nuovaAtt = {id:ref.id,pianta_id:finalPId,cantiere_fase_id:cantiereFaseId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,ripeti,contatto_id:contattoId,utente:currentUser};
@@ -7972,7 +7990,7 @@ window.updateAttivita = async function() {
   if (ripeti > 0 && dataEs) {
     const d = new Date(dataEs);
     d.setDate(d.getDate() + ripeti);
-    dataP = d.toISOString().split('T')[0];
+    dataP = isoLocale(d);
   }
   await updateDoc(doc(db,'attivita',editingAttId), {pianta_id:finalPId,cantiere_fase_id:cantiereFaseId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,ripeti,contatto_id:contattoId,utente:a.utente||currentUser});
   Object.assign(a, {pianta_id:finalPId,cantiere_fase_id:cantiereFaseId,tipo,data_eseguita:dataEs,data_prossima:dataP,note,contatto_id:contattoId});
@@ -8164,7 +8182,7 @@ function apriAzioneRapidaQR() {
   setAttModalMode('pianta');
   const sel = document.getElementById('attPianta');
   if (sel) sel.value = piantaId;
-  document.getElementById('attDataEs').value = new Date().toISOString().split('T')[0];
+  document.getElementById('attDataEs').value = isoLocale();
   showToast('📱 ' + p.nome + ' — registra qui la tua attività');
   openModal('modalAtt');
 }
@@ -8405,12 +8423,7 @@ function initGcalOnLoad() {
 // ── GRAFICI ────────────────────────────────────────────
 function renderCharts() {
   // Carica Chart.js se non presente
-  if (!window.Chart) {
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
-    s.onload = drawCharts;
-    document.head.appendChild(s);
-  } else { drawCharts(); }
+  loadChartJs().then(drawCharts).catch(e => console.warn(e));
 }
 
 function drawCharts() {
@@ -9206,7 +9219,7 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
 // ── INIT ───────────────────────────────────────────────
 (function init() {
    try {
-  document.getElementById('attDataEs').value = new Date().toISOString().split('T')[0];
+  document.getElementById('attDataEs').value = isoLocale();
   initCal();
   checkQRDeepLink();
 
@@ -9343,7 +9356,7 @@ const storicoSpese = [
 ];
 
   // Data default spesa
-  document.getElementById('spData').value = new Date().toISOString().split('T')[0];
+  document.getElementById('spData').value = isoLocale();
 
   } catch(initError) {
     console.error('ERRORE CRITICO INIT:', initError);
@@ -9605,7 +9618,7 @@ window.saveSpesa = async function() {
   if (document.getElementById('spScadenzaPagamento')) document.getElementById('spScadenzaPagamento').value = '';
   if (document.getElementById('spScadenzaPagamentoGroup')) document.getElementById('spScadenzaPagamentoGroup').style.display = 'none';
   if (document.getElementById('spCantiereFaseGroup')) document.getElementById('spCantiereFaseGroup').style.display = 'none';
-  document.getElementById('spData').value = new Date().toISOString().split('T')[0];
+  document.getElementById('spData').value = isoLocale();
   // Ripristina btn
   document.getElementById('modalSpesa').querySelector('.btn-row').innerHTML = `
     <button class="btn btn-primary" style="flex:1" onclick="saveSpesa()"><i class="ti ti-device-floppy"></i> Salva</button>
@@ -9684,10 +9697,7 @@ window.deleteSpesa = async function() {
 // ══════════════════════════════════════════
 function renderChartSpese() {
   if (!window.Chart) {
-    const s = document.createElement('script');
-    s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
-    s.onload = () => { renderChartSpese(); };
-    document.head.appendChild(s);
+    loadChartJs().then(() => renderChartSpese()).catch(e => console.warn(e));
     return;
   }
   const C = window.Chart;
@@ -9738,6 +9748,20 @@ function renderChartSpese() {
 // ══════════════════════════════════════════
 // EXPORT PDF / EXCEL
 // ══════════════════════════════════════════
+// Chart.js caricato una sola volta: la stessa promessa viene condivisa da tutti i grafici
+let _chartJsPromise = null;
+function loadChartJs() {
+  if (window.Chart) return Promise.resolve();
+  if (!_chartJsPromise) _chartJsPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js';
+    s.onload = () => resolve();
+    s.onerror = () => { _chartJsPromise = null; reject(new Error('Impossibile caricare i grafici')); };
+    document.head.appendChild(s);
+  });
+  return _chartJsPromise;
+}
+
 function loadScriptOnce(src) {
   return new Promise((resolve, reject) => {
     const already = document.querySelector(`script[src="${src}"]`);
@@ -9782,7 +9806,7 @@ window.exportPDF = async function() {
       footStyles: { fillColor: [230,250,240], textColor: [15,42,19], fontStyle: 'bold' }
     });
 
-    docPdf.save('spese-giardino-quintilina-' + new Date().toISOString().split('T')[0] + '.pdf');
+    docPdf.save('spese-giardino-quintilina-' + isoLocale() + '.pdf');
     showToast('✅ PDF scaricato');
     addLog('add','📄','Esportato registro spese in PDF', currentUser);
   } catch(e) {
@@ -9806,7 +9830,7 @@ window.exportExcel = async function() {
     const ws = window.XLSX.utils.json_to_sheet(rows);
     const wb = window.XLSX.utils.book_new();
     window.XLSX.utils.book_append_sheet(wb, ws, 'Spese');
-    window.XLSX.writeFile(wb, 'spese-giardino-quintilina-' + new Date().toISOString().split('T')[0] + '.xlsx');
+    window.XLSX.writeFile(wb, 'spese-giardino-quintilina-' + isoLocale() + '.xlsx');
     showToast('✅ Excel scaricato');
     addLog('add','📊','Esportato registro spese in Excel', currentUser);
   } catch(e) {
