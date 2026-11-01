@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="6.3.1" data-date="2026-11-01">
+<meta name="app-version" content="6.4" data-date="2026-11-01">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Giardino di Quintilina</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
@@ -611,6 +611,37 @@ body.dark .cant-ult-ic{background:#083344}
 .fd-st-nota{font-size:12.5px;color:var(--text);margin-top:2px;line-height:1.5}
 .fd-st-foto{width:64px;height:64px;object-fit:cover;border-radius:8px;margin-top:6px;cursor:pointer;transition:all .2s}
 .fd-st-foto.big{width:100%;height:auto}
+.meteo7{display:grid;grid-template-columns:repeat(7,minmax(58px,1fr));gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:2px;scrollbar-width:none}
+.meteo7::-webkit-scrollbar{display:none}
+.m7-day{scroll-snap-align:start;display:flex;flex-direction:column;align-items:center;gap:2px;padding:.6rem .2rem .5rem;border-radius:14px;background:var(--bg);border:1px solid transparent;text-align:center}
+.m7-day.oggi{background:var(--g1);border-color:var(--g2)}
+.m7-day.piove{background:#eff6ff}
+.m7-day.oggi.piove{background:#e0f2fe;border-color:#bae6fd}
+.m7-day.gelo{background:#f0f9ff;border-color:#bae6fd}
+body.dark .m7-day.piove,body.dark .m7-day.oggi.piove,body.dark .m7-day.gelo{background:#0c1f33;border-color:#1e3a5f}
+.m7-nome{font-size:11px;font-weight:700;text-transform:capitalize;color:var(--muted)}
+.m7-day.oggi .m7-nome{color:var(--g7)}
+.m7-num{font-size:10px;color:var(--muted);margin-top:-2px}
+.m7-ic{font-size:26px;line-height:1.2;margin:2px 0}
+.m7-max{font-size:15px;font-weight:700;color:var(--text)}
+.m7-min{font-size:12px;color:var(--muted)}
+.m7-bar{position:relative;width:70%;height:4px;border-radius:4px;background:var(--border);margin:3px 0}
+.m7-bar span{position:absolute;top:0;bottom:0;border-radius:4px;background:linear-gradient(90deg,#60a5fa,#fbbf24,#f97316)}
+.m7-rain{display:flex;align-items:center;gap:1px;font-size:11px;color:var(--muted);margin-top:3px}
+.m7-rain i{font-size:12px}
+.m7-rain.alta{color:#2563eb;font-weight:700}
+body.dark .m7-rain.alta{color:#60a5fa}
+.m7-mm{font-size:10px;color:#2563eb;font-weight:600}
+.meteo7-note{margin-top:.6rem;display:flex;flex-direction:column;gap:6px}
+.m7-nota{display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.45;padding:.5rem .7rem;border-radius:10px;background:var(--bg);color:var(--text)}
+.m7-nota.pioggia{background:#eff6ff;color:#1e40af}
+.m7-nota.fredda{background:#ecfeff;color:#155e75}
+.m7-nota.calda{background:#fff7ed;color:#9a3412}
+.m7-nota.vento,.m7-nota.secca{background:#fefce8;color:#854d0e}
+body.dark .m7-nota{background:var(--bg);color:var(--text)}
+body.dark .m7-mm{color:#60a5fa}
+.m7-fonte{font-size:10.5px;color:var(--muted);text-align:right}
+@media(max-width:440px){.meteo7{grid-template-columns:repeat(7,minmax(0,1fr));gap:3px;overflow:visible}.m7-day{padding:.5rem 0 .4rem;border-radius:11px}.m7-nome{font-size:10px}.m7-num{font-size:9.5px}.m7-ic{font-size:21px}.m7-max{font-size:13.5px}.m7-min{font-size:11px}.m7-rain{font-size:10px}.m7-rain i{display:none}.m7-mm{font-size:9px}.m7-bar{width:78%}}
 .update-banner{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#155a2e,#1a7a3e);color:#fff;border-radius:var(--rad);padding:.7rem .9rem;margin-bottom:1rem;font-size:13px;font-weight:600;box-shadow:var(--shadow-md)}
 .update-banner-btn{background:#fff;color:#155a2e;border:none;border-radius:20px;padding:6px 14px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
 .update-banner-x{background:transparent;border:none;color:rgba(255,255,255,.8);font-size:16px;cursor:pointer;padding:2px}
@@ -2774,6 +2805,12 @@ function isoLocale(d) {
   return x.getFullYear() + '-' + String(x.getMonth()+1).padStart(2,'0') + '-' + String(x.getDate()).padStart(2,'0');
 }
 window.isoLocale = isoLocale;
+
+// ── METEO: chiave e città condivise (Firestore config/shared → telefono → chiave di base) ──
+const OWM_KEY_BASE = '4fa7ded1927c5e2c6b7ad5bcf439aa25';
+function getOwmKey() { return window.sharedOwmKey || localStorage.getItem('owmKey') || OWM_KEY_BASE; }
+function getOwmCitta() { return window.sharedOwmCitta || localStorage.getItem('owmCitta') || 'Terracina'; }
+window.getOwmKey = getOwmKey; window.getOwmCitta = getOwmCitta;
 let editingAttId = null, editingPiantaId = null;
 let calYear, calMonth, calSelectedDate = null;
 let chartMesiInst = null, chartTipiInst = null, chartPianteInst = null, chartCostoPiantaInst = null;
@@ -2922,8 +2959,9 @@ function initImpostazioni() {
   controllaAggiornamenti();
   // Meteo + WhatsApp (riusa i campi esistenti)
   try {
-    document.getElementById('owmKey').value = localStorage.getItem('owmKey') || '';
-    document.getElementById('owmCitta').value = localStorage.getItem('owmCitta') || 'Terracina';
+    document.getElementById('owmKey').value = getOwmKey();
+    document.getElementById('owmCitta').value = getOwmCitta();
+    verificaMeteoSilenziosa();
     aggiornaUIWhatsApp();
   } catch(e) {}
   try { aggiornaStatoNotifiche(); } catch(e) {}
@@ -6539,11 +6577,11 @@ window.getDiagnosi = async function() {
     : 'Nessuna attivita recente';
 
   const mese = new Date().toLocaleDateString('it-IT',{month:'long'});
-  const owmKey = localStorage.getItem('owmKey');
+  const owmKey = getOwmKey();
   let meteo = '';
   if (owmKey) {
     try {
-      const r = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Terracina&appid=${owmKey}&units=metric&lang=it`);
+      const r = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(getOwmCitta())}&appid=${owmKey}&units=metric&lang=it`);
       const w = await r.json();
       if (w.cod===200) meteo = `Meteo attuale: ${Math.round(w.main.temp)}C, ${w.weather[0].description}, umidita ${w.main.humidity}%`;
     } catch(e) {}
@@ -6901,6 +6939,15 @@ async function initDashboard() {
       </button>`}
     </div>
 
+    <div class="card dash-card dash-animate meteo7-card" id="dashMeteoSett">
+      <div class="dash-section-title">
+        <span><i class="ti ti-cloud-sun"></i> Meteo della settimana</span>
+        <button class="link-btn" style="font-size:12px" onclick="drawerNav('Meteo')">Dettagli <i class="ti ti-chevron-right"></i></button>
+      </div>
+      <div id="dashMeteoGiorni" class="meteo7"><div class="skeleton-block" style="height:118px;border-radius:12px"></div></div>
+      <div id="dashMeteoNote" class="meteo7-note"></div>
+    </div>
+
     <div class="card dash-card dash-ai dash-animate" id="dashAiBox">
       <div class="dash-section-title">
         <span><i class="ti ti-sparkles"></i> Consiglio del giorno</span>
@@ -6975,6 +7022,9 @@ async function initDashboard() {
   // Riepilogo WhatsApp manuale (quando l'invio automatico non è disponibile)
   renderDashRiepilogoWa().catch(() => {});
 
+  // Previsioni meteo dei prossimi 7 giorni
+  renderMeteoSettimana().catch(e => console.warn('Meteo settimana:', e));
+
   // Carica la lista dei backup automatici
   renderListaBackup();
 
@@ -6988,8 +7038,8 @@ async function initDashboard() {
 async function caricaMeteoDashboard() {
   const chip = document.getElementById('dashMeteo');
   if (!chip) return;
-  const owmKey = localStorage.getItem('owmKey');
-  const owmCity = localStorage.getItem('owmCitta') || 'Terracina';
+  const owmKey = getOwmKey();
+  const owmCity = getOwmCitta();
   if (!owmKey) { chip.style.display = 'none'; return; }
   try {
     const cached = JSON.parse(sessionStorage.getItem('dashMeteoCache') || 'null');
@@ -7464,10 +7514,10 @@ async function getDashAiSuggestion() {
 
   // Meteo attuale
   let meteoInfo = 'meteo non disponibile';
-  const owmKey = localStorage.getItem('owmKey');
+  const owmKey = getOwmKey();
   if (owmKey) {
     try {
-      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=Terracina&appid=${owmKey}&units=metric&lang=it`);
+      const res = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(getOwmCitta())}&appid=${owmKey}&units=metric&lang=it`);
       const w = await res.json();
       if (w.cod === 200) meteoInfo = `${Math.round(w.main.temp)}C, ${w.weather[0].description}, umidita ${w.main.humidity}%`;
     } catch(e) {}
@@ -7638,8 +7688,8 @@ function renderSuggerimenti() {
 async function renderAlertMeteo() {
   const el = document.getElementById('alertMeteoBox');
   if (!el) return;
-  const key = localStorage.getItem('owmKey');
-  const city = localStorage.getItem('owmCitta') || 'Terracina';
+  const key = getOwmKey();
+  const city = getOwmCitta();
   if (!key) return;
 
   try {
@@ -7674,8 +7724,8 @@ async function renderAlertMeteo() {
 async function calcolaAlertMeteo() {
   const oggi = isoLocale();
   if (_meteoAlertCache && _meteoAlertCache.giorno === oggi) return _meteoAlertCache.messaggi;
-  const owmKey = localStorage.getItem('owmKey') || '4fa7ded1927c5e2c6b7ad5bcf439aa25';
-  const city = localStorage.getItem('owmCitta') || 'Terracina';
+  const owmKey = getOwmKey();
+  const city = getOwmCitta();
   const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${owmKey}&units=metric&lang=it&cnt=16`);
   const data = await res.json();
   if (String(data.cod) !== '200') return [];
@@ -8113,6 +8163,16 @@ window.testWhatsApp = async function() {
 })();
 
 const APP_CHANGELOG = [
+  {v:'6.4', data:'2026-11-01', titolo:'Meteo della settimana', novita:[
+    '🌤️ In Home le previsioni dei prossimi 7 giorni: icona, massima e minima, probabilità e millimetri di pioggia',
+    '🌱 Sotto le previsioni i consigli per il giardino: pioggia in arrivo (salta l\'irrigazione), gelo, caldo, vento forte',
+    '📡 Fonte Open-Meteo: gratuita e senza chiave; funziona anche offline con l\'ultimo aggiornamento',
+  ]},
+  {v:'6.3.2', data:'2026-11-01', titolo:'Meteo su tutti i dispositivi', novita:[
+    '🌦️ La chiave meteo è sempre presente: prima arrivava sul telefono solo aprendo la pagina Meteo',
+    '☁️ Chiave e città del meteo condivise tra tutti i dispositivi, come le chiavi AI',
+    '✅ In Impostazioni si vede subito se il meteo funziona (es. "Terracina 12°C, cielo coperto")',
+  ]},
   {v:'6.3.1', data:'2026-11-01', titolo:'AI di nuovo funzionante', novita:[
     '🔑 La chiave Google salvata nel campo Groq ora viene riconosciuta e usata come Gemini',
     '🤖 Scelti in automatico i modelli Gemini ancora gratuiti (i 2.5 sono stati ritirati, "flash-latest" non è più gratis)',
@@ -8815,6 +8875,8 @@ async function loadAll() {
   _unsubConfig = onSnapshot(doc(db,'config','shared'), snap => {
     if (snap.exists()) {
       const data = snap.data();
+      if (data.owmApiKey) window.sharedOwmKey = data.owmApiKey;
+      if (data.owmCitta) window.sharedOwmCitta = data.owmCitta;
       if (data.geminiApiKey) {
         window.sharedGeminiKey = data.geminiApiKey;
         const gk = document.getElementById('aiGeminiKey');
@@ -10354,10 +10416,10 @@ window.generaPianoSettimanale = async function() {
 
   // Meteo
   let meteoInfo = 'non disponibile';
-  const owmKey = localStorage.getItem('owmKey');
+  const owmKey = getOwmKey();
   if (owmKey) {
     try {
-      const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=Terracina&appid=${owmKey}&units=metric&lang=it&cnt=8`);
+      const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(getOwmCitta())}&appid=${owmKey}&units=metric&lang=it&cnt=8`);
       const w = await res.json();
       if (w.cod === '200') {
         const temps = w.list.map(i=>Math.round(i.main.temp));
@@ -10772,10 +10834,8 @@ const storicoSpese = [
 function initMeteoPanel() {
   const defaultOwmKey = '4fa7ded1927c5e2c6b7ad5bcf439aa25';
   const defaultOwmCity = 'Terracina';
-  if (!localStorage.getItem('owmKey')) localStorage.setItem('owmKey', defaultOwmKey);
-  if (!localStorage.getItem('owmCitta')) localStorage.setItem('owmCitta', defaultOwmCity);
-  const savedKey = localStorage.getItem('owmKey') || defaultOwmKey;
-  const savedCity = localStorage.getItem('owmCitta') || defaultOwmCity;
+  const savedKey = getOwmKey() || defaultOwmKey;
+  const savedCity = getOwmCitta() || defaultOwmCity;
   document.getElementById('owmKey').value = savedKey;
   document.getElementById('owmCitta').value = savedCity;
   // Carica config WhatsApp
@@ -10840,6 +10900,98 @@ const meteoIcon = code => {
   return '🌡️';
 };
 
+// ── METEO DELLA SETTIMANA (Open-Meteo: gratuito, senza chiave, 7 giorni) ──
+const METEO_WMO = {0:['☀️','Sereno'],1:['🌤️','Poco nuvoloso'],2:['⛅','Parz. nuvoloso'],3:['☁️','Coperto'],45:['🌫️','Nebbia'],48:['🌫️','Nebbia'],
+  51:['🌦️','Pioviggine'],53:['🌦️','Pioviggine'],55:['🌦️','Pioviggine'],56:['🌧️','Pioggia gelata'],57:['🌧️','Pioggia gelata'],
+  61:['🌧️','Pioggia debole'],63:['🌧️','Pioggia'],65:['🌧️','Pioggia forte'],66:['🌧️','Pioggia gelata'],67:['🌧️','Pioggia gelata'],
+  71:['🌨️','Neve debole'],73:['🌨️','Neve'],75:['❄️','Neve forte'],77:['🌨️','Nevischio'],80:['🌦️','Rovesci'],81:['🌧️','Rovesci'],82:['⛈️','Rovesci forti'],
+  85:['🌨️','Neve'],86:['❄️','Neve forte'],95:['⛈️','Temporale'],96:['⛈️','Temporale e grandine'],99:['⛈️','Temporale e grandine']};
+async function leggiMeteoSettimana() {
+  const citta = getOwmCitta();
+  const ck = 'meteo7_' + citta.toLowerCase();
+  try { const c = JSON.parse(localStorage.getItem(ck) || 'null'); if (c && Date.now() - c.t < 60*60*1000) return c; } catch(e) {}
+  try {
+    let geo = null;
+    try { geo = JSON.parse(localStorage.getItem('meteoGeo_' + citta.toLowerCase()) || 'null'); } catch(e) {}
+    if (!geo) {
+      const g = await fetch('https://geocoding-api.open-meteo.com/v1/search?name=' + encodeURIComponent(citta) + '&count=1&language=it&format=json').then(r => r.json());
+      const p = g.results && g.results[0]; if (!p) throw new Error('Città non trovata');
+      geo = {lat: p.latitude, lon: p.longitude, nome: p.name};
+      try { localStorage.setItem('meteoGeo_' + citta.toLowerCase(), JSON.stringify(geo)); } catch(e) {}
+    }
+    const f = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${geo.lat}&longitude=${geo.lon}&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,wind_speed_10m_max&timezone=Europe%2FRome&forecast_days=7`).then(r => r.json());
+    if (!f.daily) throw new Error(f.reason || 'Previsioni non disponibili');
+    const d = f.daily;
+    const giorni = d.time.map((g, i) => ({data: g, code: d.weather_code[i], max: d.temperature_2m_max[i], min: d.temperature_2m_min[i],
+      pioggiaPct: d.precipitation_probability_max[i] ?? 0, mm: d.precipitation_sum[i] ?? 0, vento: d.wind_speed_10m_max[i] ?? 0}));
+    const out = {t: Date.now(), citta: geo.nome, giorni};
+    try { localStorage.setItem(ck, JSON.stringify(out)); } catch(e) {}
+    return out;
+  } catch(e) {
+    try { const c = JSON.parse(localStorage.getItem(ck) || 'null'); if (c) return {...c, vecchio: true}; } catch(e2) {}
+    throw e;
+  }
+}
+function noteGiardinoMeteo(giorni) {
+  const nome = g => { const d = new Date(g.data + 'T12:00:00'), oggi = isoLocale(); return g.data === oggi ? 'oggi' : d.toLocaleDateString('it-IT',{weekday:'long'}); };
+  const elenco = arr => arr.length === 1 ? arr[0] : arr.slice(0,-1).join(', ') + ' e ' + arr[arr.length-1];
+  const note = [];
+  const gelo = giorni.filter(g => g.min <= 2);
+  if (gelo.length) note.push({ic:'❄️', cls:'fredda', t:`Possibile gelo ${elenco(gelo.map(nome))} (min ${Math.round(Math.min(...gelo.map(g=>g.min)))}°): proteggi vasi e piante giovani`});
+  const pioggia = giorni.filter(g => g.mm >= 4);
+  if (pioggia.length) { const tot = Math.round(pioggia.reduce((t,g) => t + g.mm, 0)); note.push({ic:'🌧️', cls:'pioggia', t:`Pioggia ${elenco(pioggia.map(nome))} (circa ${tot} mm): puoi saltare l'irrigazione`}); }
+  const caldo = giorni.filter(g => g.max >= 32);
+  if (caldo.length) note.push({ic:'🌡️', cls:'calda', t:`Caldo ${elenco(caldo.map(nome))} (fino a ${Math.round(Math.max(...caldo.map(g=>g.max)))}°): irriga la sera`});
+  const vento = giorni.filter(g => g.vento >= 45);
+  if (vento.length) note.push({ic:'💨', cls:'vento', t:`Vento forte ${elenco(vento.map(nome))}: lega le piante alte e i rampicanti`});
+  if (!pioggia.length && giorni.slice(0,5).every(g => g.mm < 1) && Math.max(...giorni.map(g=>g.max)) >= 24) note.push({ic:'💧', cls:'secca', t:'Nessuna pioggia in vista per 5 giorni: controlla le irrigazioni'});
+  return note.slice(0, 2);
+}
+async function renderMeteoSettimana() {
+  const el = document.getElementById('dashMeteoGiorni');
+  if (!el) return;
+  let m;
+  try { m = await leggiMeteoSettimana(); }
+  catch(e) { el.innerHTML = `<div style="font-size:13px;color:var(--muted);padding:.5rem 0">Previsioni non disponibili ${navigator.onLine ? 'al momento' : 'offline'}.</div>`; return; }
+  const oggi = isoLocale();
+  const tMin = Math.min(...m.giorni.map(g => g.min)), tMax = Math.max(...m.giorni.map(g => g.max)), span = Math.max(1, tMax - tMin);
+  el.innerHTML = m.giorni.map((g, i) => {
+    const [ic, lab] = METEO_WMO[g.code] || ['🌡️','—'];
+    const d = new Date(g.data + 'T12:00:00');
+    const nomeG = g.data === oggi ? 'Oggi' : (i === 1 && m.giorni[0].data === oggi) ? 'Domani' : d.toLocaleDateString('it-IT',{weekday:'short'}).replace('.','');
+    const left = (g.min - tMin) / span * 100, width = Math.max(8, (g.max - g.min) / span * 100);
+    const piove = g.mm >= 1 || g.pioggiaPct >= 60;
+    return `<div class="m7-day${g.data === oggi ? ' oggi' : ''}${piove ? ' piove' : ''}${g.min <= 2 ? ' gelo' : ''}" title="${lab}">
+      <div class="m7-nome">${nomeG}</div>
+      <div class="m7-num">${d.getDate()}</div>
+      <div class="m7-ic">${ic}</div>
+      <div class="m7-max">${Math.round(g.max)}°</div>
+      <div class="m7-bar"><span style="left:${left.toFixed(0)}%;width:${Math.min(100-left, width).toFixed(0)}%"></span></div>
+      <div class="m7-min">${Math.round(g.min)}°</div>
+      <div class="m7-rain${g.pioggiaPct >= 50 ? ' alta' : ''}"><i class="ti ti-droplet"></i>${Math.round(g.pioggiaPct)}%</div>
+      ${g.mm >= 1 ? `<div class="m7-mm">${g.mm >= 10 ? Math.round(g.mm) : g.mm.toFixed(1).replace('.', ',')} mm</div>` : '<div class="m7-mm">&nbsp;</div>'}
+    </div>`;
+  }).join('');
+  const note = noteGiardinoMeteo(m.giorni);
+  const nEl = document.getElementById('dashMeteoNote');
+  if (nEl) nEl.innerHTML = note.map(n => `<div class="m7-nota ${n.cls}"><span>${n.ic}</span><span>${escH(n.t)}</span></div>`).join('')
+    + `<div class="m7-fonte">${escH(m.citta)} · fonte Open-Meteo${m.vecchio ? ' · dati dell\'ultimo aggiornamento' : ''}</div>`;
+  // porta "oggi" in vista se la riga scorre
+  const o = el.querySelector('.oggi'); if (o && el.scrollWidth > el.clientWidth) el.scrollLeft = 0;
+}
+window.renderMeteoSettimana = renderMeteoSettimana;
+
+// Controllo silenzioso della chiave meteo per le Impostazioni
+async function verificaMeteoSilenziosa() {
+  const st = document.getElementById('owmKeyStatus'); if (!st || !navigator.onLine) return;
+  try {
+    const r = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(getOwmCitta())}&appid=${getOwmKey()}&units=metric&lang=it`);
+    const d = await r.json();
+    st.innerHTML = r.ok ? `<span style="color:#16a34a">✅ Chiave attiva · ${escH(d.name || getOwmCitta())} ${Math.round(d.main?.temp)}°C, ${escH(d.weather?.[0]?.description || '')}</span>`
+      : `<span style="color:#dc2626">❌ ${r.status === 401 ? 'Chiave non valida o scaduta — controlla su openweathermap.org' : 'Città non trovata o servizio non disponibile'}</span>`;
+  } catch(e) {}
+}
+
 window.loadMeteo = async function() {
   if (!richiedeConnessione()) return;
   const key = document.getElementById('owmKey').value.trim();
@@ -10847,6 +10999,10 @@ window.loadMeteo = async function() {
   if (!key || !city) { showToast('Inserisci chiave API e città'); return; }
   localStorage.setItem('owmKey', key);
   localStorage.setItem('owmCitta', city);
+  if ((key !== window.sharedOwmKey || city !== window.sharedOwmCitta) && db && currentRole === 'admin') {
+    window.sharedOwmKey = key; window.sharedOwmCitta = city;
+    setDoc(doc(db,'config','shared'), {owmApiKey: key, owmCitta: city}, {merge:true}).catch(e => console.warn('Meteo condiviso:', e));
+  }
 
   document.getElementById('meteoResult').innerHTML = '<div class="ai-loading" style="padding:1rem"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Caricamento meteo...</span></div>';
 
