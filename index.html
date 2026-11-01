@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="6.3" data-date="2026-11-01">
+<meta name="app-version" content="6.3.1" data-date="2026-11-01">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Giardino di Quintilina</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
@@ -6435,7 +6435,7 @@ window.riconosciPiantaDaFoto = async function(input) {
   const status = document.getElementById('riconosciFotoStatus');
   const label = document.getElementById('riconosciFotoLabel');
   const txt = document.getElementById('riconosciFotoTxt');
-  status.innerHTML = '<span style="color:var(--muted)">⏳ Analisi foto in corso...</span>';
+  status.innerHTML = '<span style="color:var(--muted)">⏳ Analisi foto in corso… può richiedere fino a mezzo minuto</span>';
   txt.textContent = file.name;
 
   const reader = new FileReader();
@@ -6463,8 +6463,7 @@ Se non riesci a identificare la pianta con ragionevole certezza, rispondi {"nome
       });
       const data = await res.json();
       if (data.error) throw new Error(data.error.message);
-      let text = (data.choices?.[0]?.message?.content || '{}').replace(/```json/g,'').replace(/```/g,'').trim();
-      const parsed = JSON.parse(text);
+      const parsed = estraiJSON(data.choices?.[0]?.message?.content || '{}');
 
       if (!parsed.nome) {
         status.innerHTML = '<span style="color:#dc2626">😕 Non sono riuscito a riconoscerla con certezza — compila i campi manualmente.</span>';
@@ -6582,7 +6581,7 @@ Usa emoji per rendere la risposta piu leggibile. Sii preciso e pratico.`;
   document.getElementById('diagResult').innerHTML = `
     <div class="diag-result">
       <div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div>
-      <span>Il giardiniere AI sta analizzando i sintomi...</span></div>
+      <span>Il giardiniere AI sta analizzando i sintomi…${hasFoto ? ' (con la foto può richiedere fino a mezzo minuto)' : ''}</span></div>
     </div>`;
 
   // Controlla se c'è una foto (già dichiarato sopra)
@@ -6616,9 +6615,7 @@ Usa emoji per rendere la risposta piu leggibile. Sii preciso e pratico.`;
     const sevLabel = {alta:'⚠️ Gravita Alta',media:'📌 Gravita Media',bassa:'✅ Gravita Bassa'}[gravita];
 
     // Converti markdown base in HTML
-    const htmlText = text
-      .split('**').map((s,i)=>i%2===1?'<strong>'+s+'</strong>':s).join('')
-      .split('\n').join('<br>');
+    const htmlText = aiHtml(text);
 
     // Se gravità alta, suggerisci di contattare un agronomo/vivaio dalla rubrica
     let agronomoHtml = '';
@@ -6727,7 +6724,7 @@ Scrivi un racconto (5-6 frasi) in terza persona, in stile narrativo e leggerment
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
     const text = data.choices?.[0]?.message?.content || 'Nessun racconto disponibile.';
-    el.innerHTML = text;
+    el.innerHTML = aiHtml(text);
     el.style.fontStyle = 'italic';
   } catch(e) {
     el.innerHTML = '<span style="color:var(--r6);font-style:normal;font-size:12px">Errore: ' + e.message + '</span>';
@@ -7184,7 +7181,7 @@ Rispondi in italiano, breve e pratico (max 4-5 frasi), con 1-2 emoji.`;
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
     const text = data.choices?.[0]?.message?.content || 'Non ho una risposta al momento.';
-    el.innerHTML = text;
+    el.innerHTML = aiHtml(text);
     input.value = '';
     input.style.height = 'auto';
   } catch(e) {
@@ -7333,9 +7330,7 @@ Se la frase non descrive un'attivita di giardinaggio, rispondi con {"pianta": nu
     });
     const data = await res.json();
     if (data.error) throw new Error(data.error.message);
-    let text = data.choices?.[0]?.message?.content || '{}';
-    text = text.replace(/```json/g,'').replace(/```/g,'').trim();
-    const parsed = JSON.parse(text);
+    const parsed = estraiJSON(data.choices?.[0]?.message?.content || '{}');
 
     if (!parsed.pianta || !parsed.tipo) {
       document.getElementById('voiceStatus').textContent = 'Non ho capito';
@@ -7388,6 +7383,7 @@ window.raccontaGiardino = async function() {
   if (!apiKey) { showToast('Configura una chiave AI gratuita in Impostazioni'); return; }
 
   const el = document.getElementById('raccontoContent');
+  if (!el) { window.drawerNav && drawerNav('Racconto'); if (typeof generaRaccontoPagina === 'function') generaRaccontoPagina(); return; }
   el.innerHTML = '<div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span>Sto scrivendo il racconto...</span></div>';
 
   // Raccolta eventi recenti (ultimi 14 giorni)
@@ -7494,7 +7490,7 @@ Massimo 3 frasi. Usa 1-2 emoji. Sii diretto e concreto.`;
     });
     const data = await res.json();
     const text = data.choices?.[0]?.message?.content || 'Nessun consiglio disponibile.';
-    el.innerHTML = text;
+    el.innerHTML = aiHtml(text);
     localStorage.setItem('dashAiCache', text);
     localStorage.setItem('dashAiCacheTime', Date.now().toString());
   } catch(e) {
@@ -8117,6 +8113,15 @@ window.testWhatsApp = async function() {
 })();
 
 const APP_CHANGELOG = [
+  {v:'6.3.1', data:'2026-11-01', titolo:'AI di nuovo funzionante', novita:[
+    '🔑 La chiave Google salvata nel campo Groq ora viene riconosciuta e usata come Gemini',
+    '🤖 Scelti in automatico i modelli Gemini ancora gratuiti (i 2.5 sono stati ritirati, "flash-latest" non è più gratis)',
+    '🧠 Corretto l\'errore con i nuovi Gemini 3 che rendeva vuote o fallite le risposte',
+    '📷 Foto ridotte prima dell\'invio: riconoscimento e diagnosi più rapidi',
+    '⏱️ Tempo massimo di attesa per ogni modello (25 secondi per il testo, 50 per le foto): se uno resta bloccato si passa al successivo',
+    '🧩 Risposte strutturate (riconoscimento foto, comando vocale, anomalie) lette in modo più robusto',
+    '✨ Risposte dell\'AI formattate ovunque allo stesso modo: grassetti, elenchi e a capo, senza asterischi visibili',
+  ]},
   {v:'6.3', data:'2026-11-01', titolo:'La casa che cresce', novita:[
     '🏠 In alto nel Cantiere una casa disegnata che si costruisce con le fasi: fondamenta, struttura, pareti, tetto, impianti, infissi e finiture si riempiono con la loro percentuale',
     '🔴 I pezzi in ritardo o fermi hanno il contorno rosso; tocca un pezzo della casa per aprire la sua fase',
@@ -8382,8 +8387,7 @@ Rispondi SOLO con un oggetto JSON, nessun testo extra:
     });
     const data = await res.json();
     if (data.error) { localStorage.setItem('lastAiAnomalyCheck', oggi); return; }
-    let text = (data.choices?.[0]?.message?.content || '{}').replace(/```json/g,'').replace(/```/g,'').trim();
-    const parsed = JSON.parse(text);
+    const parsed = estraiJSON(data.choices?.[0]?.message?.content || '{}');
 
     localStorage.setItem('lastAiAnomalyCheck', oggi);
 
@@ -8816,7 +8820,11 @@ async function loadAll() {
         const gk = document.getElementById('aiGeminiKey');
         if (gk && document.getElementById('panelAI')?.classList.contains('active')) gk.value = data.geminiApiKey;
       }
-      if (data.groqApiKey) {
+      if (data.groqApiKey && tipoChiaveAI(data.groqApiKey) === 'gemini' && !data.geminiApiKey) {
+        // chiave Google salvata per errore nel campo Groq: usala come Gemini (e sistema la configurazione condivisa)
+        window.sharedGeminiKey = data.groqApiKey;
+        if (currentRole === 'admin') setDoc(doc(db,'config','shared'), {geminiApiKey: data.groqApiKey, groqApiKey: ''}, {merge:true}).catch(() => {});
+      } else if (data.groqApiKey) {
         window.sharedGroqKey = data.groqApiKey;
         // Aggiorna il campo se la tab AI e' aperta
         const aiKeyInput = document.getElementById('aiApiKey');
@@ -9854,14 +9862,26 @@ const AI_CFG = {
   badMs: 7*24*60*60*1000,         // un modello fallito viene evitato per 7 giorni
   // Preferenze (regex sul nome). Qualunque altro modello attivo resta come riserva.
   groqText:   [/gpt-oss-120b/i, /qwen/i, /llama-3\.3-70b/i, /kimi/i, /gpt-oss-20b/i, /llama/i],
-  groqVision: [/vision/i, /llama-4/i, /scout/i, /maverick/i, /-vl/i, /qwen.*vl/i],
+  groqVision: [/vision/i, /llama-4/i, /scout/i, /maverick/i, /-vl/i, /qwen.*vl/i, /qwen3\.[89]/i],
   groqSkip:   /whisper|guard|safeguard|tts|playai|orpheus|compound|distil|prompt|embed|transcri/i,
-  geminiPref: [/^gemini-flash-latest$/, /^gemini-flash-lite-latest$/, /flash(?!.*lite)/i, /flash-lite/i, /pro/i],
-  geminiSkip: /embed|image|imagen|tts|audio|live|robotics|computer|veo|lyria|aqa|learnlm|gemma|native|thinking-exp|banana/i
+  geminiPref: [/^gemini-flash-lite-latest$/, /^gemini-\d+(\.\d+)?-flash-lite$/, /^gemini-\d+(\.\d+)?-flash$/, /^gemini-\d+(\.\d+)?-flash-preview$/, /^gemini-flash-latest$/, /flash/i, /pro/i],
+  geminiSkip: /embed|image|imagen|tts|audio|live|robotics|computer|veo|lyria|aqa|learnlm|gemma|native|thinking-exp|banana|customtools|omni/i
 };
 
+// Il tipo di chiave si riconosce dal formato: Groq = "gsk_…", Google/Gemini = "AIza…" o "AQ.…".
+// Così una chiave incollata nel campo sbagliato funziona lo stesso.
+function tipoChiaveAI(k) {
+  k = String(k || '').trim();
+  if (/^gsk_/.test(k)) return 'groq';
+  if (/^(AIza|AQ\.)/.test(k)) return 'gemini';
+  return k ? 'sconosciuta' : '';
+}
+function _chiaviAIGrezze() {
+  return [window.sharedGroqKey, localStorage.getItem('geminiApiKey'), window.sharedGeminiKey, localStorage.getItem('quintGeminiKey')].map(k => String(k || '').trim()).filter(Boolean);
+}
 function getGeminiKey() {
-  return window.sharedGeminiKey || localStorage.getItem('quintGeminiKey') || '';
+  const tutte = _chiaviAIGrezze();
+  return tutte.find(k => tipoChiaveAI(k) === 'gemini') || '';
 }
 // Chiave "qualsiasi": basta una delle due per usare l'AI
 function getAiKey() { return getGroqKey() || getGeminiKey(); }
@@ -9879,8 +9899,9 @@ function _aiBadList() {
   if (changed) _aiLS('aiBadModels', all);
   return all;
 }
-function _aiMarkBad(provider, model) {
-  const all = _aiBadList(); all[provider+':'+model] = Date.now(); _aiLS('aiBadModels', all);
+function _aiMarkBad(provider, model, durataMs) {
+  // la data è spostata indietro per le esclusioni brevi: _aiBadList le libera dopo "durataMs" invece di 7 giorni
+  const all = _aiBadList(); all[provider+':'+model] = Date.now() - (durataMs ? AI_CFG.badMs - durataMs : 0); _aiLS('aiBadModels', all);
   localStorage.removeItem('aiModels_'+provider); // forza nuova scoperta
 }
 function _aiRank(ids, prefs) {
@@ -9895,12 +9916,12 @@ async function _aiDiscover(provider, key, force) {
   let ids = [];
   try {
     if (provider === 'groq') {
-      const r = await fetch(AI_CFG.groqBase+'/models', {headers:{'Authorization':'Bearer '+key}});
+      const r = await _aiFetchTimeout(AI_CFG.groqBase+'/models', {headers:{'Authorization':'Bearer '+key}}, 10000);
       if (r.status === 401) return { invalidKey: true };
       const d = await r.json();
       ids = (d.data||[]).filter(m => m.active !== false && !AI_CFG.groqSkip.test(m.id)).map(m => m.id);
     } else {
-      const r = await fetch(AI_CFG.geminiBase+'/models?pageSize=200&key='+encodeURIComponent(key));
+      const r = await _aiFetchTimeout(AI_CFG.geminiBase+'/models?pageSize=200&key='+encodeURIComponent(key), {}, 10000);
       if (r.status === 400 || r.status === 401 || r.status === 403) return { invalidKey: true };
       const d = await r.json();
       ids = (d.models||[])
@@ -9911,10 +9932,10 @@ async function _aiDiscover(provider, key, force) {
   } catch(e) {
     // rete assente o CORS: usa la cache vecchia se c'è, altrimenti i default sicuri
     if (cached) return cached.ids;
-    ids = provider === 'groq' ? ['openai/gpt-oss-120b','openai/gpt-oss-20b'] : ['gemini-flash-latest','gemini-flash-lite-latest'];
+    ids = provider === 'groq' ? ['openai/gpt-oss-120b','openai/gpt-oss-20b'] : ['gemini-flash-lite-latest','gemini-flash-latest'];
     return ids;
   }
-  if (provider === 'gemini') ['gemini-flash-latest','gemini-flash-lite-latest'].forEach(a => { if (!ids.includes(a)) ids.unshift(a); });
+  if (provider === 'gemini') ['gemini-flash-latest','gemini-flash-lite-latest'].forEach(a => { if (!ids.includes(a)) ids.push(a); });
   if (ids.length) _aiLS(cacheKey, {t: Date.now(), key: key.slice(-6), ids});
   return ids;
 }
@@ -9933,7 +9954,9 @@ async function _aiCandidates(needsVision) {
     if (provider === 'groq') {
       ranked = needsVision ? _aiRank(ids.filter(id => AI_CFG.groqVision.some(r => r.test(id))), AI_CFG.groqVision)
                            : _aiRank(ids, AI_CFG.groqText);
-    } else ranked = _aiRank(ids, AI_CFG.geminiPref);
+    } else {
+      ranked = _aiRank(ids, AI_CFG.geminiPref);
+    }
     ranked.filter(m => !bad[provider+':'+m]).slice(0, 4).forEach(model => out.list.push({provider, model, key}));
   };
   // Foto → Gemini prima (Groq gratuito oggi non ha modelli vision). Testo → Groq prima (più veloce).
@@ -9951,6 +9974,16 @@ function _aiClean(text) {
     .trim();
 }
 
+// fetch con tempo massimo: oltre il limite si passa al modello successivo
+async function _aiFetchTimeout(url, opts, ms) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), ms);
+  try { return await fetch(url, {...opts, signal: ctrl.signal}); }
+  catch(e) { if (e.name === 'AbortError') throw new Error('nessuna risposta entro ' + Math.round(ms/1000) + ' secondi'); throw e; }
+  finally { clearTimeout(t); }
+}
+let AI_TIMEOUT_MS = 25000; // 25s per il testo; per le foto viene alzato a 50s (Gemini gratuito oggi impiega 8–35s)
+
 async function _aiCallGroq(c, req) {
   const isReasoning = /gpt-oss|qwen3|qwen-3|qwq|deepseek-r1|kimi/i.test(c.model);
   const want = req.max_tokens || 800;
@@ -9960,22 +9993,22 @@ async function _aiCallGroq(c, req) {
   };
   if (/gpt-oss/i.test(c.model)) { body.reasoning_effort = 'low'; body.include_reasoning = false; }
   else if (/qwen/i.test(c.model)) { body.reasoning_effort = 'none'; }
-  let r = await fetch(AI_CFG.groqBase+'/chat/completions', {
+  let r = await _aiFetchTimeout(AI_CFG.groqBase+'/chat/completions', {
     method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.key}, body: JSON.stringify(body)
-  });
+  }, AI_TIMEOUT_MS);
   let d = await r.json().catch(() => ({}));
   // Parametri di "ragionamento" non accettati da questo modello → riprova senza
   if (!r.ok && /reasoning|include_reasoning/i.test(d?.error?.message||'')) {
     delete body.reasoning_effort; delete body.include_reasoning; body.reasoning_format = 'hidden';
-    r = await fetch(AI_CFG.groqBase+'/chat/completions', {
+    r = await _aiFetchTimeout(AI_CFG.groqBase+'/chat/completions', {
       method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.key}, body: JSON.stringify(body)
-    });
+    }, AI_TIMEOUT_MS);
     d = await r.json().catch(() => ({}));
     if (!r.ok && /reasoning_format/i.test(d?.error?.message||'')) {
       delete body.reasoning_format;
-      r = await fetch(AI_CFG.groqBase+'/chat/completions', {
+      r = await _aiFetchTimeout(AI_CFG.groqBase+'/chat/completions', {
         method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.key}, body: JSON.stringify(body)
-      });
+      }, AI_TIMEOUT_MS);
       d = await r.json().catch(() => ({}));
     }
   }
@@ -10000,14 +10033,17 @@ async function _aiCallGemini(c, req) {
     return { role: m.role === 'assistant' ? 'model' : 'user', parts };
   });
   const want = req.max_tokens || 800;
-  const gen = { temperature: req.temperature ?? 0.6, maxOutputTokens: want, thinkingConfig: { thinkingBudget: 0 } };
+  // I modelli Gemini 3 "ragionano" prima di rispondere e non accettano più thinkingBudget: 0.
+  // Diamo spazio extra ai token di ragionamento, così la risposta non arriva tagliata o vuota.
+  const gen = { temperature: req.temperature ?? 0.6, maxOutputTokens: want + 1536 };
   const url = `${AI_CFG.geminiBase}/models/${encodeURIComponent(c.model)}:generateContent?key=${encodeURIComponent(c.key)}`;
-  const send = () => fetch(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({contents, generationConfig: gen}) });
+  const send = () => _aiFetchTimeout(url, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({contents, generationConfig: gen}) }, AI_TIMEOUT_MS);
   let r = await send(); let d = await r.json().catch(() => ({}));
-  if (!r.ok && /thinking/i.test(d?.error?.message||'')) {
-    // Modello che non permette di spegnere il "pensiero": lascia spazio extra
-    delete gen.thinkingConfig; gen.maxOutputTokens = want + 2048;
-    r = await send(); d = await r.json().catch(() => ({}));
+  if (!r.ok && r.status === 400 && /invalid argument|generation_config|generationConfig/i.test(d?.error?.message||'')) {
+    delete gen.temperature; r = await send(); d = await r.json().catch(() => ({}));
+  }
+  if (r.ok && !d.error && d.candidates?.[0]?.finishReason === 'MAX_TOKENS' && !(d.candidates[0].content?.parts||[]).some(p => !p.thought && p.text)) {
+    gen.maxOutputTokens = want + 6000; r = await send(); d = await r.json().catch(() => ({}));
   }
   if (!r.ok || d.error) return { status: r.status, error: d?.error?.message || ('HTTP '+r.status), code: d?.error?.status || '' };
   const parts = d.candidates?.[0]?.content?.parts || [];
@@ -10019,6 +10055,11 @@ async function _aiCallGemini(c, req) {
 // Cuore del sistema: prova i candidati in ordine finché uno risponde
 async function aiComplete(req) {
   const needsVision = (req.messages||[]).some(m => Array.isArray(m.content) && m.content.some(p => p.type === 'image_url'));
+  // foto più leggere: meno attesa e meno quota consumata
+  if (needsVision) for (const m of req.messages) if (Array.isArray(m.content)) for (const p of m.content) {
+    if (p.type === 'image_url' && p.image_url?.url) p.image_url.url = await riduciImmagineDataUrl(p.image_url.url, 1024);
+  }
+  AI_TIMEOUT_MS = needsVision ? 50000 : 25000;
   let { list, invalid } = await _aiCandidates(needsVision);
   if (!list.length) {
     if (invalid.length) throw new Error('Chiave AI non valida (' + invalid.join(', ') + ') — aggiornala in Impostazioni');
@@ -10038,17 +10079,56 @@ async function aiComplete(req) {
     }
     lastErr = res.error || 'errore sconosciuto';
     const msg = (lastErr + ' ' + (res.code||'')).toLowerCase();
-    const modelGone = res.status === 404 || /decommission|deprecat|not found|does not exist|no longer|not supported|model_not_found|invalid model|unknown model|retired|not available/.test(msg);
+    const modelGone = res.status === 404 || /decommission|deprecat|not found|does not exist|no longer|not supported|model_not_found|invalid model|unknown model|retired|not available|limit: 0\b/.test(msg);
     const keyBad = res.status === 401 || /api key not valid|invalid api key|api_key_invalid|invalid_api_key/.test(msg) || (res.status === 403 && /key|permission/.test(msg));
     if (keyBad) {
       list = list.filter(x => x.provider !== c.provider || x === c);   // chiave KO: salta tutto quel provider
       continue;
     }
     if (modelGone) { _aiMarkBad(c.provider, c.model); continue; }
+    // tempo scaduto: si passa al prossimo senza escludere il modello (la lentezza di Google varia di ora in ora)
     // 429 (limite), 5xx, risposta vuota → si passa semplicemente al prossimo
   }
-  throw new Error('AI momentaneamente non disponibile: ' + lastErr);
+  if (/quota|rate.?limit|429|resource_exhausted/i.test(lastErr)) throw new Error('Limite gratuito dell\'AI raggiunto per ora: riprova tra un minuto');
+  throw new Error('AI momentaneamente non disponibile: ' + String(lastErr).slice(0, 160));
 }
+
+function riduciImmagineDataUrl(dataUrl, max) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w <= max && h <= max && dataUrl.length < 900000) { resolve(dataUrl); return; }
+      if (w > h) { h = Math.round(h * max / w); w = max; } else { w = Math.round(w * max / h); h = max; }
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(c.toDataURL('image/jpeg', 0.8));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+// Testo dell'AI → HTML sicuro: grassetto, corsivo, titoli, elenchi, a capo (il resto viene neutralizzato)
+function aiHtml(t) {
+  let s = escH(String(t || '').trim());
+  s = s.replace(/^#{1,4}\s*(.+)$/gm, '<strong>$1</strong>');
+  s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  s = s.replace(/(^|[^*\w])\*([^*\n]+)\*(?![*\w])/g, '$1<em>$2</em>');
+  s = s.replace(/^\s*[-*•]\s+/gm, '• ');
+  s = s.replace(/^\s*(-{3,}|_{3,})\s*$/gm, '');
+  return s.replace(/\n{3,}/g, '\n\n').replace(/\n/g, '<br>');
+}
+window.aiHtml = aiHtml;
+
+// Estrae il primo oggetto JSON da una risposta AI (anche se il modello aggiunge testo o ``` intorno)
+function estraiJSON(testo) {
+  const t = String(testo || '').replace(/```json/gi, '').replace(/```/g, '');
+  try { return JSON.parse(t.trim()); } catch(e) {}
+  const a = t.indexOf('{'), b = t.lastIndexOf('}');
+  if (a !== -1 && b > a) { try { return JSON.parse(t.slice(a, b + 1)); } catch(e) {} }
+  throw new Error('Risposta AI non leggibile, riprova');
+}
+window.estraiJSON = estraiJSON;
 
 // Drop-in di fetch() per le vecchie chiamate a Groq: ignora "model" e instrada da solo
 async function aiFetch(_url, opts) {
@@ -10087,8 +10167,15 @@ window.salvaChiaviAI = async function() {
   const g = document.getElementById('aiApiKey')?.value.trim() || '';
   const m = document.getElementById('aiGeminiKey')?.value.trim() || '';
   if (!g && !m) { showToast('Inserisci almeno una chiave'); return; }
-  if (g && g !== getGroqKey()) { await saveSharedGroqKey(g); localStorage.removeItem('aiModels_groq'); }
-  if (m && m !== getGeminiKey()) await saveSharedGeminiKey(m);
+  let avviso = '';
+  for (const k of [g, m].filter(Boolean)) {
+    const tipo = tipoChiaveAI(k);
+    if (tipo === 'gemini') { if (k !== getGeminiKey()) await saveSharedGeminiKey(k); if (k === g) avviso = 'La chiave nel campo Groq è una chiave Google: l\'ho salvata come Gemini'; }
+    else if (k !== getGroqKey()) { await saveSharedGroqKey(k); localStorage.removeItem('aiModels_groq'); if (k === m && tipo === 'groq') avviso = 'La chiave nel campo Gemini è una chiave Groq: l\'ho salvata come Groq'; }
+  }
+  // una chiave Google rimasta nel posto di Groq va tolta da lì
+  if (tipoChiaveAI(window.sharedGroqKey) === 'gemini' && getGeminiKey()) { window.sharedGroqKey = ''; localStorage.removeItem('geminiApiKey'); if (db) { try { await setDoc(doc(db,'config','shared'), {groqApiKey: ''}, {merge:true}); } catch(e) {} } }
+  if (avviso) showToast('ℹ️ ' + avviso, 5000);
   const sel = document.getElementById('aiProviderSel');
   if (sel) localStorage.setItem('aiProvider', sel.value);
   showToast('💾 Impostazioni AI salvate e condivise');
@@ -10110,6 +10197,7 @@ window.verificaChiaveAttiva = async function(force) {
     okAny = true;
     rows.push(`<div class="ai-status-row"><span class="ai-dot-st ok"></span>${label}: <strong>${best||'—'}</strong>${vision?' · 📷 foto':''}</div>`);
   }
+  if (tipoChiaveAI(window.sharedGroqKey || localStorage.getItem('geminiApiKey')) === 'gemini') rows.push('<div class="ai-status-hint">ℹ️ Nel campo Groq c\'è una chiave Google: viene usata come Gemini. Premi Salva per sistemarla.</div>');
   if (!getGeminiKey()) rows.push('<div class="ai-status-hint">💡 Aggiungi la chiave Gemini per riconoscimento foto e diagnosi con immagine.</div>');
   box.innerHTML = rows.join('');
   const badge = document.getElementById('aiSettingsBadge');
@@ -10127,7 +10215,8 @@ window.aggiornaModelliAI = async function() {
 // Chiave Groq: SOLO da Firebase (config/shared) o localStorage. Mai hardcoded nel codice
 // per evitare che GitHub la rilevi e Groq la revochi automaticamente.
 function getGroqKey() {
-  return window.sharedGroqKey || localStorage.getItem('geminiApiKey') || '';
+  const tutte = _chiaviAIGrezze();
+  return tutte.find(k => tipoChiaveAI(k) === 'groq') || tutte.find(k => tipoChiaveAI(k) === 'sconosciuta') || '';
 }
 
 async function saveSharedGroqKey(key) {
@@ -10206,7 +10295,7 @@ Evita di riproporre piante già presenti a meno che non abbia senso raddoppiarle
     if (data.error) throw new Error(data.error.message);
     const text = data.choices?.[0]?.message?.content;
     if (!text) throw new Error('Nessuna risposta ricevuta');
-    const htmlText = text.split('**').map((s,i)=>i%2===1?'<strong>'+s+'</strong>':s).join('').split('\n').join('<br>');
+    const htmlText = aiHtml(text);
 
     document.getElementById('cpoResult').innerHTML = `
       <div class="diag-result">
@@ -10309,7 +10398,7 @@ Sii pratico e specifico, massimo 2-3 attivita per giorno. Usa emoji per ogni tip
     const text = data.choices?.[0]?.message?.content;
     if (!text) throw new Error('Nessuna risposta ricevuta');
 
-    const htmlText = text.split('**').map((s,i)=>i%2===1?'<strong>'+s+'</strong>':s).join('').split('\n').join('<br>');
+    const htmlText = aiHtml(text);
 
     document.getElementById('pianoResult').innerHTML = `
       <div class="diag-result">
@@ -10422,7 +10511,7 @@ Sii specifico citando nomi di piante e numeri reali dai dati. Usa emoji per ogni
     const text = data.choices?.[0]?.message?.content;
     if (!text) throw new Error('Nessuna risposta ricevuta');
 
-    const htmlText = text.split('**').map((s,i)=>i%2===1?'<strong>'+s+'</strong>':s).join('').split('\n').join('<br>');
+    const htmlText = aiHtml(text);
 
     document.getElementById('analisiResult').innerHTML = `
       <div class="diag-result">
@@ -10515,7 +10604,7 @@ Rispondi in italiano con consigli pratici e concreti. Usa emoji per rendere il t
           <div class="ai-box-title" style="flex:1">Consiglio AI per ${pianta.nome}</div>
           ${speakerButtonHtml('aiResult')}
         </div>
-        <div class="ai-response">${text}</div>
+        <div class="ai-response">${aiHtml(text)}</div>
         <div style="font-size:10px;color:var(--muted);margin-top:.5rem">${aiPoweredBy()}</div>
       </div>`;
   } catch(e) {
