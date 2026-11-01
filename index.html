@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="6.0" data-date="2026-11-01">
+<meta name="app-version" content="6.0.1" data-date="2026-11-01">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Giardino di Quintilina</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
@@ -1801,7 +1801,7 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
           </div>
           <div class="form-group">
             <label class="form-label">API Key CallMeBot</label>
-            <input type="text" class="form-control" id="waApiKey" placeholder="123456">
+            <input type="text" class="form-control" id="waApiKey" placeholder="te la manda il bot (es. 1234567)" autocomplete="off" inputmode="numeric">
           </div>
           <div class="form-label" style="margin-bottom:.4rem">Cosa includere nel riepilogo</div>
           <div class="wa-sezioni">
@@ -6912,11 +6912,15 @@ const WA_APIKEY_KEY = 'waApiKey';
 
 function normalizzaNumeroWa(raw) {
   // CallMeBot vuole solo cifre con prefisso internazionale, senza '+', spazi, trattini o parentesi
-  return (raw||'').replace(/[^0-9]/g, '');
+  let n = (raw||'').trim().replace(/[^0-9+]/g, '');
+  if (n.startsWith('+')) return n.slice(1);
+  if (n.startsWith('00')) return n.slice(2);
+  if (n.length <= 10 && (n.startsWith('3') || n.startsWith('0'))) return '39' + n; // numero italiano senza prefisso
+  return n;
 }
 
 async function sendWhatsApp(msg) {
-  const phone = waConfig.phone || localStorage.getItem(WA_PHONE_KEY);
+  const phone = normalizzaNumeroWa(waConfig.phone || localStorage.getItem(WA_PHONE_KEY));
   const apiKey = waConfig.apiKey || localStorage.getItem(WA_APIKEY_KEY);
   if (!phone || !apiKey) return {ok:false, motivo:'non_configurato'};
   const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(msg)}&apikey=${apiKey}`;
@@ -6967,6 +6971,8 @@ function aggiornaUIWhatsApp() {
   const ph = document.getElementById('waPhone'); if (ph) ph.value = waConfig.phone || '';
   const k = document.getElementById('waApiKey'); if (k) k.value = waConfig.apiKey || '';
   Object.keys(WA_SEZIONI_DEFAULT).forEach(sz => { const cb = document.getElementById('waSez_' + sz); if (cb) cb.checked = !!waConfig.sezioni[sz]; });
+  const howto = document.querySelector('#waDetails details.card-sub');
+  if (howto && !waConfigurato()) howto.open = true;
   const pill = document.getElementById('waStatoPill');
   if (pill) {
     pill.className = 'wa-stato ' + (waConfigurato() ? 'on' : 'off');
@@ -7115,7 +7121,8 @@ window.saveWaConfig = function() {
   const phoneRaw = document.getElementById('waPhone').value.trim();
   const phone = normalizzaNumeroWa(phoneRaw);
   const apiKey = document.getElementById('waApiKey').value.trim();
-  if (!phone || !apiKey) { showToast('Inserisci numero e API key'); return; }
+  if (!phone) { showToast('Inserisci il tuo numero WhatsApp'); return; }
+  if (!apiKey) { showToast('Manca la API key: te la manda il bot CallMeBot (vedi istruzioni)', 4000); const d = document.querySelector('#waDetails details.card-sub'); if (d) d.open = true; return; }
   if (phone.length < 8) { showToast('⚠️ Numero troppo corto — usa il formato internazionale senza + (es: 39333123456)'); return; }
   document.getElementById('waPhone').value = phone;
   localStorage.setItem(WA_PHONE_KEY, phone);
@@ -7176,6 +7183,10 @@ window.testWhatsApp = async function() {
 })();
 
 const APP_CHANGELOG = [
+  {v:'6.0.1', data:'2026-11-01', titolo:'Correzione WhatsApp', novita:[
+    '📱 Il numero WhatsApp senza prefisso (es. 335...) viene completato da solo con +39',
+    '💡 Istruzioni per la API key aperte finché WhatsApp non è configurato',
+  ]},
   {v:'6.0', data:'2026-11-01', titolo:'WhatsApp e versioni', novita:[
     '📱 Riepilogo WhatsApp: un solo messaggio al giorno con scadenze, cantiere, meteo e promemoria stagionali',
     '👥 Ognuno configura il proprio WhatsApp (anche Antonella) e la configurazione vale su tutti i dispositivi',
