@@ -2,6 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
+<meta name="app-version" content="6.0" data-date="2026-11-01">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Giardino di Quintilina</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
@@ -450,6 +451,26 @@ canvas{max-width:100%}
 .scost-time-chip.early{background:var(--g1);color:var(--g7)}
 .scost-time-chip.onrisk{background:var(--a1);color:var(--a6)}
 .gantt-scroll{overflow-x:auto;scroll-behavior:smooth}
+.wa-stato{font-size:11px;font-weight:700;padding:2px 9px;border-radius:20px}
+.wa-stato.on{background:var(--g1);color:var(--g7)}
+.wa-stato.off{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.wa-sezioni{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.wa-sezioni label{display:flex;align-items:center;gap:8px;cursor:pointer}
+.wa-sezioni input{width:18px;height:18px;accent-color:var(--g7)}
+.wa-anteprima{white-space:pre-wrap;font-family:inherit;font-size:12.5px;line-height:1.55;background:#e7fbe9;color:#0f2a13;border-radius:10px;padding:.75rem;margin:.75rem 0 0;max-height:320px;overflow:auto;border:1px solid #c6efcc}
+body.dark .wa-anteprima{background:#10301a;color:var(--text);border-color:#1e4d2a}
+.wa-btn{display:inline-flex;align-items:center;gap:6px;background:#25d366;color:#fff;border:none;border-radius:20px;padding:7px 14px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
+.cantiere-hero .wa-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);margin-top:1rem}
+.update-banner{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#155a2e,#1a7a3e);color:#fff;border-radius:var(--rad);padding:.7rem .9rem;margin-bottom:1rem;font-size:13px;font-weight:600;box-shadow:var(--shadow-md)}
+.update-banner-btn{background:#fff;color:#155a2e;border:none;border-radius:20px;padding:6px 14px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
+.update-banner-x{background:transparent;border:none;color:rgba(255,255,255,.8);font-size:16px;cursor:pointer;padding:2px}
+.ver-pill{display:inline-block;font-size:12px;font-weight:700;padding:4px 10px;border-radius:20px}
+.ver-pill.ver-ok{background:var(--g1);color:var(--g7)}
+.ver-pill.ver-new{background:var(--a1);color:var(--a6)}
+.changelog-voce{margin-bottom:1rem}
+.changelog-head{font-size:14px;color:var(--g8);margin-bottom:.25rem}
+.changelog-head span{font-size:11px;color:var(--muted);font-weight:400;margin-left:4px}
+.changelog-voce ul{margin:0;padding-left:1.1rem;font-size:13px;line-height:1.7}
 .cant-btn{background:#ecfeff;color:#0e7490;border:1px solid #a5f3fc}
 body.dark .cant-btn{background:#083344;color:#67e8f9;border-color:#155e75}
 .gantt-row .gantt-label{position:sticky;left:0;z-index:3;background:var(--surf);padding-right:4px;box-shadow:6px 0 6px -6px rgba(0,0,0,.15)}
@@ -1102,6 +1123,12 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
     <i class="ti ti-eye" style="font-size:16px"></i> Modalità sola lettura — puoi visualizzare ma non modificare i dati
   </div>
   <div class="content">
+    <div id="updateBanner" class="update-banner" style="display:none">
+      <i class="ti ti-sparkles"></i>
+      <span id="updateBannerText" style="flex:1">Nuova versione disponibile</span>
+      <button class="update-banner-btn" onclick="aggiornaOra()">Aggiorna</button>
+      <button class="update-banner-x" onclick="chiudiBannerVersione()" aria-label="Chiudi"><i class="ti ti-x"></i></button>
+    </div>
     <!-- DIAGNOSI MALATTIE -->
     <div id="panelDiagnosi" class="tab-panel">
       <div class="diag-box">
@@ -1452,6 +1479,7 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
         <div style="font-size:11px;opacity:.75;margin-top:2px">media pesata sul budget di ogni fase</div>
         <div class="cantiere-hero-pct" id="cantierePctTot">—%</div>
         <div class="cantiere-hero-bar"><div class="cantiere-hero-bar-fill" id="cantierePctBarTot" style="width:0%"></div></div>
+        <button class="wa-btn" onclick="condividiAvanzamentoCantiere()"><i class="ti ti-brand-whatsapp"></i> Invia avanzamento su WhatsApp</button>
       </div>
 
       <div class="card" id="cantiereGanttCard" style="display:none">
@@ -1751,33 +1779,49 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
             <button class="btn btn-secondary" style="flex:1" onclick="sendTestReport()"><i class="ti ti-report"></i> Report di prova</button>
           </div>
         </div>
-        <div class="admin-only"><details class="card card-collapsible" id="waDetails">
+        <div><details class="card card-collapsible" id="waDetails">
         <summary style="padding:1.25rem;cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px" onclick="setTimeout(()=>document.getElementById('waDetails').scrollIntoView({behavior:'smooth',block:'nearest'}),150)">
           <i class="ti ti-chevron-right" style="transition:transform .2s"></i>
-          <span style="font-weight:600;font-size:14px">📱 Notifiche WhatsApp <span style="font-weight:400;color:var(--muted);font-size:12px">(sperimentale, servizio esterno spesso non disponibile)</span></span>
+          <span style="font-weight:600;font-size:14px;flex:1">📱 Riepilogo WhatsApp</span>
+          <span id="waStatoPill" class="wa-stato off">da configurare</span>
         </summary>
         <div style="padding:0 1.25rem 1.25rem">
-          <div class="notice notice-amber" style="margin-bottom:1rem">
-            CallMeBot è un servizio gratuito gestito da un singolo sviluppatore, spesso al completo per le nuove registrazioni e soggetto a interruzioni. Le <strong>notifiche native qui sopra</strong> sono l'opzione consigliata: affidabili, gratuite, senza dipendere da terzi. Configura WhatsApp solo se vuoi comunque provarci.
-          </div>
+          <div class="card-desc" style="margin-bottom:.75rem">Ogni giorno, alla <strong>prima apertura dell'app dopo le 7:00</strong> (da qualsiasi dispositivo), ricevi su WhatsApp <strong>un solo messaggio</strong> con le cose da sapere. Se non c'è niente da segnalare, nessun messaggio. Ognuno configura il proprio numero.</div>
+          <details class="card-sub" style="margin-bottom:.75rem"><summary>Come ottenere la API key (gratis, 1 minuto)</summary>
+            <ol style="font-size:13px;line-height:1.7;padding-left:1.1rem;margin:.5rem 0 0">
+              <li>Salva in rubrica il numero del bot CallMeBot: <strong>+34 644 87 21 57</strong></li>
+              <li>Mandagli su WhatsApp: <em>I allow callmebot to send me messages</em></li>
+              <li>Ti risponde con la tua API key: copiala qui sotto</li>
+            </ol>
+            <div class="ai-api-notice" style="margin-top:.5rem">Avevi già una key? CallMeBot ha cambiato numero: manda lo stesso messaggio al nuovo bot e la tua key torna a funzionare. Se non risponde entro 2 minuti, riprova dopo 24 ore. Se i messaggi smettono di arrivare, ripeti il messaggio al bot.</div>
+          </details>
           <div class="form-group">
-            <label class="form-label">Numero WhatsApp (con prefisso, es: 39333...)</label>
+            <label class="form-label">Il tuo numero WhatsApp (con prefisso, es: 39333...)</label>
             <input type="tel" class="form-control" id="waPhone" placeholder="39333123456">
           </div>
           <div class="form-group">
             <label class="form-label">API Key CallMeBot</label>
             <input type="text" class="form-control" id="waApiKey" placeholder="123456">
-            <div class="ai-api-notice">Salva in rubrica il numero del bot <strong>+34 644 87 21 57</strong> e mandagli su WhatsApp "I allow callmebot to send me messages" per ottenere la key. 🔄 <strong>Avevi già una key?</strong> CallMeBot ha cambiato numero: manda lo stesso messaggio al nuovo bot e la tua key torna a funzionare (resta la stessa). Se la risposta non arriva entro 2 minuti, riprova dopo 24 ore. ⚠️ CallMeBot disattiva la chiave se resta inutilizzata per qualche giorno o in caso di uso eccessivo — se i messaggi smettono di arrivare, manda di nuovo quel messaggio per ottenerne una nuova.</div>
           </div>
-          <div style="display:flex;gap:8px">
+          <div class="form-label" style="margin-bottom:.4rem">Cosa includere nel riepilogo</div>
+          <div class="wa-sezioni">
+            <label><input type="checkbox" id="waSez_scadenze" checked> 📅 Scadenze (scadute e prossimi 3 giorni)</label>
+            <label><input type="checkbox" id="waSez_cantiere" checked> 🏗️ Cantiere (ritardi, budget, NC, pagamenti SAL)</label>
+            <label><input type="checkbox" id="waSez_meteo" checked> 🌦️ Meteo (gelo, caldo, pioggia sulle piante a rischio)</label>
+            <label><input type="checkbox" id="waSez_stagionali" checked> 🌱 Promemoria di stagione</label>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:.75rem">
             <button class="btn btn-primary" style="flex:1" onclick="saveWaConfig()"><i class="ti ti-device-floppy"></i> Salva</button>
             <button class="btn btn-secondary" onclick="testWhatsApp()">📱 Test</button>
           </div>
           <div id="waStatus" style="font-size:12px;margin-top:8px"></div>
-          <div class="notice notice-blue" style="margin-top:.75rem">
-            🌦️ <strong>Alert meteo aggressivo attivo:</strong> se sono configurati meteo e WhatsApp, ogni giorno l'app controlla gelo/caldo estremo/pioggia e — se rilevante — ti scrive su WhatsApp incrociando i dati con le piante che rischiano davvero (senza cure recenti), non un messaggio generico.
+          <div class="btn-row" style="margin-top:.5rem">
+            <button class="btn btn-secondary" style="flex:1" onclick="anteprimaRiepilogoWa()"><i class="ti ti-eye"></i> Anteprima</button>
+            <button class="btn btn-secondary" style="flex:1" onclick="inviaRiepilogoWaOra()"><i class="ti ti-send"></i> Invia ora</button>
           </div>
-          <button class="btn btn-secondary" style="width:100%;margin-top:.5rem" onclick="testAlertMeteo()"><i class="ti ti-cloud-storm"></i> Testa alert meteo ora</button>
+          <pre id="waAnteprima" class="wa-anteprima" style="display:none"></pre>
+          <div id="waUltimoInvio" style="font-size:11px;color:var(--muted);margin-top:.5rem"></div>
+          <button class="link-btn" style="font-size:12px;margin-top:.5rem;color:var(--r6)" onclick="disattivaWhatsApp()">Disattiva WhatsApp per me</button>
         </div>
       </details></div>
       </div>
@@ -1837,10 +1881,15 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
         <div class="settings-label">App</div>
         <div class="card">
           <div class="settings-row">
-            <div><div class="settings-row-title">Versione</div><div class="settings-row-sub" id="setVersion">—</div></div>
-            <button class="btn btn-sm btn-secondary" onclick="forzaAggiornamentoApp()"><i class="ti ti-refresh"></i> Forza aggiornamento</button>
+            <div><div class="settings-row-title">Versione installata</div><div class="settings-row-sub" id="setVersion">—</div></div>
+            <button class="btn btn-sm btn-secondary" onclick="controllaAggiornamentiManuale()"><i class="ti ti-cloud-search"></i> Controlla</button>
           </div>
-          <div class="card-desc" style="margin-top:.5rem;margin-bottom:0">Se dopo un aggiornamento su GitHub vedi ancora la versione vecchia, questo pulsante svuota la cache e ricarica l'app.</div>
+          <div id="setVersionStatus" style="margin-top:.5rem;min-height:4px"></div>
+          <div class="btn-row" style="margin-top:.75rem">
+            <button class="btn btn-sm btn-secondary" style="flex:1" onclick="mostraNovita()"><i class="ti ti-sparkles"></i> Novità e cronologia</button>
+            <button class="btn btn-sm btn-secondary" style="flex:1" onclick="forzaAggiornamentoApp()"><i class="ti ti-refresh"></i> Forza aggiornamento</button>
+          </div>
+          <div class="card-desc" style="margin-top:.5rem;margin-bottom:0">Quando su GitHub c'è una versione più nuova compare un avviso in alto: tocca <strong>Aggiorna</strong>. "Forza aggiornamento" svuota la cache e ricarica l'app.</div>
         </div>
       </div>
     </div>
@@ -2628,14 +2677,13 @@ function initImpostazioni() {
   const un = document.getElementById('setUserName'); if (un) un.textContent = currentUser || '—';
   const ur = document.getElementById('setUserRole'); if (ur) ur.textContent = isAdmin ? 'Amministratore · può modificare' : 'Sola lettura';
   const dt = document.getElementById('setDarkToggle'); if (dt) dt.checked = document.body.classList.contains('dark');
-  const v = document.getElementById('setVersion');
-  if (v) v.textContent = 'v' + (window.APP_VERSION||'—') + (window.APP_RELEASE_DATE ? ' · ' + new Date(window.APP_RELEASE_DATE).toLocaleDateString('it-IT',{day:'numeric',month:'long',year:'numeric'}) : '');
+  aggiornaUIVersione();
+  controllaAggiornamenti();
   // Meteo + WhatsApp (riusa i campi esistenti)
   try {
     document.getElementById('owmKey').value = localStorage.getItem('owmKey') || '';
     document.getElementById('owmCitta').value = localStorage.getItem('owmCitta') || 'Terracina';
-    const waPhone = localStorage.getItem(WA_PHONE_KEY); if (waPhone) document.getElementById('waPhone').value = waPhone;
-    const waKey = localStorage.getItem(WA_APIKEY_KEY); if (waKey) document.getElementById('waApiKey').value = waKey;
+    aggiornaUIWhatsApp();
   } catch(e) {}
   try { aggiornaStatoNotifiche(); } catch(e) {}
   if (isAdmin) {
@@ -2658,6 +2706,10 @@ window.initImpostazioni = initImpostazioni;
 
 window.forzaAggiornamentoApp = async function() {
   if (!confirm("Svuotare la cache e ricaricare l'ultima versione dell'app?")) return;
+  await window.aggiornaOra();
+};
+window.aggiornaOra = async function() {
+  showToast('⏳ Aggiornamento in corso…');
   try {
     if ('serviceWorker' in navigator) {
       const regs = await navigator.serviceWorker.getRegistrations();
@@ -2709,7 +2761,7 @@ const helpContent = {
   Log: {icon:'📝', title:'Log modifiche', body:'Cronologia di tutte le modifiche fatte nell\'app: aggiunte, modifiche ed eliminazioni, con utente e data. Utile per capire chi ha fatto cosa e quando.'},
   Kanban: {icon:'📋', title:'Attività', body:'Vista a tre colonne (Scadute / In arrivo / Completate) per gestire velocemente le attività. Usa i pulsanti rapidi <strong>✅ Fatta</strong> e <strong>📅 +7gg</strong> sulle singole card.<br><br>In alto trovi anche i <strong>suggerimenti stagionali</strong> e gli <strong>alert meteo</strong> automatici.'},
   Enciclopedia: {icon:'📚', title:'Enciclopedia', body:'Schede informative per le diverse tipologie di piante (olivo, vite, agrumi...): calendario delle cure, parassiti comuni, curiosità. Tocca una scheda per vedere i dettagli completi.'},
-  Impostazioni: {icon:'⚙️', title:'Impostazioni', body:'Tutte le configurazioni in un posto solo: <strong>tema</strong>, chiavi gratuite dell\'<strong>assistente AI</strong> (Groq e Google Gemini), <strong>meteo</strong>, <strong>notifiche</strong> (telefono, email, WhatsApp), <strong>Google Calendar</strong>, gestione <strong>utenti</strong>, <strong>backup</strong> e il pulsante <strong>Forza aggiornamento</strong> da usare dopo ogni nuova versione caricata su GitHub.'},
+  Impostazioni: {icon:'⚙️', title:'Impostazioni', body:'Tutte le configurazioni in un posto solo: <strong>tema</strong>, chiavi gratuite dell\'<strong>assistente AI</strong> (Groq e Google Gemini), <strong>meteo</strong>, <strong>notifiche</strong> (telefono, email e <strong>riepilogo WhatsApp</strong> giornaliero, che ognuno configura per sé), <strong>Google Calendar</strong>, gestione <strong>utenti</strong>, <strong>backup</strong> e la sezione <strong>App</strong> con versione installata, data di aggiornamento, novità e il pulsante <strong>Forza aggiornamento</strong>. Quando su GitHub c\'è una versione nuova compare un avviso in alto con il pulsante <strong>Aggiorna</strong>.'},
   Diagnosi: {icon:'🔬', title:'Diagnosi malattie', body:'Seleziona la pianta colpita, tocca i sintomi visivi che osservi e, se vuoi una diagnosi più precisa, <strong>carica una foto</strong> del problema. L\'AI analizzerà tutto e ti dirà cosa potrebbe essere e come trattarlo.'},
 };
 
@@ -2884,6 +2936,7 @@ window.doLogin = function() {
   const uObj = utenti.find(x => x.nome===nome);
   currentUser = nome;
   currentRole = uObj ? (uObj.ruolo || 'admin') : 'admin';
+  caricaWaConfigUtente();
   document.getElementById('headerUser').textContent = nome;
   const drawerUserEl = document.getElementById('drawerUser');
   const drawerRoleEl = document.getElementById('drawerRole');
@@ -2895,15 +2948,17 @@ window.doLogin = function() {
   // Dopo caricamento apri dashboard
   setTimeout(() => drawerNav('Dashboard'), 500);
 
-  // Legge la versione/data reale dall'ultimo commit GitHub e la mostra in alto
-  aggiornaVersioneDaGitHub().then(info => {
-    const el = document.getElementById('headerVersion');
-    if (el && info) {
-      const dataBreve = new Date(window.APP_RELEASE_DATE).toLocaleDateString('it-IT',{day:'numeric',month:'short'});
-      el.textContent = ' · v' + window.APP_VERSION + ' · ' + dataBreve;
-    }
-  });
+  // Versione installata subito visibile; poi controlla se su GitHub ce n'è una più nuova
+  aggiornaUIVersione();
+  mostraNovitaSeAggiornato();
+  setTimeout(() => controllaAggiornamenti(), 6000);
 };
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState !== 'visible' || !currentUser) return;
+  controllaAggiornamenti().catch(() => {});
+  inviaRiepilogoWhatsApp().catch(() => {});
+});
 
 window.doLogout = function() {
   // Disconnetti tutti i listener real-time
@@ -3294,7 +3349,7 @@ function rubricaCardHtml(c) {
     </div>
     <div class="rubrica-actions" onclick="event.stopPropagation()">
       ${telClean ? `<a class="rubrica-action-btn tel" href="tel:${telClean}" onclick="registraContattoUsato('${c.id}')" title="Chiama"><i class="ti ti-phone"></i></a>
-      <a class="rubrica-action-btn wa" href="https://wa.me/${telClean.replace('+','')}" target="_blank" onclick="registraContattoUsato('${c.id}')" title="WhatsApp"><i class="ti ti-brand-whatsapp"></i></a>` : ''}
+      <a class="rubrica-action-btn wa" href="https://wa.me/${numeroPerWaMe(telClean)}" target="_blank" onclick="registraContattoUsato('${c.id}')" title="WhatsApp"><i class="ti ti-brand-whatsapp"></i></a>` : ''}
       ${c.email ? `<a class="rubrica-action-btn" href="mailto:${c.email}" onclick="registraContattoUsato('${c.id}')" title="Email"><i class="ti ti-mail"></i></a>` : ''}
       ${mapsUrl ? `<a class="rubrica-action-btn" href="${mapsUrl}" target="_blank" title="Apri mappa"><i class="ti ti-map-pin"></i></a>` : ''}
     </div>
@@ -3720,7 +3775,7 @@ function renderCantiereFasi() {
         const c = rubrica.find(x => x.id === cid);
         if (!c) return '';
         const tel = c.telefono ? c.telefono.replace(/[^0-9+]/g,'') : '';
-        return `<span class="fase-contatto-chip">${rubricaCatEmoji[c.categoria]||'📇'} ${escH(c.nome)}${tel?`<a href="tel:${tel}" onclick="event.stopPropagation();registraContattoUsato('${c.id}')" title="Chiama ${escH(c.nome)}"><i class="ti ti-phone"></i></a>`:''}</span>`;
+        return `<span class="fase-contatto-chip">${rubricaCatEmoji[c.categoria]||'📇'} ${escH(c.nome)}${tel?`<a href="tel:${tel}" onclick="event.stopPropagation();registraContattoUsato('${c.id}')" title="Chiama"><i class="ti ti-phone"></i></a><a href="https://wa.me/${numeroPerWaMe(tel)}" target="_blank" onclick="event.stopPropagation();registraContattoUsato('${c.id}')" title="WhatsApp" style="color:#16a34a"><i class="ti ti-brand-whatsapp"></i></a>`:''}</span>`;
       }).join('')}</div>` : ''}
       ${currentRole==='admin' ? `<input type="range" class="fase-slider" min="0" max="100" step="5" value="${pct}" onchange="updateFasePercentualeRapida('${f.id}', this.value)">` : ''}
       ${currentRole==='admin' ? `<button class="btn btn-sm cant-btn" style="margin-top:8px;width:100%" onclick="apriScadenzaFase('${f.id}')"><i class="ti ti-calendar-plus"></i> + Scadenza per questa fase</button>` : ''}
@@ -4832,6 +4887,7 @@ function renderNCList() {
       else azioni = `<button class="btn btn-sm btn-secondary" onclick="cambiaStatoNC('${n.id}','aperto')">↩ Riapri</button>`;
       azioni += `<button class="btn btn-sm btn-danger" onclick="deleteNonConformita('${n.id}')"><i class="ti ti-trash"></i></button>`;
     }
+    if (n.stato !== 'risolto') azioni += `<button class="btn btn-sm" style="background:#dcfce7;color:#15803d;border:1px solid #86efac" onclick="condividiNC('${n.id}')" title="Invia su WhatsApp"><i class="ti ti-brand-whatsapp"></i> Invia</button>`;
     return `<div class="nc-item stato-${n.stato}">
       <div class="nc-badges">
         <span class="nc-badge st-${n.stato}">${ncStatoLabel[n.stato]}</span>
@@ -4840,7 +4896,7 @@ function renderNCList() {
       </div>
       ${n.foto ? `<img src="${n.foto}" class="nc-item-photo" onclick="apriNCFotoLightbox('${n.id}')">` : ''}
       <div class="nc-item-testo">${escH(n.testo)}</div>
-      <div class="nc-item-meta" style="margin-top:6px">👤 ${n.autore||'—'} · ${data}${c?' · 📇 '+c.nome:''}</div>
+      <div class="nc-item-meta" style="margin-top:6px">👤 ${escH(n.autore||'—')} · ${data}${c?' · 📇 '+escH(c.nome):''}</div>
       ${azioni ? `<div class="nc-item-actions">${azioni}</div>` : ''}
     </div>`;
   }).join('');
@@ -6717,22 +6773,15 @@ async function renderAlertMeteo() {
 // ══════════════════════════════════════════
 // ALERT METEO AGGRESSIVO — notifica WhatsApp con incrocio piante
 // ══════════════════════════════════════════
-async function checkAndSendWeatherAlert() {
+// Calcola gli alert meteo incrociati con le piante (una sola chiamata al giorno, riusata da notifica e WhatsApp)
+async function calcolaAlertMeteo() {
   const oggi = isoLocale();
-  const lastCheck = localStorage.getItem('lastWeatherAlertCheck');
-  if (lastCheck === oggi) return;
-
-  const owmKey = localStorage.getItem('owmKey');
+  if (_meteoAlertCache && _meteoAlertCache.giorno === oggi) return _meteoAlertCache.messaggi;
+  const owmKey = localStorage.getItem('owmKey') || '4fa7ded1927c5e2c6b7ad5bcf439aa25';
   const city = localStorage.getItem('owmCitta') || 'Terracina';
-  const waPhone = localStorage.getItem(WA_PHONE_KEY);
-  const waApiKey = localStorage.getItem(WA_APIKEY_KEY);
-  if (!owmKey || !waPhone || !waApiKey) { localStorage.setItem('lastWeatherAlertCheck', oggi); return; }
-
-  try {
-    const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${owmKey}&units=metric&lang=it&cnt=16`);
-    const data = await res.json();
-    if (data.cod !== '200') { localStorage.setItem('lastWeatherAlertCheck', oggi); return; }
-
+  const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${encodeURIComponent(city)}&appid=${owmKey}&units=metric&lang=it&cnt=16`);
+  const data = await res.json();
+  if (String(data.cod) !== '200') return [];
     let minTemp = 99, maxTemp = -99, geloPrevisto = false, caldoPrevisto = false, pioggiaPrevista = false;
     data.list.forEach(item => {
       const t = item.main.temp;
@@ -6783,25 +6832,28 @@ async function checkAndSendWeatherAlert() {
       }
     }
 
-    if (messaggi.length) {
-      const testo = '🌿 Giardino di Quintilina — Alert meteo:\n\n' + messaggi.join('\n\n');
-      await sendWhatsApp(testo);
-      showNativeNotification('🌦️ Alert meteo', messaggi[0]);
-      console.log('Alert meteo WhatsApp inviato:', messaggi.length, 'condizioni');
-    }
+    _meteoAlertCache = {giorno: oggi, messaggi};
+  return messaggi;
+}
 
-    localStorage.setItem('lastWeatherAlertCheck', oggi);
+async function checkAndSendWeatherAlert() {
+  const oggi = isoLocale();
+  if (localStorage.getItem('lastWeatherAlertCheck') === oggi) return;
+  try {
+    const messaggi = await calcolaAlertMeteo();
+    if (messaggi.length) showNativeNotification('🌦️ Alert meteo', messaggi[0]);
   } catch(e) {
-    console.log('Errore alert meteo aggressivo:', e);
-    localStorage.setItem('lastWeatherAlertCheck', oggi);
+    console.warn('Errore alert meteo:', e);
   }
+  localStorage.setItem('lastWeatherAlertCheck', oggi);
 }
 
 window.testAlertMeteo = async function() {
   showToast('⏳ Controllo meteo in corso...');
   localStorage.removeItem('lastWeatherAlertCheck');
+  _meteoAlertCache = null;
   await checkAndSendWeatherAlert();
-  showToast('✅ Controllo completato — se c\'erano condizioni serie hai ricevuto un WhatsApp');
+  showToast('✅ Controllo completato — se c\'erano condizioni serie hai ricevuto una notifica');
 };
 
 // ══════════════════════════════════════════
@@ -6864,8 +6916,8 @@ function normalizzaNumeroWa(raw) {
 }
 
 async function sendWhatsApp(msg) {
-  const phone = localStorage.getItem(WA_PHONE_KEY);
-  const apiKey = localStorage.getItem(WA_APIKEY_KEY);
+  const phone = waConfig.phone || localStorage.getItem(WA_PHONE_KEY);
+  const apiKey = waConfig.apiKey || localStorage.getItem(WA_APIKEY_KEY);
   if (!phone || !apiKey) return {ok:false, motivo:'non_configurato'};
   const url = `https://api.callmebot.com/whatsapp.php?phone=${phone}&text=${encodeURIComponent(msg)}&apikey=${apiKey}`;
 
@@ -6891,6 +6943,173 @@ async function sendWhatsApp(msg) {
   }
 }
 
+// ── CONFIG WHATSAPP PER UTENTE (salvata sul profilo in Firestore: vale su tutti i dispositivi) ──
+const WA_SEZIONI_DEFAULT = {scadenze:true, cantiere:true, meteo:true, stagionali:true};
+let waConfig = {phone:'', apiKey:'', sezioni:{...WA_SEZIONI_DEFAULT}};
+function utenteCorrenteRec() { return utenti.find(u => u.nome === currentUser) || null; }
+function caricaWaConfigUtente() {
+  const u = utenteCorrenteRec();
+  const lsPhone = localStorage.getItem(WA_PHONE_KEY) || '', lsKey = localStorage.getItem(WA_APIKEY_KEY) || '';
+  waConfig = {
+    phone: (u && u.wa_phone) || lsPhone,
+    apiKey: (u && u.wa_apikey) || lsKey,
+    sezioni: {...WA_SEZIONI_DEFAULT, ...((u && u.wa_sezioni) || {})}
+  };
+  // Migrazione: chi aveva configurato WhatsApp solo su questo telefono lo ritrova ovunque
+  if (u && db && !u.wa_phone && lsPhone && lsKey) {
+    updateDoc(doc(db,'utenti',u.id), {wa_phone:lsPhone, wa_apikey:lsKey})
+      .then(() => { u.wa_phone = lsPhone; u.wa_apikey = lsKey; }).catch(() => {});
+  }
+}
+function waConfigurato() { return !!(waConfig.phone && waConfig.apiKey); }
+
+function aggiornaUIWhatsApp() {
+  const ph = document.getElementById('waPhone'); if (ph) ph.value = waConfig.phone || '';
+  const k = document.getElementById('waApiKey'); if (k) k.value = waConfig.apiKey || '';
+  Object.keys(WA_SEZIONI_DEFAULT).forEach(sz => { const cb = document.getElementById('waSez_' + sz); if (cb) cb.checked = !!waConfig.sezioni[sz]; });
+  const pill = document.getElementById('waStatoPill');
+  if (pill) {
+    pill.className = 'wa-stato ' + (waConfigurato() ? 'on' : 'off');
+    pill.textContent = waConfigurato() ? 'attivo' : 'da configurare';
+  }
+  const u = utenteCorrenteRec(), ult = (u && u.wa_ultimo_invio) || localStorage.getItem('waUltimoInvio');
+  const ui = document.getElementById('waUltimoInvio');
+  if (ui) ui.textContent = ult ? 'Ultimo controllo giornaliero: ' + (ult === isoLocale() ? 'oggi' : new Date(ult + 'T12:00:00').toLocaleDateString('it-IT',{day:'numeric',month:'long'})) : '';
+}
+
+// ── RIEPILOGO GIORNALIERO ──
+let _meteoAlertCache = null; // {giorno, messaggi}
+async function componiRiepilogoWhatsApp() {
+  const sz = waConfig.sezioni, parti = [];
+  const oggiD = new Date(); oggiD.setHours(0,0,0,0);
+  if (sz.scadenze) {
+    const righe = attivita.filter(a => a.data_prossima)
+      .map(a => ({a, gg: Math.round((new Date(a.data_prossima + 'T00:00:00') - oggiD) / 86400000)}))
+      .filter(x => x.gg <= 3 && x.gg >= -20).sort((x,y) => x.gg - y.gg)
+      .map(({a,gg}) => '• ' + attEntity(a).nome + ' – ' + a.tipo + ': ' + (gg < 0 ? 'scaduta da ' + (-gg) + ' gg' : gg === 0 ? 'oggi' : gg === 1 ? 'domani' : 'tra ' + gg + ' gg'));
+    if (righe.length) parti.push('📅 *Scadenze*\n' + righe.slice(0,8).join('\n') + (righe.length > 8 ? '\n…e altre ' + (righe.length-8) : ''));
+  }
+  if (sz.cantiere) {
+    const r = calcolaRigheCantiereAlert().map(x => x.replace(/<[^>]*>/g,''));
+    if (r.length) parti.push('🏗️ *Cantiere*\n' + r.join('\n'));
+  }
+  if (sz.meteo) {
+    try { const m = await calcolaAlertMeteo(); if (m.length) parti.push('🌦️ *Meteo*\n' + m.map(x => '• ' + x).join('\n')); } catch(e) {}
+  }
+  if (sz.stagionali) {
+    try {
+      const ris = checkPromemoriaStagionali();
+      const r = Object.entries(ris).filter(([,pp]) => pp.length).map(([k,pp]) => '• ' + PROMEMORIA_TIPO_INFO[k].label + ': ' + pp.slice(0,4).join(', '));
+      if (r.length) parti.push('🌱 *Promemoria di stagione*\n' + r.join('\n'));
+    } catch(e) {}
+  }
+  if (!parti.length) return '';
+  const intest = '🌿 *Giardino di Quintilina* — ' + new Date().toLocaleDateString('it-IT',{weekday:'long', day:'numeric', month:'long'});
+  let testo = intest + '\n\n' + parti.join('\n\n');
+  if (testo.length > 1800) testo = testo.slice(0,1780) + '\n…(apri l\'app per il resto)';
+  return testo;
+}
+
+// Invia al massimo un riepilogo al giorno per utente, dalla prima apertura dopo le 7:00 (su qualunque dispositivo)
+let _riepilogoInCorso = false;
+async function inviaRiepilogoWhatsApp(forza) {
+  if (!waConfigurato() || _riepilogoInCorso) return {ok:false, motivo:'non_configurato'};
+  if (!forza && new Date().getHours() < 7) return {ok:null, motivo:'presto'};
+  _riepilogoInCorso = true;
+  try {
+    const oggi = isoLocale();
+    let u = utenteCorrenteRec();
+    if (!forza) {
+      // rilegge il profilo: un altro dispositivo potrebbe averlo già inviato oggi
+      try {
+        const snap = await getDocs(collection(db,'utenti'));
+        const d = snap.docs.find(x => x.data().nome === currentUser);
+        if (d) { u = Object.assign(u || {}, {id:d.id, ...d.data()}); }
+      } catch(e) {}
+      if (((u && u.wa_ultimo_invio) || localStorage.getItem('waUltimoInvio')) === oggi) return {ok:null, motivo:'gia_inviato'};
+    }
+    localStorage.setItem('waUltimoInvio', oggi);
+    if (u && u.id && db) { u.wa_ultimo_invio = oggi; updateDoc(doc(db,'utenti',u.id), {wa_ultimo_invio: oggi}).catch(() => {}); }
+    const testo = await componiRiepilogoWhatsApp();
+    if (!testo) return {ok:null, motivo:'niente'};
+    return await sendWhatsApp(testo);
+  } finally {
+    _riepilogoInCorso = false;
+    aggiornaUIWhatsApp();
+  }
+}
+window.anteprimaRiepilogoWa = async function() {
+  leggiSezioniWaDaUI();
+  const box = document.getElementById('waAnteprima');
+  box.style.display = 'block'; box.textContent = '⏳ Preparo il riepilogo…';
+  const t = await componiRiepilogoWhatsApp();
+  box.textContent = t || '✅ Oggi non c\'è niente da segnalare: in questo caso non viene inviato nessun messaggio.';
+};
+window.inviaRiepilogoWaOra = async function() {
+  if (!waConfigurato()) { showToast('Configura prima numero e API key'); return; }
+  leggiSezioniWaDaUI();
+  showToast('⏳ Invio riepilogo…');
+  const esito = await inviaRiepilogoWhatsApp(true);
+  if (esito.motivo === 'niente') showToast('✅ Niente da segnalare oggi: nessun messaggio inviato', 4000);
+  else if (esito.ok === false) showToast('❌ Invio non riuscito: controlla numero e API key', 4000);
+  else showToast('📤 Riepilogo inviato — controlla WhatsApp', 4000);
+};
+function leggiSezioniWaDaUI() {
+  Object.keys(WA_SEZIONI_DEFAULT).forEach(sz => { const cb = document.getElementById('waSez_' + sz); if (cb) waConfig.sezioni[sz] = cb.checked; });
+}
+
+// ── INVIO MANUALE CON WHATSAPP (link wa.me: gratis, scegli tu a chi mandarlo) ──
+function numeroPerWaMe(tel) {
+  let n = (tel || '').replace(/[^0-9+]/g, '');
+  if (n.startsWith('+')) n = n.slice(1);
+  else if (n.startsWith('00')) n = n.slice(2);
+  else if (n && n.length <= 10 && (n.startsWith('3') || n.startsWith('0'))) n = '39' + n; // numero italiano senza prefisso
+  return n;
+}
+window.apriWhatsAppCon = function(testo, tel) {
+  const n = numeroPerWaMe(tel);
+  window.open('https://wa.me/' + n + '?text=' + encodeURIComponent(testo), '_blank');
+};
+function telefonoContattoFase(f) {
+  if (!f) return '';
+  for (const cid of faseContattiIds(f)) { const c = rubrica.find(x => x.id === cid); if (c && c.telefono) return c.telefono; }
+  return '';
+}
+function testoAvanzamentoCantiere() {
+  const fasi = [...cantiereFasi].sort((a,b) => (a.ordine||0)-(b.ordine||0));
+  const fmtD = d => d ? new Date(d + 'T12:00:00').toLocaleDateString('it-IT',{day:'numeric', month:'short'}) : '';
+  const oggiD = new Date(); oggiD.setHours(0,0,0,0);
+  const righe = ['🏗️ *Cantiere — aggiornamento del ' + new Date().toLocaleDateString('it-IT',{day:'numeric', month:'long', year:'numeric'}) + '*', '',
+    'Avanzamento complessivo: *' + Math.round(avanzamentoPesatoCantiere()) + '%*'];
+  const completate = fasi.filter(f => (f.percentuale||0) >= 100);
+  const inCorso = fasi.filter(f => (f.percentuale||0) > 0 && (f.percentuale||0) < 100);
+  const prossima = fasi.find(f => !(f.percentuale||0));
+  if (completate.length) righe.push('✅ Completate: ' + completate.map(f => f.nome).join(', '));
+  if (inCorso.length) righe.push('🔨 In corso: ' + inCorso.map(f => {
+    const rit = f.data_fine && new Date(f.data_fine + 'T00:00:00') < oggiD ? Math.round((oggiD - new Date(f.data_fine + 'T00:00:00')) / 86400000) : 0;
+    return f.nome + ' ' + (f.percentuale||0) + '%' + (rit > 0 ? ' (in ritardo di ' + rit + ' gg)' : f.data_fine ? ' (fine prevista ' + fmtD(f.data_fine) + ')' : '');
+  }).join('; '));
+  if (prossima) righe.push('⏭️ Prossima: ' + prossima.nome + (prossima.data_inizio ? ' (inizio previsto ' + fmtD(prossima.data_inizio) + ')' : ''));
+  const budget = fasi.reduce((t,f) => t + parseFloat(f.budget_previsto||0), 0);
+  const speso = spese.filter(x => x.cantiere).reduce((t,x) => t + parseFloat(x.importo||0), 0);
+  if (budget || speso) righe.push('💰 Speso €' + fmtEur(speso) + (budget ? ' su €' + fmtEur(budget) + ' di budget' : ''));
+  const ncAperte = cantiereNC.filter(n => n.stato !== 'risolto');
+  if (ncAperte.length) righe.push('⚠️ Non conformità aperte: ' + ncAperte.length + (ncAperte.some(n => n.priorita === 'alta') ? ' (' + ncAperte.filter(n => n.priorita === 'alta').length + ' ad alta priorità)' : ''));
+  const ultimaNota = cantiereDiario.find(d => d.testo);
+  if (ultimaNota) righe.push('📔 Ultima nota (' + new Date(ultimaNota.data).toLocaleDateString('it-IT',{day:'numeric', month:'short'}) + '): ' + ultimaNota.testo.slice(0,160));
+  return righe.join('\n');
+}
+window.condividiAvanzamentoCantiere = function() { apriWhatsAppCon(testoAvanzamentoCantiere(), ''); };
+window.condividiNC = function(id) {
+  const n = cantiereNC.find(x => x.id === id); if (!n) return;
+  const f = n.fase_id ? cantiereFasi.find(x => x.id === n.fase_id) : null;
+  const c = n.contatto_id ? rubrica.find(x => x.id === n.contatto_id) : null;
+  const testo = '⚠️ *Segnalazione dal cantiere*\n' + (f ? 'Fase: ' + f.nome + '\n' : '') +
+    'Priorità: ' + (n.priorita || '—') + ' · aperta il ' + new Date(n.data_apertura).toLocaleDateString('it-IT') + '\n\n' + (n.testo || '') +
+    '\n\nPotete farmi sapere come e quando intervenite? Grazie';
+  apriWhatsAppCon(testo, (c && c.telefono) || telefonoContattoFase(f));
+};
+
 // Configura WhatsApp nelle impostazioni
 window.saveWaConfig = function() {
   const phoneRaw = document.getElementById('waPhone').value.trim();
@@ -6901,7 +7120,24 @@ window.saveWaConfig = function() {
   document.getElementById('waPhone').value = phone;
   localStorage.setItem(WA_PHONE_KEY, phone);
   localStorage.setItem(WA_APIKEY_KEY, apiKey);
-  showToast('✅ WhatsApp configurato!');
+  leggiSezioniWaDaUI();
+  waConfig.phone = phone; waConfig.apiKey = apiKey;
+  const u = utenteCorrenteRec();
+  if (u && db) {
+    const upd = {wa_phone: phone, wa_apikey: apiKey, wa_sezioni: {...waConfig.sezioni}};
+    updateDoc(doc(db,'utenti',u.id), upd).then(() => Object.assign(u, upd)).catch(e => console.warn('Salvataggio WhatsApp:', e));
+  }
+  aggiornaUIWhatsApp();
+  showToast('✅ WhatsApp configurato su tutti i tuoi dispositivi');
+};
+window.disattivaWhatsApp = async function() {
+  if (!confirm('Disattivare il riepilogo WhatsApp per ' + currentUser + '?')) return;
+  localStorage.removeItem(WA_PHONE_KEY); localStorage.removeItem(WA_APIKEY_KEY);
+  waConfig.phone = ''; waConfig.apiKey = '';
+  const u = utenteCorrenteRec();
+  if (u && db) { await updateDoc(doc(db,'utenti',u.id), {wa_phone:'', wa_apikey:''}).catch(() => {}); u.wa_phone = ''; u.wa_apikey = ''; }
+  aggiornaUIWhatsApp();
+  showToast('WhatsApp disattivato');
 };
 
 window.testWhatsApp = async function() {
@@ -6928,35 +7164,123 @@ window.testWhatsApp = async function() {
 // ══════════════════════════════════════════
 // NOTIFICHE EMAIL
 // ══════════════════════════════════════════
-// Valori di fallback (usati per il Service Worker prima che la fetch GitHub risponda)
-window.APP_VERSION = '5';
-window.APP_RELEASE_DATE = '2026-06-25';
+// ══════════════════════════════════════════
+// VERSIONE APP
+// ══════════════════════════════════════════
+// La versione vive nel <meta name="app-version"> in cima al file: è quella che il telefono sta DAVVERO usando.
+// A ogni nuovo rilascio: aumentare content + data-date nel meta e aggiungere una voce in APP_CHANGELOG.
+(function() {
+  const m = document.querySelector('meta[name="app-version"]');
+  window.APP_VERSION = m ? m.content : '—';
+  window.APP_RELEASE_DATE = m ? m.dataset.date : '';
+})();
 
-// Legge data/numero dell'ultimo commit reale su index.html da GitHub (fonte di verità)
-async function aggiornaVersioneDaGitHub() {
-  try {
-    const res = await fetch('https://api.github.com/repos/vale196709/giardino-tracker/commits?path=index.html&per_page=1');
-    if (!res.ok) return null;
-    const commits = await res.json();
-    if (!commits.length) return null;
-    const ultimo = commits[0];
-    const dataCommit = ultimo.commit.committer.date; // ISO string
+const APP_CHANGELOG = [
+  {v:'6.0', data:'2026-11-01', titolo:'WhatsApp e versioni', novita:[
+    '📱 Riepilogo WhatsApp: un solo messaggio al giorno con scadenze, cantiere, meteo e promemoria stagionali',
+    '👥 Ognuno configura il proprio WhatsApp (anche Antonella) e la configurazione vale su tutti i dispositivi',
+    '📤 Pulsanti "Invia su WhatsApp" per l\'avanzamento del cantiere, le non conformità e i contatti delle fasi',
+    '🆕 Versione e data di aggiornamento sempre visibili, con avviso quando ne esce una nuova',
+  ]},
+  {v:'5.9', data:'2026-11-01', titolo:'Correzioni e rifiniture', novita:[
+    '📅 Date corrette anche dopo mezzanotte',
+    '📧 Una sola email di riepilogo al giorno invece di una per scadenza',
+    '🏗️ Avanzamento cantiere pesato sul budget, Gantt che si apre su "oggi", scostamento più chiaro',
+    '⚡ Tab Cantiere più veloce e grafici caricati una sola volta',
+  ]},
+];
 
-    // Numero totale di commit su index.html = numero di versione
-    const resAll = await fetch('https://api.github.com/repos/vale196709/giardino-tracker/commits?path=index.html&per_page=1&page=1');
-    const linkHeader = resAll.headers.get('link') || '';
-    let totaleCommit = null;
-    const match = linkHeader.match(/page=(\d+)>; rel="last"/);
-    if (match) totaleCommit = parseInt(match[1]);
-
-    window.APP_RELEASE_DATE = dataCommit;
-    if (totaleCommit) window.APP_VERSION = String(totaleCommit);
-
-    return {data: dataCommit, versione: totaleCommit};
-  } catch(e) {
-    console.log('Versione GitHub non disponibile, uso fallback:', e);
-    return null;
+function confrontaVersioni(a, b) {
+  const pa = String(a||'0').split('.').map(n => parseInt(n)||0), pb = String(b||'0').split('.').map(n => parseInt(n)||0);
+  for (let k = 0; k < Math.max(pa.length, pb.length); k++) {
+    const d = (pa[k]||0) - (pb[k]||0); if (d) return d > 0 ? 1 : -1;
   }
+  return 0;
+}
+function dataVersioneIt(iso, lungo) {
+  if (!iso) return '';
+  const d = new Date(iso + (iso.length === 10 ? 'T12:00:00' : ''));
+  return d.toLocaleDateString('it-IT', lungo ? {day:'numeric', month:'long', year:'numeric'} : {day:'numeric', month:'short'});
+}
+
+// Legge la versione pubblicata su GitHub leggendo solo l'inizio del file (pochi KB, non tutti i 560KB)
+const GITHUB_RAW_INDEX = 'https://raw.githubusercontent.com/vale196709/giardino-tracker/main/index.html';
+window._versionePubblicata = null;
+async function leggiVersionePubblicata() {
+  const estrai = t => { const m = t.match(/<meta name="app-version" content="([^"]+)" data-date="([^"]+)"/); return m ? {versione:m[1], data:m[2]} : null; };
+  try {
+    const r = await fetch(GITHUB_RAW_INDEX + '?t=' + Date.now(), {headers:{Range:'bytes=0-2047'}, cache:'no-store'});
+    if (r.ok) { const v = estrai(await r.text()); if (v) return v; }
+  } catch(e) {}
+  try { // ripiego se il browser non accetta la lettura parziale
+    const r = await fetch(GITHUB_RAW_INDEX + '?t=' + Date.now(), {cache:'no-store'});
+    if (r.ok) return estrai(await r.text());
+  } catch(e) {}
+  return null;
+}
+
+let _ultimoControlloVersione = 0;
+async function controllaAggiornamenti(forza) {
+  if (!navigator.onLine) return null;
+  if (!forza && Date.now() - _ultimoControlloVersione < 30*60*1000) return window._versionePubblicata;
+  _ultimoControlloVersione = Date.now();
+  const pub = await leggiVersionePubblicata();
+  window._versionePubblicata = pub;
+  aggiornaUIVersione();
+  return pub;
+}
+window.controllaAggiornamentiManuale = async function() {
+  const st = document.getElementById('setVersionStatus');
+  if (st) st.innerHTML = '<span style="color:var(--muted)">⏳ Controllo su GitHub…</span>';
+  const pub = await controllaAggiornamenti(true);
+  if (!pub) { if (st) st.innerHTML = '<span style="color:var(--muted)">⚠️ GitHub non raggiungibile, riprova più tardi</span>'; return; }
+  if (confrontaVersioni(pub.versione, window.APP_VERSION) <= 0) showToast('✅ Hai già l\'ultima versione');
+};
+
+function aggiornaUIVersione() {
+  const ver = window.APP_VERSION, data = window.APP_RELEASE_DATE, pub = window._versionePubblicata;
+  const nuova = pub && confrontaVersioni(pub.versione, ver) > 0;
+  const hv = document.getElementById('headerVersion');
+  if (hv) hv.textContent = ' · v' + ver + (data ? ' · ' + dataVersioneIt(data) : '');
+  const sv = document.getElementById('setVersion');
+  if (sv) sv.textContent = 'v' + ver + (data ? ' · aggiornata il ' + dataVersioneIt(data, true) : '');
+  const st = document.getElementById('setVersionStatus');
+  if (st) st.innerHTML = !pub ? ''
+    : nuova ? `<span class="ver-pill ver-new">🆕 Disponibile v${escH(pub.versione)} del ${dataVersioneIt(pub.data, true)}</span>`
+    : `<span class="ver-pill ver-ok">✅ Aggiornata all'ultima versione</span>`;
+  const banner = document.getElementById('updateBanner');
+  if (banner) {
+    if (nuova && localStorage.getItem('bannerVersioneChiuso') !== pub.versione) {
+      document.getElementById('updateBannerText').textContent = 'Nuova versione ' + pub.versione + ' disponibile (' + dataVersioneIt(pub.data) + ')';
+      banner.style.display = 'flex';
+    } else banner.style.display = 'none';
+  }
+}
+window.chiudiBannerVersione = function() {
+  if (window._versionePubblicata) localStorage.setItem('bannerVersioneChiuso', window._versionePubblicata.versione);
+  document.getElementById('updateBanner').style.display = 'none';
+};
+
+function changelogHtml(daVersione) {
+  const voci = APP_CHANGELOG.filter(c => !daVersione || confrontaVersioni(c.v, daVersione) > 0);
+  return (voci.length ? voci : APP_CHANGELOG.slice(0,1)).map(c => `
+    <div class="changelog-voce">
+      <div class="changelog-head"><strong>v${c.v}</strong> · ${escH(c.titolo)} <span>${dataVersioneIt(c.data, true)}</span></div>
+      <ul>${c.novita.map(n => '<li>' + escH(n) + '</li>').join('')}</ul>
+    </div>`).join('');
+}
+window.mostraNovita = function(daVersione) {
+  document.getElementById('helpIcon').textContent = '🆕';
+  document.getElementById('helpTitle').textContent = daVersione ? 'Novità della versione ' + window.APP_VERSION : 'Cronologia versioni';
+  document.getElementById('helpBody').innerHTML = changelogHtml(daVersione);
+  document.getElementById('helpOverlay').style.display = 'flex';
+};
+// Al primo avvio dopo un aggiornamento mostra cosa è cambiato (una volta sola per dispositivo)
+function mostraNovitaSeAggiornato() {
+  const vista = localStorage.getItem('versioneVista');
+  if (vista === window.APP_VERSION) return;
+  localStorage.setItem('versioneVista', window.APP_VERSION);
+  setTimeout(() => window.mostraNovita(vista || '5.8'), 1800);
 }
 
 const EMAILJS_SERVICE  = 'service_3rupcwg';
@@ -7034,9 +7358,7 @@ async function checkAndNotify() {
   showToast('📧 Inviata email di riepilogo (' + urgenti.length + ' scadenze)');
   showNativeNotification('📅 Scadenze giardino', urgenti.length + ' attività da controllare: ' + scadenzeData.slice(0,3).map(s=>s.pianta).join(', ') + (urgenti.length>3?'...':''));
 
-  // Invia anche su WhatsApp se configurato
-  const waMsgs = scadenzeData.map(s => `🌿 ${s.pianta} - ${s.tipo}: ${s.stato}`).join('\n');
-  if (waMsgs) await sendWhatsApp('🌿 Giardino di Quintilina - Scadenze:\n' + waMsgs);
+  // WhatsApp: le scadenze ora arrivano nel riepilogo giornaliero unico (inviaRiepilogoWhatsApp)
 }
 
 window.resetNotify = function() {
@@ -7247,7 +7569,8 @@ function calcolaRigheCantiereAlert() {
       if (deltaPct > CANTIERE_SOGLIA_BUDGET_PCT) fasiBudgetSforato.push({nome: f.nome, deltaPct});
     }
     const tempo = scostamentoTempoFase(f);
-    if (tempo && tempo.stato === 'late' && tempo.giorni >= CANTIERE_SOGLIA_RITARDO_GG) {
+    // Solo ritardi su cui si può ancora agire: le fasi già chiuse in ritardo restano visibili nella card Scostamento
+    if (tempo && tempo.stato === 'late' && !tempo.chiuso && tempo.giorni >= CANTIERE_SOGLIA_RITARDO_GG) {
       fasiInRitardo.push({nome: f.nome, giorni: tempo.giorni, chiuso: tempo.chiuso});
     }
   });
@@ -7674,6 +7997,7 @@ async function loadAll() {
       checkPromemoriaStagionaliPush();
       checkIrrigazioneMancataPush();
     }
+    inviaRiepilogoWhatsApp().catch(e => console.warn('Riepilogo WhatsApp:', e));
   }, 4000);
 }
 
