@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="6.0.1" data-date="2026-11-01">
+<meta name="app-version" content="6.1" data-date="2026-11-01">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Giardino di Quintilina</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
@@ -102,7 +102,7 @@ h1,h2,h3{font-family:'Lora',serif}
 .drawer-toggle i{font-size:16px;transition:transform .2s}
 .drawer-toggle.open i{transform:rotate(180deg)}
 .drawer-submenu{max-height:0;overflow:hidden;transition:max-height .25s ease}
-.drawer-submenu.open{max-height:220px}
+.drawer-submenu.open{max-height:360px}
 .drawer-subitem{padding-left:2.75rem;font-size:13px}
 .drawer-item .badge-urgente{background:var(--r6);color:#fff;border-radius:20px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:auto}
 .drawer-footer{padding:.75rem 1rem;border-top:1px solid var(--border)}
@@ -459,8 +459,107 @@ canvas{max-width:100%}
 .wa-sezioni input{width:18px;height:18px;accent-color:var(--g7)}
 .wa-anteprima{white-space:pre-wrap;font-family:inherit;font-size:12.5px;line-height:1.55;background:#e7fbe9;color:#0f2a13;border-radius:10px;padding:.75rem;margin:.75rem 0 0;max-height:320px;overflow:auto;border:1px solid #c6efcc}
 body.dark .wa-anteprima{background:#10301a;color:var(--text);border-color:#1e4d2a}
+.dash-wa-card{display:flex;align-items:center;gap:12px;width:100%;background:var(--surf);border:1px solid #bbf7d0;border-radius:var(--rad);padding:.75rem .9rem;margin-bottom:1rem;cursor:pointer;font-family:inherit;color:var(--text);box-shadow:var(--shadow)}
+.dash-wa-card strong{display:block;font-size:14px}
+.dash-wa-card small{display:block;font-size:12px;color:var(--muted);margin-top:1px}
+.dash-wa-ic{width:40px;height:40px;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
 .wa-btn{display:inline-flex;align-items:center;gap:6px;background:#25d366;color:#fff;border:none;border-radius:20px;padding:7px 14px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
 .cantiere-hero .wa-btn{background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);margin-top:1rem}
+#panelCantiere .section-title{text-transform:none;letter-spacing:0;font-size:15px;font-weight:600;color:var(--text)}
+.cant-hero2{background:linear-gradient(135deg,#0c4a5c 0%,#146b82 60%,#2a93a8 100%);border-radius:20px;padding:1.25rem;color:#fff;margin-bottom:.75rem;box-shadow:var(--shadow-md);position:relative;overflow:hidden}
+.cant-hero2::after{content:'';position:absolute;right:-40px;top:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none}
+.cant-hero-top{display:flex;align-items:center;gap:1rem}
+.cant-ring{position:relative;width:104px;height:104px;flex-shrink:0}
+.cant-ring svg{width:100%;height:100%}
+.cant-ring .rb{fill:none;stroke:rgba(255,255,255,.18);stroke-width:9}
+.cant-ring .rf{fill:none;stroke:#fff;stroke-width:9;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)}
+.cant-ring-val{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-size:27px;font-weight:700}
+.cant-hero-info{flex:1;min-width:0}
+.cant-hero-label{font-family:'Lora',serif;font-size:19px;font-weight:600}
+.cant-hero-sub{font-size:11.5px;opacity:.75;margin-top:2px}
+.cant-hero-info .wa-btn{margin-top:.75rem}
+.cant-kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:1rem;position:relative;z-index:1}
+.cant-kpi{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.16);border-radius:12px;padding:.6rem .75rem;cursor:pointer;transition:background .15s}
+.cant-kpi:active{background:rgba(255,255,255,.2)}
+.cant-kpi-val{font-size:18px;font-weight:700;line-height:1.2}
+.cant-kpi-lab{font-size:10.5px;opacity:.8;text-transform:uppercase;letter-spacing:.05em;margin-top:2px}
+.cant-kpi-sub{font-size:11px;opacity:.85;margin-top:2px}
+.cant-kpi.warn{background:rgba(254,202,202,.2);border-color:rgba(254,202,202,.45)}
+.cant-tabs{display:flex;gap:6px;overflow-x:auto;position:sticky;top:0;z-index:6;background:var(--bg);padding:.5rem 0 .6rem;margin-bottom:.25rem;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.cant-tabs::-webkit-scrollbar{display:none}
+.cant-tab{display:inline-flex;align-items:center;gap:6px;white-space:nowrap;padding:8px 14px;border-radius:20px;border:1px solid var(--border);background:var(--surf);color:var(--muted);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s}
+.cant-tab i{font-size:16px}
+.cant-tab.active{background:#0891b2;border-color:#0891b2;color:#fff;box-shadow:0 2px 8px rgba(8,145,178,.3)}
+.cant-tab-badge{display:none;min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--r6);color:#fff;font-size:10px;font-weight:700;align-items:center;justify-content:center}
+.cant-tab-badge.on{display:inline-flex}
+.cant-tab-badge.amber{background:var(--a6)}
+.cant-sez{animation:fadeInUp .25s ease}
+@keyframes fadeInUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.cant-att-row{display:flex;gap:10px;align-items:flex-start;padding:.55rem .7rem;border-radius:10px;background:#ecfeff;border-left:3px solid #0891b2;margin-bottom:6px;font-size:13px;line-height:1.5;color:#155e75;cursor:pointer}
+.cant-att-row.red{background:var(--r0);border-left-color:var(--r6);color:#991b1b}
+.cant-att-ok{display:flex;gap:10px;align-items:center;padding:.65rem .8rem;border-radius:10px;background:var(--g0);color:var(--g7);font-size:13px;font-weight:600}
+body.dark .cant-att-row{background:#083344;color:#a5f3fc}
+body.dark .cant-att-row.red{background:#2a0f0f;color:#fecaca}
+.cant-mini{display:flex;align-items:center;gap:10px;padding:.6rem 0;border-bottom:1px solid var(--border);cursor:pointer}
+.cant-mini:last-child{border-bottom:none}
+.cant-mini-body{flex:1;min-width:0}
+.cant-mini-nome{font-size:14px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cant-mini-sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+.cant-mini-sub .late{color:var(--r6);font-weight:700}
+.cant-mini .fase-bar{margin:5px 0 0;height:6px}
+.cant-mini-pct{font-size:16px;font-weight:700;color:#0e7490;min-width:44px;text-align:right}
+.cant-tappa{display:flex;align-items:center;gap:12px;padding:.5rem 0;border-bottom:1px solid var(--border)}
+.cant-tappa:last-child{border-bottom:none}
+.cant-tappa-data{width:46px;flex-shrink:0;text-align:center;border-radius:10px;background:#ecfeff;color:#0e7490;padding:4px 0;line-height:1.1}
+.cant-tappa-data b{display:block;font-size:17px}
+.cant-tappa-data span{font-size:10px;text-transform:uppercase;font-weight:700}
+body.dark .cant-tappa-data{background:#083344;color:#67e8f9}
+.cant-tappa-txt{flex:1;font-size:13.5px;color:var(--text)}
+.cant-tappa-txt small{display:block;font-size:11.5px;color:var(--muted)}
+.cant-ult{display:flex;gap:10px;padding:.5rem 0;border-bottom:1px solid var(--border)}
+.cant-ult:last-of-type{border-bottom:none}
+.cant-ult img{width:52px;height:52px;object-fit:cover;border-radius:8px;flex-shrink:0}
+.cant-ult-txt{flex:1;font-size:13px;line-height:1.5;color:var(--text);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.cant-ult-meta{font-size:11px;color:var(--muted);margin-top:2px}
+.cant-strip{display:flex;gap:6px;overflow-x:auto;margin-top:.75rem;padding-bottom:2px}
+.cant-strip img{width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0;cursor:pointer}
+.fase-card2{background:var(--surf);border:1px solid var(--border);border-left:4px solid #cbd5e1;border-radius:var(--rad);padding:.8rem .9rem;margin-bottom:8px;box-shadow:var(--shadow);cursor:pointer;transition:transform .12s}
+.fase-card2:active{transform:scale(.99)}
+.fase-card2.st-in_corso{border-left-color:#0891b2}
+.fase-card2.st-completata{border-left-color:var(--g6)}
+.fase-card2.late{border-left-color:var(--r6)}
+.fc-top{display:flex;align-items:center;gap:8px}
+.fc-num{width:22px;height:22px;border-radius:50%;background:var(--bg);color:var(--muted);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fase-card2.st-completata .fc-num{background:var(--g1);color:var(--g7)}
+.fase-card2.st-in_corso .fc-num{background:#ecfeff;color:#0e7490}
+.fc-nome{flex:1;font-size:14px;font-weight:600;color:var(--text);min-width:0}
+.fc-row{display:flex;align-items:center;gap:10px;margin-top:8px}
+.fc-row .fase-bar{margin:0;flex:1;height:7px}
+.fc-pct{font-size:13px;font-weight:700;color:#0e7490;min-width:36px;text-align:right}
+.fc-meta{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:11.5px;color:var(--muted);margin-top:6px}
+.fc-meta .late{color:var(--r6);font-weight:700}
+.fc-icons{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.fc-ic{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--muted);background:var(--bg);border:1px solid var(--border);border-radius:20px;padding:2px 8px}
+.fc-ic.warn{color:var(--r6);background:var(--r0);border-color:#fecaca}
+.fc-ic.ok{color:var(--g7);background:var(--g0);border-color:var(--g2)}
+.fd-head{display:flex;align-items:flex-start;gap:10px;margin-bottom:.75rem}
+.fd-title{flex:1;font-family:'Lora',serif;font-size:19px;font-weight:600;color:var(--text)}
+.fd-pct{font-family:'Lora',serif;font-size:34px;font-weight:700;color:#0e7490;line-height:1}
+.fd-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:1rem 0}
+.fd-cell{background:var(--bg);border-radius:10px;padding:.55rem .7rem}
+.fd-cell-lab{font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.fd-cell-val{font-size:14px;font-weight:700;color:var(--text);margin-top:2px}
+.fd-cell-val.late{color:var(--r6)} .fd-cell-val.ok{color:var(--g7)}
+.fd-update{background:#ecfeff;border:1px solid #a5f3fc;border-radius:12px;padding:.75rem;margin-top:.75rem}
+body.dark .fd-update{background:#083344;border-color:#155e75}
+.fd-update-row{display:flex;align-items:center;gap:10px}
+.fd-update-row input[type=range]{flex:1;accent-color:#0891b2}
+.fd-update-val{font-weight:700;color:#0e7490;min-width:42px;text-align:right;font-size:15px}
+.fd-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:1rem}
+.fd-act{display:flex;align-items:center;gap:8px;padding:.7rem .75rem;border-radius:12px;border:1px solid var(--border);background:var(--surf);color:var(--text);font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;text-align:left}
+.fd-act i{font-size:18px;color:#0891b2}
+.fd-act .doc-count{margin-left:auto}
+.fd-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:1.1rem 0 .4rem}
 .update-banner{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#155a2e,#1a7a3e);color:#fff;border-radius:var(--rad);padding:.7rem .9rem;margin-bottom:1rem;font-size:13px;font-weight:600;box-shadow:var(--shadow-md)}
 .update-banner-btn{background:#fff;color:#155a2e;border:none;border-radius:20px;padding:6px 14px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
 .update-banner-x{background:transparent;border:none;color:rgba(255,255,255,.8);font-size:16px;cursor:pointer;padding:2px}
@@ -1064,16 +1163,23 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
     <div class="drawer-nav">
       <button class="drawer-item active" id="dnavDashboard" onclick="drawerNav('Dashboard')"><i class="ti ti-home"></i><span>Home</span></button>
       <div class="drawer-section">Giardino</div>
-      <button class="drawer-item" id="dnavPiante" onclick="drawerNav('Piante')"><i class="ti ti-trees"></i><span>Piante</span></button>
-      <button class="drawer-item" id="dnavMappa" onclick="drawerNav('Mappa')"><i class="ti ti-map"></i><span>Mappa</span></button>
+      <div class="drawer-item-group">
+        <div class="drawer-item-parent">
+          <button class="drawer-item" id="dnavPiante" onclick="drawerNav('Piante')"><i class="ti ti-trees"></i><span>Piante</span></button>
+          <button class="drawer-toggle" id="dtogPiante" onclick="toggleDrawerGroup('Piante', event)" aria-label="Mostra voci piante"><i class="ti ti-chevron-down"></i></button>
+        </div>
+        <div class="drawer-submenu" id="dsubPiante">
+        <button class="drawer-item drawer-subitem" id="dnavMappa" onclick="drawerNav('Mappa')"><i class="ti ti-map"></i><span>Mappa</span></button>
+        <button class="drawer-item drawer-subitem" id="dnavAI" onclick="drawerNav('AI')"><i class="ti ti-sparkles"></i><span>AI Consigli</span></button>
+        <button class="drawer-item drawer-subitem" id="dnavDiagnosi" onclick="drawerNav('Diagnosi')"><i class="ti ti-stethoscope"></i><span>Diagnosi malattie</span></button>
+        <button class="drawer-item drawer-subitem" id="dnavMeteo" onclick="drawerNav('Meteo')"><i class="ti ti-cloud"></i><span>Meteo e luna</span></button>
+        </div>
+      </div>
       <button class="drawer-item" id="dnavKanban" onclick="drawerNav('Kanban')"><i class="ti ti-checklist"></i><span>Attività</span></button>
       <button class="drawer-item" id="dnavScadenze" onclick="drawerNav('Scadenze')"><i class="ti ti-calendar-due"></i><span>Scadenze</span><span id="dnavBadge" class="drawer-badge" style="display:none">0</span></button>
       <button class="drawer-item" id="dnavCalendario" onclick="drawerNav('Calendario')"><i class="ti ti-calendar-month"></i><span>Calendario</span></button>
-      <div class="drawer-section">Cura e consigli</div>
-      <button class="drawer-item" id="dnavAI" onclick="drawerNav('AI')"><i class="ti ti-sparkles"></i><span>AI Consigli</span></button>
-      <button class="drawer-item" id="dnavDiagnosi" onclick="drawerNav('Diagnosi')"><i class="ti ti-stethoscope"></i><span>Diagnosi malattie</span></button>
-      <button class="drawer-item" id="dnavMeteo" onclick="drawerNav('Meteo')"><i class="ti ti-cloud"></i><span>Meteo e luna</span></button>
-      <button class="drawer-item" id="dnavEnciclopedia" onclick="drawerNav('Enciclopedia')"><i class="ti ti-books"></i><span>Enciclopedia</span></button>
+      <!-- Enciclopedia nascosta per ora (pannello ancora presente): riattivare togliendo display:none -->
+      <button class="drawer-item drawer-subitem" style="display:none" id="dnavEnciclopedia" onclick="drawerNav('Enciclopedia')"><i class="ti ti-books"></i><span>Enciclopedia</span></button>
       <button class="drawer-item" style="display:none" id="dnavRacconto" onclick="drawerNav('Racconto')"><i class="ti ti-feather"></i><span>Racconta il giardino</span></button>
       <div class="drawer-section">Cantiere e costi</div>
       <button class="drawer-item" id="dnavCantiere" onclick="drawerNav('Cantiere')"><i class="ti ti-building-cottage"></i><span>Cantiere</span></button>
@@ -1474,98 +1580,136 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
 
     <!-- CANTIERE -->
     <div id="panelCantiere" class="tab-panel">
-      <div class="cantiere-hero">
-        <div class="cantiere-hero-label">Avanzamento complessivo cantiere</div>
-        <div style="font-size:11px;opacity:.75;margin-top:2px">media pesata sul budget di ogni fase</div>
-        <div class="cantiere-hero-pct" id="cantierePctTot">—%</div>
-        <div class="cantiere-hero-bar"><div class="cantiere-hero-bar-fill" id="cantierePctBarTot" style="width:0%"></div></div>
-        <button class="wa-btn" onclick="condividiAvanzamentoCantiere()"><i class="ti ti-brand-whatsapp"></i> Invia avanzamento su WhatsApp</button>
-      </div>
-
-      <div class="card" id="cantiereGanttCard" style="display:none">
-        <div class="section-header">
-          <div class="section-title">📅 Timeline lavori (Gantt)</div>
-          <div class="gantt-legend"><span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:7px;border-radius:3px;background:rgba(8,145,178,.4);border:1px solid rgba(8,145,178,.7);display:inline-block"></span>Previsto</span><span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:7px;border-radius:3px;background:#0891b2;border:1px solid #0891b2;display:inline-block"></span>Fatto %</span><span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:7px;border-radius:3px;background:rgba(22,163,74,.55);border:1px solid rgba(22,163,74,.85);display:inline-block"></span>Reale</span><span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:7px;border-radius:3px;background:rgba(220,38,38,.55);border:1px solid rgba(220,38,38,.85);display:inline-block"></span>In ritardo</span></div>
+      <div class="cant-hero2">
+        <div class="cant-hero-top">
+          <div class="cant-ring" id="cantRing"></div>
+          <div class="cant-hero-info">
+            <div class="cant-hero-label">Avanzamento lavori</div>
+            <div class="cant-hero-sub">media pesata sul budget di ogni fase</div>
+            <button class="wa-btn" onclick="condividiAvanzamentoCantiere()"><i class="ti ti-brand-whatsapp"></i> Invia avanzamento</button>
+          </div>
         </div>
-        <div class="gantt-scroll">
-          <div class="gantt-wrap" id="ganttWrap"></div>
+        <div class="cant-kpi-grid" id="cantKpi"></div>
+      </div>
+
+      <div class="cant-tabs" id="cantTabs">
+        <button class="cant-tab active" data-sez="panoramica" onclick="cantiereSezione('panoramica')"><i class="ti ti-layout-dashboard"></i>Panoramica</button>
+        <button class="cant-tab" data-sez="fasi" onclick="cantiereSezione('fasi')"><i class="ti ti-list-details"></i>Fasi<span class="cant-tab-badge" id="cantBadgeFasi"></span></button>
+        <button class="cant-tab" data-sez="costi" onclick="cantiereSezione('costi')"><i class="ti ti-coins"></i>Costi<span class="cant-tab-badge" id="cantBadgeCosti"></span></button>
+        <button class="cant-tab" data-sez="qualita" onclick="cantiereSezione('qualita')"><i class="ti ti-shield-check"></i>Qualità<span class="cant-tab-badge" id="cantBadgeQualita"></span></button>
+        <button class="cant-tab" data-sez="diario" onclick="cantiereSezione('diario')"><i class="ti ti-notebook"></i>Diario e foto</button>
+      </div>
+
+      <div class="cant-sez" data-sez="panoramica">
+        <div class="card" id="cantAttenzioneCard">
+          <div class="card-title">🔎 Da tenere d'occhio</div>
+          <div id="cantAttenzione"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">🔨 In corso ora</div>
+          <div id="cantInCorso"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">📌 Prossime tappe</div>
+          <div id="cantProssime"></div>
+        </div>
+        <div class="card" id="cantiereGanttCard" style="display:none">
+          <div class="section-header">
+            <div class="section-title">📅 Timeline lavori (Gantt)</div>
+            <div class="gantt-legend"><span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:7px;border-radius:3px;background:rgba(8,145,178,.4);border:1px solid rgba(8,145,178,.7);display:inline-block"></span>Previsto</span><span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:7px;border-radius:3px;background:#0891b2;border:1px solid #0891b2;display:inline-block"></span>Fatto %</span><span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:7px;border-radius:3px;background:rgba(22,163,74,.55);border:1px solid rgba(22,163,74,.85);display:inline-block"></span>Reale</span><span style="display:flex;align-items:center;gap:4px"><span style="width:12px;height:7px;border-radius:3px;background:rgba(220,38,38,.55);border:1px solid rgba(220,38,38,.85);display:inline-block"></span>In ritardo</span></div>
+          </div>
+          <div class="gantt-scroll">
+            <div class="gantt-wrap" id="ganttWrap"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-header">
+            <div class="section-title">📔 Ultime dal cantiere</div>
+            <button class="link-btn" style="font-size:12px;color:#0891b2;font-weight:600" onclick="cantiereSezione('diario')">Tutto il diario →</button>
+          </div>
+          <div id="cantUltime"></div>
         </div>
       </div>
 
-      <div class="card">
-        <div class="section-header">
-          <div class="section-title">🏗️ Fasi di lavorazione (SAL)</div>
-          <button class="btn btn-sm cant-btn" onclick="apriNuovaFase()"><i class="ti ti-plus"></i> Fase</button>
+      <div class="cant-sez" data-sez="fasi" style="display:none">
+        <div class="card">
+          <div class="section-header">
+            <div class="section-title">🏗️ Fasi di lavorazione (SAL)</div>
+            <button class="btn btn-sm cant-btn admin-only" onclick="apriNuovaFase()"><i class="ti ti-plus"></i> Fase</button>
+          </div>
+          <div id="cantiereFasiList"><div class="skeleton-block skeleton-card"></div></div>
         </div>
-        <div id="cantiereFasiList"><div class="skeleton-block skeleton-card"></div></div>
       </div>
 
-      <div class="card">
-        <div class="card-title">💰 Budget cantiere</div>
-        <div id="cantiereBudgetTot" style="display:flex;gap:10px;margin-bottom:1rem"></div>
-        <div id="cantiereBudgetFasi"></div>
-        <div style="font-size:11px;color:var(--muted);margin-top:.5rem">Calcolato dalle spese contrassegnate come "🏗️ Spesa di cantiere" nella sezione Spese.</div>
-      </div>
-
-      <div class="card" id="cantiereScostamentoCard" style="display:none">
-        <div class="card-title">📐 Scostamento previsto vs effettivo</div>
-        <div id="scostHeroRow" class="scost-hero-row"></div>
-        <div class="chart-container" style="height:220px" id="scostChartWrap"><canvas id="chartCantiereScostamento"></canvas></div>
-        <div id="scostFasiList" style="margin-top:.5rem"></div>
-      </div>
-
-      <div class="card" id="cantiereBurndownCard" style="display:none">
-        <div class="section-header">
-          <div class="section-title">📉 Burn-down: spesa cumulata vs piano</div>
-          <span id="burndownStatoChip" class="scost-badge ok" style="font-size:10px"></span>
+      <div class="cant-sez" data-sez="costi" style="display:none">
+        <div class="card">
+          <div class="card-title">💰 Budget cantiere</div>
+          <div id="cantiereBudgetTot" style="display:flex;gap:10px;margin-bottom:1rem"></div>
+          <div id="cantiereBudgetFasi"></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:.5rem">Calcolato dalle spese contrassegnate come "🏗️ Spesa di cantiere" nella sezione Spese.</div>
         </div>
-        <div class="chart-container" style="height:220px"><canvas id="chartCantiereBurndown"></canvas></div>
-        <div style="font-size:11px;color:var(--muted);margin-top:.25rem">La curva "piano" distribuisce il budget di ogni fase in modo lineare tra la sua data inizio e fine previste. La curva "reale" somma le spese di cantiere giorno per giorno.</div>
+        <div class="card" id="cantiereScostamentoCard" style="display:none">
+          <div class="card-title">📐 Scostamento previsto vs effettivo</div>
+          <div id="scostHeroRow" class="scost-hero-row"></div>
+          <div class="chart-container" style="height:220px" id="scostChartWrap"><canvas id="chartCantiereScostamento"></canvas></div>
+          <div id="scostFasiList" style="margin-top:.5rem"></div>
+        </div>
+        <div class="card" id="cantiereBurndownCard" style="display:none">
+          <div class="section-header">
+            <div class="section-title">📉 Burn-down: spesa cumulata vs piano</div>
+            <span id="burndownStatoChip" class="scost-badge ok" style="font-size:10px"></span>
+          </div>
+          <div class="chart-container" style="height:220px"><canvas id="chartCantiereBurndown"></canvas></div>
+          <div style="font-size:11px;color:var(--muted);margin-top:.25rem">La curva "piano" distribuisce il budget di ogni fase in modo lineare tra la sua data inizio e fine previste. La curva "reale" somma le spese di cantiere giorno per giorno.</div>
+        </div>
       </div>
 
-      <div class="card">
-        <div class="section-header">
-          <div class="section-title">⚠️ Non conformità</div>
-          <button class="btn btn-sm" style="background:var(--r1);color:var(--r6);border:1px solid #fca5a5" id="ncAddBtn" onclick="apriNuovaNonConformita()"><i class="ti ti-plus"></i> Segnala</button>
+      <div class="cant-sez" data-sez="qualita" style="display:none">
+        <div class="card">
+          <div class="section-header">
+            <div class="section-title">⚠️ Non conformità</div>
+            <button class="btn btn-sm" style="background:var(--r1);color:var(--r6);border:1px solid #fca5a5" id="ncAddBtn" onclick="apriNuovaNonConformita()"><i class="ti ti-plus"></i> Segnala</button>
+          </div>
+          <div class="filter-pills" style="margin-bottom:.75rem">
+            <button class="pill active" onclick="filterNC('tutte',this)">Tutte</button>
+            <button class="pill" onclick="filterNC('aperto',this)">🔴 Aperte</button>
+            <button class="pill" onclick="filterNC('in_lavorazione',this)">🟡 In lavorazione</button>
+            <button class="pill" onclick="filterNC('risolto',this)">🟢 Risolte</button>
+          </div>
+          <div id="ncList"><div class="empty-state" style="padding:1.5rem"><i class="ti ti-shield-check"></i><p>Nessuna non conformità registrata.</p></div></div>
         </div>
-        <div class="filter-pills" style="margin-bottom:.75rem">
-          <button class="pill active" onclick="filterNC('tutte',this)">Tutte</button>
-          <button class="pill" onclick="filterNC('aperto',this)">🔴 Aperte</button>
-          <button class="pill" onclick="filterNC('in_lavorazione',this)">🟡 In lavorazione</button>
-          <button class="pill" onclick="filterNC('risolto',this)">🟢 Risolte</button>
-        </div>
-        <div id="ncList"><div class="empty-state" style="padding:1.5rem"><i class="ti ti-shield-check"></i><p>Nessuna non conformità registrata.</p></div></div>
       </div>
 
-      <div class="card">
-        <div class="section-header">
-          <div class="section-title">📸 Galleria foto cantiere</div>
-          <label style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#ecfeff;border:1.5px solid #a5f3fc;border-radius:var(--rads);color:#0e7490;font-size:12px;cursor:pointer;font-weight:600">
-            <i class="ti ti-camera-plus"></i> Aggiungi foto
-            <input type="file" id="cantiereFotoInput" accept="image/*" capture="environment" style="display:none" onchange="uploadCantiereFoto(this)">
-          </label>
+      <div class="cant-sez" data-sez="diario" style="display:none">
+        <div class="card">
+          <div class="section-title" style="margin-bottom:.75rem">📔 Diario di cantiere</div>
+          <div id="diarioAdminArea">
+            <textarea class="form-control" id="diarioTesto" placeholder="Cosa è successo oggi in cantiere..." style="min-height:70px;margin-bottom:.5rem"></textarea>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.5rem">
+              <select class="form-control" id="diarioFase" style="flex:1;min-width:140px"><option value="">— nessuna fase collegata —</option></select>
+              <label style="display:inline-flex;align-items:center;gap:6px;padding:9px 12px;background:#ecfeff;border:1.5px solid #a5f3fc;border-radius:var(--rads);color:#0e7490;font-size:12px;cursor:pointer;font-weight:600;white-space:nowrap">
+                <i class="ti ti-camera-plus"></i> Foto
+                <input type="file" id="diarioFotoInput" accept="image/*" capture="environment" style="display:none" onchange="previewDiarioFoto(this)">
+              </label>
+            </div>
+            <div id="diarioFotoPreview" style="display:none;margin-bottom:.5rem;position:relative;max-width:160px">
+              <img id="diarioFotoImg" style="width:100%;border-radius:var(--rads);border:1px solid var(--border)">
+              <button onclick="removeDiarioFoto()" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px">×</button>
+            </div>
+            <button class="btn btn-primary" style="width:100%;background:#0891b2;border-color:#0891b2" onclick="saveDiarioEntry()"><i class="ti ti-send"></i> Pubblica nel diario</button>
+          </div>
+          <div id="diarioList" style="margin-top:1rem"></div>
         </div>
-        <div id="cantiereFotoGrid" class="cantiere-foto-grid"></div>
-      </div>
-
-      <div class="card">
-        <div class="section-title" style="margin-bottom:.75rem">📔 Diario di cantiere</div>
-        <div id="diarioAdminArea">
-          <textarea class="form-control" id="diarioTesto" placeholder="Cosa è successo oggi in cantiere..." style="min-height:70px;margin-bottom:.5rem"></textarea>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:.5rem">
-            <select class="form-control" id="diarioFase" style="flex:1;min-width:140px"><option value="">— nessuna fase collegata —</option></select>
-            <label style="display:inline-flex;align-items:center;gap:6px;padding:9px 12px;background:#ecfeff;border:1.5px solid #a5f3fc;border-radius:var(--rads);color:#0e7490;font-size:12px;cursor:pointer;font-weight:600;white-space:nowrap">
-              <i class="ti ti-camera-plus"></i> Foto
-              <input type="file" id="diarioFotoInput" accept="image/*" capture="environment" style="display:none" onchange="previewDiarioFoto(this)">
+        <div class="card">
+          <div class="section-header">
+            <div class="section-title">📸 Galleria foto cantiere</div>
+            <label style="display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#ecfeff;border:1.5px solid #a5f3fc;border-radius:var(--rads);color:#0e7490;font-size:12px;cursor:pointer;font-weight:600">
+              <i class="ti ti-camera-plus"></i> Aggiungi foto
+              <input type="file" id="cantiereFotoInput" accept="image/*" capture="environment" style="display:none" onchange="uploadCantiereFoto(this)">
             </label>
           </div>
-          <div id="diarioFotoPreview" style="display:none;margin-bottom:.5rem;position:relative;max-width:160px">
-            <img id="diarioFotoImg" style="width:100%;border-radius:var(--rads);border:1px solid var(--border)">
-            <button onclick="removeDiarioFoto()" style="position:absolute;top:4px;right:4px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px">×</button>
-          </div>
-          <button class="btn btn-primary" style="width:100%;background:#0891b2;border-color:#0891b2" onclick="saveDiarioEntry()"><i class="ti ti-send"></i> Pubblica nel diario</button>
+          <div id="cantiereFotoGrid" class="cantiere-foto-grid"></div>
         </div>
-        <div id="diarioList" style="margin-top:1rem"></div>
       </div>
     </div>
 
@@ -1819,6 +1963,7 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
             <button class="btn btn-secondary" style="flex:1" onclick="anteprimaRiepilogoWa()"><i class="ti ti-eye"></i> Anteprima</button>
             <button class="btn btn-secondary" style="flex:1" onclick="inviaRiepilogoWaOra()"><i class="ti ti-send"></i> Invia ora</button>
           </div>
+          <button class="wa-btn" style="width:100%;justify-content:center;margin-top:.5rem;padding:10px" onclick="mandamiRiepilogoWa()"><i class="ti ti-brand-whatsapp"></i> Mandamelo su WhatsApp (senza API key)</button>
           <pre id="waAnteprima" class="wa-anteprima" style="display:none"></pre>
           <div id="waUltimoInvio" style="font-size:11px;color:var(--muted);margin-top:.5rem"></div>
           <button class="link-btn" style="font-size:12px;margin-top:.5rem;color:var(--r6)" onclick="disattivaWhatsApp()">Disattiva WhatsApp per me</button>
@@ -2273,6 +2418,13 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
 </div>
 
 <!-- MODAL: Fase cantiere -->
+<div id="modalFaseDettaglio" class="modal-overlay" style="display:none" onclick="closeOverlay(event,'modalFaseDettaglio')">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div id="faseDettaglioBody"></div>
+  </div>
+</div>
+
 <div id="modalFase" class="modal-overlay" style="display:none" onclick="closeOverlay(event,'modalFase')">
   <div class="modal-box">
     <div class="modal-handle"></div>
@@ -2756,7 +2908,7 @@ const helpContent = {
   Mappa: {icon:'🗺️', title:'Mappa', body:'Mappa interattiva del terreno. Seleziona una pianta dalla lista sotto, poi tocca il punto sulla mappa dove si trova per posizionarla.<br><br>Attiva il <strong>🌳 Gemello digitale</strong> per vedere lo stato di salute di ogni pianta direttamente sulla mappa (anello verde/giallo/rosso secondo le scadenze).'},
   Bacheca: {icon:'💬', title:'Bacheca', body:'Spazio di note condivise tra tutti gli utenti del giardino, in tempo reale. Scegli il tipo (nota, osservazione, promemoria, problema) e scrivi liberamente. Utile per comunicare con chi gestisce il giardino con te.'},
   Rubrica: {icon:'📇', title:'Rubrica', body:'Contatti utili legati al giardino: geometra, agronomo/vivaio, idraulico, elettricista, fornitori e altro. Ogni contatto ha telefono, email e note, con pulsanti rapidi per <strong>chiamare</strong>, scrivere su <strong>WhatsApp</strong> o mandare una <strong>email</strong> con un tocco.<br><br>Usa i filtri per categoria in alto, oppure cerca per nome. Tocca <strong>+</strong> per aggiungere un nuovo contatto.'},
-  Cantiere: {icon:'🏗️', title:'Cantiere', body:'Monitora la costruzione della casa sul terreno: <strong>Fasi/SAL</strong> con percentuale di avanzamento (trascina lo slider per aggiornarla al volo; la % complessiva in alto è <strong>pesata sul budget</strong> di ogni fase), <strong>Budget</strong> calcolato automaticamente dalle spese contrassegnate come "Spesa di cantiere" nella sezione Spese, e una <strong>Galleria foto</strong> cronologica per documentare i progressi nel tempo.<br><br>Ogni fase ha anche un pulsante <strong>📎 Documenti allegati</strong>: da lì puoi caricare PDF, foto, contratti Word/Excel e altri file (fino a circa 650KB ciascuno) collegati a quella specifica fase, e scaricarli o eliminarli in qualsiasi momento.<br><br>Tocca "+ Fase" per aggiungere una fase personalizzata, o "Aggiungi foto" per la galleria. Ogni fase può essere collegata a un contatto della Rubrica (es. l\'impresa che la esegue).'},
+  Cantiere: {icon:'🏗️', title:'Cantiere', body:'La sezione è divisa in schede: <strong>Panoramica</strong> (cosa tenere d\'occhio, fasi in corso, prossime tappe, Gantt, ultime dal diario), <strong>Fasi</strong>, <strong>Costi</strong>, <strong>Qualità</strong> e <strong>Diario e foto</strong>. Tocca una fase per aprirne il <strong>dettaglio</strong>: lì aggiorni la percentuale e trovi documenti, checklist, materiali e contatti.<br><br>Monitora la costruzione della casa sul terreno: <strong>Fasi/SAL</strong> con percentuale di avanzamento (trascina lo slider per aggiornarla al volo; la % complessiva in alto è <strong>pesata sul budget</strong> di ogni fase), <strong>Budget</strong> calcolato automaticamente dalle spese contrassegnate come "Spesa di cantiere" nella sezione Spese, e una <strong>Galleria foto</strong> cronologica per documentare i progressi nel tempo.<br><br>Ogni fase ha anche un pulsante <strong>📎 Documenti allegati</strong>: da lì puoi caricare PDF, foto, contratti Word/Excel e altri file (fino a circa 650KB ciascuno) collegati a quella specifica fase, e scaricarli o eliminarli in qualsiasi momento.<br><br>Tocca "+ Fase" per aggiungere una fase personalizzata, o "Aggiungi foto" per la galleria. Ogni fase può essere collegata a un contatto della Rubrica (es. l\'impresa che la esegue).'},
   Ricerca: {icon:'🔍', title:'Ricerca', body:'Cerca in tutto il giardino: piante, attività e spese contemporaneamente. Scrivi almeno 2 caratteri e tocca un risultato per aprirlo direttamente.'},
   Log: {icon:'📝', title:'Log modifiche', body:'Cronologia di tutte le modifiche fatte nell\'app: aggiunte, modifiche ed eliminazioni, con utente e data. Utile per capire chi ha fatto cosa e quando.'},
   Kanban: {icon:'📋', title:'Attività', body:'Vista a tre colonne (Scadute / In arrivo / Completate) per gestire velocemente le attività. Usa i pulsanti rapidi <strong>✅ Fatta</strong> e <strong>📅 +7gg</strong> sulle singole card.<br><br>In alto trovi anche i <strong>suggerimenti stagionali</strong> e gli <strong>alert meteo</strong> automatici.'},
@@ -2774,7 +2926,7 @@ window.showHelp = function() {
 };
 
 // Mappa figlio → genitore, per aprire automaticamente il sottomenu giusto
-const drawerSubmenuParent = { Mappa: 'Piante', Scadenze: 'Kanban', Calendario: 'Kanban' };
+const drawerSubmenuParent = { Mappa: 'Piante', AI: 'Piante', Diagnosi: 'Piante', Meteo: 'Piante', Enciclopedia: 'Piante' };
 
 window.toggleDrawerGroup = function(parentName, e) {
   if (e) e.stopPropagation();
@@ -2800,7 +2952,7 @@ window.drawerNav = function(name) {
   if (btn) btn.classList.add('active');
   // Sincronizza lo stato attivo della barra di navigazione in basso (mobile)
   document.querySelectorAll('.bottom-nav-item').forEach(b => b.classList.remove('active'));
-  const bnavMap = {Dashboard:'bnavDashboard', Piante:'bnavPiante', Mappa:'bnavPiante', Kanban:'bnavKanban', Scadenze:'bnavKanban', Calendario:'bnavKanban', Cantiere:'bnavCantiere'};
+  const bnavMap = {Dashboard:'bnavDashboard', Piante:'bnavPiante', Mappa:'bnavPiante', AI:'bnavPiante', Diagnosi:'bnavPiante', Meteo:'bnavPiante', Kanban:'bnavKanban', Scadenze:'bnavKanban', Calendario:'bnavKanban', Cantiere:'bnavCantiere'};
   const bnavBtn = document.getElementById(bnavMap[name] || 'bnavAltro');
   if (bnavBtn) bnavBtn.classList.add('active');
   // Se la voce è dentro un sottomenu, aprilo automaticamente
@@ -3690,6 +3842,7 @@ async function initCantiere() {
   fillSpesaFaseSel();
   fillDiarioFaseSel();
   fillNCFaseSel();
+  cantiereSezione(cantSezioneAttiva);
 }
 
 async function creaFasiStandard() {
@@ -3735,13 +3888,133 @@ function avanzamentoPesatoCantiere() {
 }
 
 function aggiornaHeroCantiere() {
-  const pctEl = document.getElementById('cantierePctTot');
-  const barEl = document.getElementById('cantierePctBarTot');
-  if (!pctEl) return;
-  if (!cantiereFasi.length) { pctEl.textContent = '—%'; if(barEl) barEl.style.width='0%'; return; }
-  const tot = avanzamentoPesatoCantiere();
-  pctEl.textContent = Math.round(tot) + '%';
-  if (barEl) barEl.style.width = Math.round(tot) + '%';
+  const ring = document.getElementById('cantRing');
+  if (!ring) return;
+  const nFasi = cantiereFasi.length;
+  const pct = nFasi ? Math.round(avanzamentoPesatoCantiere()) : 0;
+  const C = 2 * Math.PI * 42;
+  ring.innerHTML = `<svg viewBox="0 0 100 100"><circle class="rb" cx="50" cy="50" r="42"/><circle class="rf" cx="50" cy="50" r="42" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${(C*(1-pct/100)).toFixed(1)}" transform="rotate(-90 50 50)"/></svg><div class="cant-ring-val">${nFasi ? pct + '%' : '—'}</div>`;
+
+  const oggiD = new Date(); oggiD.setHours(0,0,0,0);
+  const done = cantiereFasi.filter(f => (f.percentuale||0) >= 100).length;
+  const inCorso = cantiereFasi.filter(f => (f.percentuale||0) > 0 && (f.percentuale||0) < 100).length;
+  const budget = cantiereFasi.reduce((t,f) => t + parseFloat(f.budget_previsto||0), 0);
+  const speso = spese.filter(x => x.cantiere).reduce((t,x) => t + parseFloat(x.importo||0), 0);
+  const ncAperte = cantiereNC.filter(n => n.stato !== 'risolto');
+  const ncAlte = ncAperte.filter(n => n.priorita === 'alta').length;
+  const fini = cantiereFasi.map(f => f.data_fine).filter(Boolean).sort();
+  const fine = fini.length ? fini[fini.length-1] : '';
+  const ggFine = fine ? Math.round((new Date(fine + 'T00:00:00') - oggiD) / 86400000) : null;
+  const eur0 = v => '€' + fmtEur0(v);
+  const tile = (lab, val, sub, sez, warn) => `<div class="cant-kpi${warn?' warn':''}" onclick="cantiereSezione('${sez}')"><div class="cant-kpi-val">${val}</div><div class="cant-kpi-lab">${lab}</div>${sub?`<div class="cant-kpi-sub">${sub}</div>`:''}</div>`;
+  const kpi = document.getElementById('cantKpi');
+  if (kpi) kpi.innerHTML =
+    tile('Fasi completate', nFasi ? done + '/' + nFasi : '—', inCorso ? inCorso + ' in corso' : '', 'fasi') +
+    tile('Speso', eur0(speso), budget ? 'su ' + eur0(budget) + ' (' + Math.round(speso/budget*100) + '%)' : '', 'costi', budget && speso > budget) +
+    tile('Non conformità', ncAperte.length, ncAperte.length ? (ncAlte ? ncAlte + ' ad alta priorità' : 'aperte') : 'nessuna aperta', 'qualita', ncAlte > 0) +
+    tile('Fine lavori', fine ? new Date(fine + 'T12:00:00').toLocaleDateString('it-IT',{day:'numeric', month:'short', year:'2-digit'}) : '—',
+      ggFine === null ? 'imposta le date' : ggFine >= 0 ? 'tra ' + ggFine + ' giorni' : 'prevista ' + (-ggFine) + ' gg fa', 'panoramica', ggFine !== null && ggFine < 0 && done < nFasi);
+
+  // badge sulle schede
+  const nRitardo = cantiereFasi.filter(f => faseInRitardoGg(f) > 0).length;
+  const setBadge = (id, n, amber) => { const b = document.getElementById(id); if (!b) return; b.textContent = n; b.className = 'cant-tab-badge' + (n ? ' on' : '') + (amber ? ' amber' : ''); };
+  setBadge('cantBadgeFasi', nRitardo);
+  setBadge('cantBadgeQualita', ncAperte.length, !ncAlte);
+  const fasiSforate = cantiereFasi.filter(f => { const b = parseFloat(f.budget_previsto||0); if (!b) return false; const sp = spese.filter(x => x.cantiere && x.cantiere_fase_id === f.id).reduce((t,x) => t + parseFloat(x.importo||0), 0); return (sp - b) / b * 100 > CANTIERE_SOGLIA_BUDGET_PCT; }).length;
+  setBadge('cantBadgeCosti', fasiSforate, true);
+
+  renderCantierePanoramica();
+}
+
+// Giorni di ritardo di una fase ancora aperta (0 se in tempo)
+function faseInRitardoGg(f) {
+  if ((f.percentuale||0) >= 100 || f.data_fine_reale || !f.data_fine) return 0;
+  const oggiD = new Date(); oggiD.setHours(0,0,0,0);
+  return Math.max(0, Math.round((oggiD - new Date(f.data_fine + 'T00:00:00')) / 86400000));
+}
+function dataBreveIt(iso, conAnno) {
+  return iso ? new Date(iso + (iso.length === 10 ? 'T12:00:00' : '')).toLocaleDateString('it-IT', conAnno ? {day:'numeric', month:'short', year:'numeric'} : {day:'numeric', month:'short'}) : '';
+}
+
+let cantSezioneAttiva = (() => { try { return localStorage.getItem('cantSez') || 'panoramica'; } catch(e) { return 'panoramica'; } })();
+window.cantiereSezione = function(nome) {
+  cantSezioneAttiva = nome;
+  try { localStorage.setItem('cantSez', nome); } catch(e) {}
+  document.querySelectorAll('#cantTabs .cant-tab').forEach(b => b.classList.toggle('active', b.dataset.sez === nome));
+  document.querySelectorAll('#panelCantiere .cant-sez').forEach(x => x.style.display = x.dataset.sez === nome ? 'block' : 'none');
+  const tab = document.querySelector('#cantTabs .cant-tab.active');
+  if (tab) tab.scrollIntoView({inline:'center', block:'nearest', behavior:'smooth'});
+  // grafici e Gantt vanno ridisegnati quando diventano visibili (da nascosti hanno larghezza zero)
+  if (nome === 'panoramica') renderCantiereGantt();
+  if (nome === 'costi') { renderCantiereScostamento(); renderCantiereBurndown(); }
+  const content = document.querySelector('.content'), tabs = document.getElementById('cantTabs');
+  if (content && tabs && content.scrollTop > tabs.offsetTop) content.scrollTop = tabs.offsetTop - 4;
+};
+
+function renderCantierePanoramica() {
+  const att = document.getElementById('cantAttenzione');
+  if (!att) return;
+  const sorted = [...cantiereFasi].sort((a,b) => (a.ordine||0)-(b.ordine||0));
+  const oggiD = new Date(); oggiD.setHours(0,0,0,0);
+  const traGg = iso => Math.round((new Date(iso + 'T00:00:00') - oggiD) / 86400000);
+
+  // Da tenere d'occhio
+  const righe = calcolaRigheCantiereAlert();
+  att.innerHTML = righe.length
+    ? righe.map(r => {
+        const red = /ritardo|scadut|alta priorit|contestazione/i.test(r);
+        const sez = /budget|pagament/i.test(r) ? 'costi' : /conformit/i.test(r) ? 'qualita' : 'fasi';
+        return `<div class="cant-att-row${red?' red':''}" onclick="cantiereSezione('${sez}')"><div style="flex:1">${r}</div><i class="ti ti-chevron-right" style="opacity:.5"></i></div>`;
+      }).join('')
+    : '<div class="cant-att-ok"><i class="ti ti-circle-check" style="font-size:20px"></i>Tutto sotto controllo: tempi, budget e qualità senza criticità</div>';
+
+  // In corso ora
+  const inCorso = sorted.filter(f => (f.percentuale||0) > 0 && (f.percentuale||0) < 100);
+  const elIC = document.getElementById('cantInCorso');
+  if (elIC) {
+    if (!sorted.length) elIC.innerHTML = '<div class="empty-state" style="padding:1rem"><i class="ti ti-building-cottage"></i><p>Nessuna fase creata. Vai su <strong>Fasi</strong> per iniziare.</p></div>';
+    else if (!inCorso.length) {
+      const prox = sorted.find(f => !(f.percentuale||0));
+      elIC.innerHTML = `<div style="font-size:13px;color:var(--muted)">Nessuna fase in corso.${prox ? ' Prossima: <strong style="color:var(--text)">' + escH(prox.nome) + '</strong>' + (prox.data_inizio ? ' (inizio previsto ' + dataBreveIt(prox.data_inizio) + ')' : '') : ''}</div>`;
+    } else elIC.innerHTML = inCorso.map(f => {
+      const pct = f.percentuale||0, rit = faseInRitardoGg(f);
+      const sub = rit ? `<span class="late">⏰ in ritardo di ${rit} gg</span>` : f.data_fine ? `fine prevista ${dataBreveIt(f.data_fine)} · tra ${traGg(f.data_fine)} gg` : 'nessuna data di fine';
+      return `<div class="cant-mini" onclick="apriDettaglioFase('${f.id}')">
+        <div class="cant-mini-body"><div class="cant-mini-nome">${escH(f.nome)}</div><div class="cant-mini-sub">${sub}</div>
+        <div class="fase-bar"><div class="fase-bar-fill" style="width:${pct}%${rit?';background:linear-gradient(90deg,#dc2626,#f87171)':''}"></div></div></div>
+        <div class="cant-mini-pct">${pct}%</div></div>`;
+    }).join('');
+  }
+
+  // Prossime tappe (inizi e fine previste future)
+  const tappe = [];
+  sorted.forEach(f => {
+    const pct = f.percentuale||0;
+    if (pct === 0 && f.data_inizio && traGg(f.data_inizio) >= 0) tappe.push({d:f.data_inizio, txt:'Inizio <strong>' + escH(f.nome) + '</strong>', f});
+    if (pct < 100 && f.data_fine && traGg(f.data_fine) >= 0) tappe.push({d:f.data_fine, txt:'Fine prevista <strong>' + escH(f.nome) + '</strong>', f});
+  });
+  tappe.sort((a,b) => a.d.localeCompare(b.d));
+  const elP = document.getElementById('cantProssime');
+  if (elP) elP.innerHTML = tappe.length ? tappe.slice(0,4).map(t => {
+    const d = new Date(t.d + 'T12:00:00'), g = traGg(t.d);
+    return `<div class="cant-tappa" onclick="apriDettaglioFase('${t.f.id}')" style="cursor:pointer">
+      <div class="cant-tappa-data"><b>${d.getDate()}</b><span>${d.toLocaleDateString('it-IT',{month:'short'}).replace('.','')}</span></div>
+      <div class="cant-tappa-txt">${t.txt}<small>${g === 0 ? 'oggi' : g === 1 ? 'domani' : 'tra ' + g + ' giorni'}</small></div></div>`;
+  }).join('') : '<div style="font-size:13px;color:var(--muted)">Nessuna tappa futura: aggiungi date di inizio e fine alle fasi.</div>';
+
+  // Ultime dal cantiere
+  const elU = document.getElementById('cantUltime');
+  if (elU) {
+    const ult = cantiereDiario.slice(0,3);
+    const foto = [...cantiereFoto].sort((a,b) => new Date(b.data)-new Date(a.data)).slice(0,8);
+    elU.innerHTML = (ult.length ? ult.map(d => {
+      const f = d.fase_id ? cantiereFasi.find(x => x.id === d.fase_id) : null;
+      return `<div class="cant-ult">${d.foto ? `<img src="${d.foto}" onclick="apriDiarioFotoLightbox('${d.id}')">` : ''}
+        <div style="flex:1;min-width:0"><div class="cant-ult-txt">${escH(d.testo || '📷 Foto')}</div>
+        <div class="cant-ult-meta">${new Date(d.data).toLocaleDateString('it-IT',{day:'numeric', month:'short'})}${f ? ' · 🏗️ ' + escH(f.nome) : ''}${d.autore ? ' · ' + escH(d.autore) : ''}</div></div></div>`;
+    }).join('') : '<div style="font-size:13px;color:var(--muted)">Ancora nessuna nota nel diario.</div>')
+    + (foto.length ? `<div class="cant-strip">${foto.map(x => `<img src="${x.foto}" loading="lazy" onclick="openCantiereLightbox('${x.id}')">`).join('')}</div>` : '');
+  }
 }
 
 function renderCantiereFasi() {
@@ -3754,37 +4027,122 @@ function renderCantiereFasi() {
   }
   const sorted = [...cantiereFasi].sort((a,b) => (a.ordine||0)-(b.ordine||0));
   const statoLabelMap = {non_iniziata:'Non iniziata', in_corso:'In corso', completata:'Completata'};
-  el.innerHTML = sorted.map(f => {
+  const oggiD = new Date(); oggiD.setHours(0,0,0,0);
+  el.innerHTML = sorted.map((f, idx) => {
     const pct = f.percentuale || 0;
     const stato = statoFase(pct);
-    const contattiIds = faseContattiIds(f);
-    const ritardoGg = (!f.data_fine_reale && f.data_fine && pct < 100) ? Math.round((new Date() - new Date(f.data_fine)) / 86400000) : null;
-    return `<div class="fase-card">
-      <div class="fase-card-header">
-        <div class="fase-nome" onclick="openEditFase('${f.id}')" style="cursor:pointer">${escH(f.nome)}</div>
-        <span class="fase-status-pill fs-${stato}">${statoLabelMap[stato]}</span>
-      </div>
-      <div class="fase-bar"><div class="fase-bar-fill ${pct>=100?'done':''}" style="width:${pct}%"></div></div>
-      <div class="fase-meta">
-        <span class="fase-pct">${pct}%</span>
-        ${f.data_fine_reale ? '<span style="color:var(--g7);font-weight:600">✅ completata il '+new Date(f.data_fine_reale).toLocaleDateString('it-IT')+'</span>' : f.data_fine ? '<span>📅 previsto: '+new Date(f.data_fine).toLocaleDateString('it-IT')+'</span>' : ''}
-        ${ritardoGg !== null && ritardoGg > 0 ? '<span style="color:var(--r6);font-weight:700">⏰ in ritardo di '+ritardoGg+'gg</span>' : ''}
-        ${f.budget_previsto ? '<span>💰 budget: €'+fmtEur(f.budget_previsto)+'</span>' : ''}
-      </div>
-      ${contattiIds.length ? `<div class="fase-contatti-chips">${contattiIds.map(cid => {
-        const c = rubrica.find(x => x.id === cid);
-        if (!c) return '';
-        const tel = c.telefono ? c.telefono.replace(/[^0-9+]/g,'') : '';
-        return `<span class="fase-contatto-chip">${rubricaCatEmoji[c.categoria]||'📇'} ${escH(c.nome)}${tel?`<a href="tel:${tel}" onclick="event.stopPropagation();registraContattoUsato('${c.id}')" title="Chiama"><i class="ti ti-phone"></i></a><a href="https://wa.me/${numeroPerWaMe(tel)}" target="_blank" onclick="event.stopPropagation();registraContattoUsato('${c.id}')" title="WhatsApp" style="color:#16a34a"><i class="ti ti-brand-whatsapp"></i></a>`:''}</span>`;
-      }).join('')}</div>` : ''}
-      ${currentRole==='admin' ? `<input type="range" class="fase-slider" min="0" max="100" step="5" value="${pct}" onchange="updateFasePercentualeRapida('${f.id}', this.value)">` : ''}
-      ${currentRole==='admin' ? `<button class="btn btn-sm cant-btn" style="margin-top:8px;width:100%" onclick="apriScadenzaFase('${f.id}')"><i class="ti ti-calendar-plus"></i> + Scadenza per questa fase</button>` : ''}
-      <button class="fase-doc-btn" onclick="apriDocumentiFase('${f.id}')"><i class="ti ti-paperclip"></i> Documenti allegati ${cantiereDocumenti.filter(d=>d.fase_id===f.id).length ? `<span class="doc-count">${cantiereDocumenti.filter(d=>d.fase_id===f.id).length}</span>` : ''}</button>
-      <button class="fase-doc-btn" onclick="apriChecklistFase('${f.id}')"><i class="ti ti-list-check"></i> Checklist ${(() => { const items = cantiereChecklist.filter(c=>c.fase_id===f.id); return items.length ? `<span class="doc-count" style="background:${items.every(i=>i.fatto)?'var(--g7)':'#0891b2'}">${items.filter(i=>i.fatto).length}/${items.length}</span>` : ''; })()}</button>
-      <button class="fase-doc-btn" onclick="apriMaterialiFase('${f.id}')"><i class="ti ti-package"></i> Materiali ${(() => { const items = cantiereMateriali.filter(m=>m.fase_id===f.id); if (!items.length) return ''; const mancanti = items.filter(m=>m.stato==='mancante').length; return `<span class="doc-count" style="background:${mancanti?'var(--r6)':'var(--g7)'}">${items.length}${mancanti?' ⚠️'+mancanti:''}</span>`; })()}</button>
+    const rit = faseInRitardoGg(f);
+    const avvioRit = pct === 0 && f.data_inizio && new Date(f.data_inizio + 'T00:00:00') < oggiD ? Math.round((oggiD - new Date(f.data_inizio + 'T00:00:00')) / 86400000) : 0;
+    const budget = parseFloat(f.budget_previsto||0);
+    const speso = spese.filter(x => x.cantiere && x.cantiere_fase_id === f.id).reduce((t,x) => t + parseFloat(x.importo||0), 0);
+    const meta = [];
+    if (f.data_fine_reale) meta.push('✅ chiusa il ' + dataBreveIt(f.data_fine_reale, true));
+    else if (f.data_inizio || f.data_fine) meta.push('📅 ' + (f.data_inizio ? dataBreveIt(f.data_inizio) : '?') + ' → ' + (f.data_fine ? dataBreveIt(f.data_fine) : '?'));
+    if (rit) meta.push(`<span class="late">⏰ +${rit} gg</span>`);
+    else if (avvioRit) meta.push(`<span class="late">⏳ avvio in ritardo di ${avvioRit} gg</span>`);
+    if (budget || speso) meta.push('💰 €' + fmtEur0(speso) + (budget ? ' / ' + fmtEur0(budget) : ''));
+    const ic = [];
+    const nDoc = cantiereDocumenti.filter(d => d.fase_id === f.id).length;
+    if (nDoc) ic.push(`<span class="fc-ic"><i class="ti ti-paperclip"></i>${nDoc}</span>`);
+    const cl = cantiereChecklist.filter(c => c.fase_id === f.id);
+    if (cl.length) { const fatti = cl.filter(c => c.fatto).length; ic.push(`<span class="fc-ic ${fatti===cl.length?'ok':''}"><i class="ti ti-list-check"></i>${fatti}/${cl.length}</span>`); }
+    const mat = cantiereMateriali.filter(m => m.fase_id === f.id);
+    if (mat.length) { const manc = mat.filter(m => m.stato === 'mancante').length; ic.push(`<span class="fc-ic ${manc?'warn':''}"><i class="ti ti-package"></i>${mat.length}${manc ? ' · ' + manc + ' mancanti' : ''}</span>`); }
+    const ncF = cantiereNC.filter(n => n.fase_id === f.id && n.stato !== 'risolto').length;
+    if (ncF) ic.push(`<span class="fc-ic warn"><i class="ti ti-alert-triangle"></i>${ncF} NC</span>`);
+    faseContattiIds(f).forEach(cid => { const c = rubrica.find(x => x.id === cid); if (c) ic.push(`<span class="fc-ic">${rubricaCatEmoji[c.categoria]||'📇'} ${escH(c.nome)}</span>`); });
+    return `<div class="fase-card2 st-${stato}${rit||avvioRit?' late':''}" onclick="apriDettaglioFase('${f.id}')">
+      <div class="fc-top"><span class="fc-num">${pct>=100?'✓':idx+1}</span><div class="fc-nome">${escH(f.nome)}</div><span class="fase-status-pill fs-${stato}">${statoLabelMap[stato]}</span></div>
+      <div class="fc-row"><div class="fase-bar"><div class="fase-bar-fill ${pct>=100?'done':''}" style="width:${pct}%"></div></div><span class="fc-pct">${pct}%</span></div>
+      ${meta.length ? `<div class="fc-meta">${meta.map(m => '<span>' + m + '</span>').join('')}</div>` : ''}
+      ${ic.length ? `<div class="fc-icons">${ic.join('')}</div>` : ''}
     </div>`;
   }).join('');
   aggiornaHeroCantiere();
+  if (faseDettaglioId && document.getElementById('modalFaseDettaglio').style.display === 'flex') renderDettaglioFase();
+}
+
+// ── DETTAGLIO FASE (bottom sheet, visibile anche in sola lettura) ──
+let faseDettaglioId = null;
+window.apriDettaglioFase = function(id) {
+  faseDettaglioId = id;
+  renderDettaglioFase();
+  document.getElementById('modalFaseDettaglio').style.display = 'flex';
+};
+function chiudiDettaglioEApri(fn) { closeModal('modalFaseDettaglio'); setTimeout(fn, 60); }
+window.dettaglioAzione = function(azione) {
+  const id = faseDettaglioId;
+  const mappa = {modifica: () => openEditFase(id), documenti: () => apriDocumentiFase(id), checklist: () => apriChecklistFase(id),
+    materiali: () => apriMaterialiFase(id), scadenza: () => apriScadenzaFase(id),
+    diario: () => { cantiereSezione('diario'); const sel = document.getElementById('diarioFase'); if (sel) sel.value = id; }};
+  if (mappa[azione]) chiudiDettaglioEApri(mappa[azione]);
+};
+window.salvaAvanzamentoDettaglio = async function() {
+  const v = document.getElementById('fdSlider');
+  if (!v || !faseDettaglioId) return;
+  await updateFasePercentualeRapida(faseDettaglioId, v.value);
+  renderDettaglioFase();
+};
+function renderDettaglioFase() {
+  const f = cantiereFasi.find(x => x.id === faseDettaglioId);
+  const body = document.getElementById('faseDettaglioBody');
+  if (!f || !body) return;
+  const isAdmin = currentRole === 'admin';
+  const pct = f.percentuale || 0, stato = statoFase(pct), rit = faseInRitardoGg(f);
+  const statoLabelMap = {non_iniziata:'Non iniziata', in_corso:'In corso', completata:'Completata'};
+  const budget = parseFloat(f.budget_previsto||0);
+  const speso = spese.filter(x => x.cantiere && x.cantiere_fase_id === f.id).reduce((t,x) => t + parseFloat(x.importo||0), 0);
+  const eur = v => '€' + fmtEur(v);
+  const cell = (lab, val, cls) => `<div class="fd-cell"><div class="fd-cell-lab">${lab}</div><div class="fd-cell-val ${cls||''}">${val}</div></div>`;
+  let fineReale;
+  if (f.data_fine_reale) {
+    const d = f.data_fine ? Math.round((new Date(f.data_fine_reale+'T00:00:00') - new Date(f.data_fine+'T00:00:00'))/86400000) : 0;
+    fineReale = cell('Chiusa il', dataBreveIt(f.data_fine_reale, true) + (d > 0 ? ' (+' + d + ' gg)' : d < 0 ? ' (' + d + ' gg)' : ''), d > 0 ? 'late' : 'ok');
+  } else fineReale = cell('Ritardo', rit ? rit + ' giorni' : 'in tempo', rit ? 'late' : 'ok');
+  const nDoc = cantiereDocumenti.filter(d => d.fase_id === f.id).length;
+  const cl = cantiereChecklist.filter(c => c.fase_id === f.id);
+  const mat = cantiereMateriali.filter(m => m.fase_id === f.id);
+  const cnt = n => n ? `<span class="doc-count">${n}</span>` : '';
+  const contatti = faseContattiIds(f).map(cid => rubrica.find(x => x.id === cid)).filter(Boolean);
+  const diarioF = cantiereDiario.filter(d => d.fase_id === f.id).slice(0,3);
+  const ncF = cantiereNC.filter(n => n.fase_id === f.id && n.stato !== 'risolto');
+  body.innerHTML = `
+    <div class="fd-head"><div class="fd-title">${escH(f.nome)}</div><span class="fase-status-pill fs-${stato}" style="margin-top:6px">${statoLabelMap[stato]}</span></div>
+    <div style="display:flex;align-items:flex-end;gap:12px">
+      <div class="fd-pct">${pct}%</div>
+      <div style="flex:1;padding-bottom:6px"><div class="fase-bar" style="margin:0;height:9px"><div class="fase-bar-fill ${pct>=100?'done':''}" style="width:${pct}%"></div></div></div>
+    </div>
+    ${isAdmin ? `<div class="fd-update">
+      <div style="font-size:12px;font-weight:700;color:#0e7490;margin-bottom:6px">Aggiorna avanzamento</div>
+      <div class="fd-update-row">
+        <input type="range" id="fdSlider" min="0" max="100" step="5" value="${pct}" oninput="document.getElementById('fdSliderVal').textContent=this.value+'%'">
+        <span class="fd-update-val" id="fdSliderVal">${pct}%</span>
+        <button class="btn btn-sm" style="background:#0891b2;color:#fff;border:none" onclick="salvaAvanzamentoDettaglio()">Salva</button>
+      </div></div>` : ''}
+    <div class="fd-grid">
+      ${cell('Inizio previsto', f.data_inizio ? dataBreveIt(f.data_inizio, true) : '—')}
+      ${cell('Fine prevista', f.data_fine ? dataBreveIt(f.data_fine, true) : '—')}
+      ${fineReale}
+      ${cell('Budget', budget ? eur(budget) : '—')}
+      ${cell('Speso', eur(speso) + (budget ? ' (' + Math.round(speso/budget*100) + '%)' : ''), budget && speso > budget ? 'late' : '')}
+      ${cell('Differenza', budget ? (speso > budget ? '+' : '−') + eur(Math.abs(speso - budget)) : '—', budget && speso > budget ? 'late' : budget ? 'ok' : '')}
+    </div>
+    ${contatti.length ? `<div class="fd-sec">Contatti</div><div class="fase-contatti-chips">${contatti.map(c => {
+      const tel = c.telefono ? c.telefono.replace(/[^0-9+]/g,'') : '';
+      return `<span class="fase-contatto-chip">${rubricaCatEmoji[c.categoria]||'📇'} ${escH(c.nome)}${tel ? `<a href="tel:${tel}" onclick="registraContattoUsato('${c.id}')" title="Chiama"><i class="ti ti-phone"></i></a><a href="https://wa.me/${numeroPerWaMe(tel)}" target="_blank" onclick="registraContattoUsato('${c.id}')" title="WhatsApp" style="color:#16a34a"><i class="ti ti-brand-whatsapp"></i></a>` : ''}</span>`;
+    }).join('')}</div>` : ''}
+    <div class="fd-actions">
+      ${isAdmin ? `<button class="fd-act" onclick="dettaglioAzione('modifica')"><i class="ti ti-pencil"></i>Modifica fase</button>` : ''}
+      <button class="fd-act" onclick="dettaglioAzione('documenti')"><i class="ti ti-paperclip"></i>Documenti ${cnt(nDoc)}</button>
+      <button class="fd-act" onclick="dettaglioAzione('checklist')"><i class="ti ti-list-check"></i>Checklist ${cl.length ? `<span class="doc-count">${cl.filter(c=>c.fatto).length}/${cl.length}</span>` : ''}</button>
+      <button class="fd-act" onclick="dettaglioAzione('materiali')"><i class="ti ti-package"></i>Materiali ${cnt(mat.length)}</button>
+      ${isAdmin ? `<button class="fd-act" onclick="dettaglioAzione('scadenza')"><i class="ti ti-calendar-plus"></i>+ Scadenza</button>` : ''}
+      ${isAdmin ? `<button class="fd-act" onclick="dettaglioAzione('diario')"><i class="ti ti-notebook"></i>Scrivi nel diario</button>` : ''}
+    </div>
+    ${f.note ? `<div class="fd-sec">Note</div><div style="font-size:13px;line-height:1.6;white-space:pre-wrap">${escH(f.note)}</div>` : ''}
+    ${ncF.length ? `<div class="fd-sec">Non conformità aperte</div>${ncF.map(n => `<div class="cant-att-row${n.priorita==='alta'?' red':''}" onclick="closeModal('modalFaseDettaglio');cantiereSezione('qualita')">${escH((n.testo||'').slice(0,120))}</div>`).join('')}` : ''}
+    ${diarioF.length ? `<div class="fd-sec">Dal diario</div>${diarioF.map(d => `<div class="cant-ult">${d.foto ? `<img src="${d.foto}">` : ''}<div style="flex:1;min-width:0"><div class="cant-ult-txt">${escH(d.testo||'📷 Foto')}</div><div class="cant-ult-meta">${new Date(d.data).toLocaleDateString('it-IT',{day:'numeric',month:'short'})}</div></div></div>`).join('')}` : ''}
+    <button class="btn btn-secondary" style="width:100%;margin-top:1.25rem" onclick="closeModal('modalFaseDettaglio')">Chiudi</button>`;
 }
 
 window.updateFasePercentualeRapida = async function(id, val) {
@@ -3950,6 +4308,7 @@ window.deleteFase = async function() {
 };
 
 function renderCantiereBudget() {
+  try { aggiornaHeroCantiere(); } catch(e) {}
   const totEl = document.getElementById('cantiereBudgetTot');
   const fasiEl = document.getElementById('cantiereBudgetFasi');
   if (!totEl || !fasiEl) return;
@@ -4141,9 +4500,9 @@ function renderCantiereGantt() {
     }
 
     return `<div class="gantt-row">
-      <div class="gantt-label" onclick="openEditFase('${f.id}')" title="${escH(f.nome)}">${escH(f.nome)}</div>
+      <div class="gantt-label" onclick="apriDettaglioFase('${f.id}')" title="${escH(f.nome)}">${escH(f.nome)}</div>
       <div class="gantt-track">
-        <div class="gantt-bar gantt-bar-prev ${fillCls}" style="left:${leftPct}%;width:${widthPct}%" onclick="openEditFase('${f.id}')" title="Previsto: ${start.toLocaleDateString('it-IT')} → ${end.toLocaleDateString('it-IT')}">
+        <div class="gantt-bar gantt-bar-prev ${fillCls}" style="left:${leftPct}%;width:${widthPct}%" onclick="apriDettaglioFase('${f.id}')" title="Previsto: ${start.toLocaleDateString('it-IT')} → ${end.toLocaleDateString('it-IT')}">
           <div class="gantt-bar-fill" style="width:${pct}%;background:${fillColor}"></div>
         </div>
         ${realBar}
@@ -4706,6 +5065,7 @@ window.deleteDiarioEntry = async function(id) {
 };
 
 function renderCantiereDiario() {
+  try { renderCantierePanoramica(); } catch(e) {}
   const adminArea = document.getElementById('diarioAdminArea');
   if (adminArea) adminArea.style.display = currentRole === 'admin' ? 'block' : 'none';
   fillDiarioFaseSel();
@@ -4725,7 +5085,7 @@ function renderCantiereDiario() {
         ${d.testo ? `<div class="diario-item-testo">${escH(d.testo)}</div>` : ''}
         <div class="diario-item-meta">
           ${f ? `<span class="diario-item-fase">🏗️ ${escH(f.nome)}</span>` : ''}
-          <span>👤 ${d.autore||'—'} · ${data}</span>
+          <span>👤 ${escH(d.autore||'—')} · ${data}</span>
         </div>
       </div>
       ${currentRole==='admin' ? `<button class="diario-item-del" onclick="deleteDiarioEntry('${d.id}')"><i class="ti ti-trash"></i></button>` : ''}
@@ -4860,6 +5220,7 @@ window.filterNC = function(f, btn) {
 };
 
 function renderNCList() {
+  try { aggiornaHeroCantiere(); } catch(e) {}
   const el = document.getElementById('ncList');
   if (!el) return;
   let items = [...cantiereNC];
@@ -5965,6 +6326,7 @@ async function initDashboard() {
     <div class="dash-alerts">
       <div id="dashAnomalyAlert"></div>
       <div id="dashIrrigazioneAlert"></div>
+      <div id="dashWaRiepilogo"></div>
       <div id="dashCantiereAlert"></div>
       <div id="dashPromemoriaStagionali"></div>
     </div>
@@ -6076,6 +6438,9 @@ async function initDashboard() {
 
   // Controlla e mostra alert cantiere (scostamento budget/tempo, non conformità urgenti)
   renderCantiereDashboardAlert();
+
+  // Riepilogo WhatsApp manuale (quando l'invio automatico non è disponibile)
+  renderDashRiepilogoWa().catch(() => {});
 
   // Carica la lista dei backup automatici
   renderListaBackup();
@@ -7044,6 +7409,30 @@ async function inviaRiepilogoWhatsApp(forza) {
     aggiornaUIWhatsApp();
   }
 }
+// ── RIEPILOGO MANUALE: apre WhatsApp con il testo già scritto, verso il proprio numero (niente CallMeBot) ──
+window.mandamiRiepilogoWa = async function() {
+  leggiSezioniWaDaUI();
+  const testo = await componiRiepilogoWhatsApp();
+  if (!testo) { showToast('✅ Oggi non c\'è niente da segnalare'); return; }
+  if (!waConfig.phone) showToast('Suggerimento: salva il tuo numero in Impostazioni per aprire direttamente la chat con te stesso', 4000);
+  apriWhatsAppCon(testo, waConfig.phone);
+  try { localStorage.setItem('waManualeInviato', isoLocale()); } catch(e) {}
+  const el = document.getElementById('dashWaRiepilogo'); if (el) el.innerHTML = '';
+};
+async function renderDashRiepilogoWa() {
+  const el = document.getElementById('dashWaRiepilogo');
+  if (!el) return;
+  // se l'invio automatico funziona, oppure oggi l'hai già mandato, la card non serve
+  if (waConfigurato() || localStorage.getItem('waManualeInviato') === isoLocale()) { el.innerHTML = ''; return; }
+  const testo = await componiRiepilogoWhatsApp();
+  if (!testo) { el.innerHTML = ''; return; }
+  const n = (testo.match(/\n• |\n⏰|\n⚠️|\n🕓|\n💰/g) || []).length;
+  el.innerHTML = `<button class="dash-wa-card dash-animate" onclick="mandamiRiepilogoWa()">
+    <span class="dash-wa-ic"><i class="ti ti-brand-whatsapp"></i></span>
+    <span style="flex:1;text-align:left"><strong>Riepilogo di oggi pronto</strong><small>${n ? n + ' cose da sapere · ' : ''}tocca per mandartelo su WhatsApp</small></span>
+    <i class="ti ti-chevron-right" style="opacity:.5"></i></button>`;
+}
+
 window.anteprimaRiepilogoWa = async function() {
   leggiSezioniWaDaUI();
   const box = document.getElementById('waAnteprima');
@@ -7122,7 +7511,16 @@ window.saveWaConfig = function() {
   const phone = normalizzaNumeroWa(phoneRaw);
   const apiKey = document.getElementById('waApiKey').value.trim();
   if (!phone) { showToast('Inserisci il tuo numero WhatsApp'); return; }
-  if (!apiKey) { showToast('Manca la API key: te la manda il bot CallMeBot (vedi istruzioni)', 4000); const d = document.querySelector('#waDetails details.card-sub'); if (d) d.open = true; return; }
+  if (!apiKey) {
+    // senza chiave salviamo solo il numero: serve al riepilogo manuale ("Mandamelo su WhatsApp")
+    localStorage.setItem(WA_PHONE_KEY, phone); waConfig.phone = phone;
+    const u0 = utenteCorrenteRec();
+    if (u0 && db) updateDoc(doc(db,'utenti',u0.id), {wa_phone: phone}).then(() => { u0.wa_phone = phone; }).catch(() => {});
+    document.getElementById('waPhone').value = phone;
+    aggiornaUIWhatsApp();
+    showToast('📱 Numero salvato. Senza API key il riepilogo non parte da solo: usa "Mandamelo su WhatsApp"', 5000);
+    return;
+  }
   if (phone.length < 8) { showToast('⚠️ Numero troppo corto — usa il formato internazionale senza + (es: 39333123456)'); return; }
   document.getElementById('waPhone').value = phone;
   localStorage.setItem(WA_PHONE_KEY, phone);
@@ -7183,6 +7581,14 @@ window.testWhatsApp = async function() {
 })();
 
 const APP_CHANGELOG = [
+  {v:'6.1', data:'2026-11-01', titolo:'Nuovo Cantiere', novita:[
+    '🏗️ Cantiere diviso in schede: Panoramica, Fasi, Costi, Qualità, Diario e foto',
+    '⭕ In alto l\'anello di avanzamento con fasi completate, speso, non conformità e data di fine lavori',
+    '🔎 Panoramica con cosa tenere d\'occhio, fasi in corso, prossime tappe e ultime dal diario',
+    '🗂️ Fasi più compatte: tocca una fase per aprire il dettaglio, aggiornare la % e vedere documenti, checklist e materiali',
+    '📱 "Mandamelo su WhatsApp": riepilogo del giorno da inviarti con un tocco, anche senza CallMeBot',
+    '🌳 Menu: Mappa, AI Consigli, Diagnosi e Meteo raccolte sotto Piante',
+  ]},
   {v:'6.0.1', data:'2026-11-01', titolo:'Correzione WhatsApp', novita:[
     '📱 Il numero WhatsApp senza prefisso (es. 335...) viene completato da solo con +39',
     '💡 Istruzioni per la API key aperte finché WhatsApp non è configurato',
@@ -7558,7 +7964,7 @@ function renderPromemoriaStagionali() {
     <div class="dash-animate" style="background:linear-gradient(135deg,var(--g0),var(--g1));border:1px solid var(--g2);border-radius:var(--rad);padding:.85rem 1rem;margin-bottom:1rem;display:flex;align-items:flex-start;gap:10px">
       <span style="font-size:22px">🌿</span>
       <div style="flex:1;font-size:13px;color:var(--g8);line-height:1.7">${righe.join('<br>')}</div>
-      <button onclick="drawerNav('Enciclopedia')" style="background:transparent;border:none;color:var(--g7);cursor:pointer;font-size:12px;font-weight:600;padding:4px;white-space:nowrap;flex-shrink:0">Vedi →</button>
+      <button onclick="drawerNav('Piante')" style="background:transparent;border:none;color:var(--g7);cursor:pointer;font-size:12px;font-weight:600;padding:4px;white-space:nowrap;flex-shrink:0">Vedi →</button>
     </div>`;
 }
 
@@ -8859,7 +9265,11 @@ function drawCharts() {
 
 // Formatta importo con separatore migliaia
 function fmtEur(n) {
-  return parseFloat(n||0).toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2});
+  // useGrouping 'always': in italiano toLocaleString non mette il punto sui numeri a 4 cifre (8500 → 8.500)
+  return parseFloat(n||0).toLocaleString('it-IT', {minimumFractionDigits:2, maximumFractionDigits:2, useGrouping:'always'});
+}
+function fmtEur0(n) {
+  return Math.round(parseFloat(n||0)).toLocaleString('it-IT', {maximumFractionDigits:0, useGrouping:'always'});
 }
 
 // ══════════════════════════════════════════════════════════════════════
