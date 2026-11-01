@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="6.1" data-date="2026-11-01">
+<meta name="app-version" content="6.2" data-date="2026-11-01">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Giardino di Quintilina</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
@@ -560,6 +560,20 @@ body.dark .fd-update{background:#083344;border-color:#155e75}
 .fd-act i{font-size:18px;color:#0891b2}
 .fd-act .doc-count{margin-left:auto}
 .fd-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);margin:1.1rem 0 .4rem}
+.cant-curva-testo{font-size:13px;line-height:1.6;color:var(--text);margin-top:.5rem}
+.cant-ult-ic{width:52px;height:52px;border-radius:8px;background:#ecfeff;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+body.dark .cant-ult-ic{background:#083344}
+.cant-mini-sub .late,.fc-meta .late{color:var(--r6);font-weight:700}
+.scost-spiega{grid-column:1/-1;font-size:12.5px;line-height:1.6;color:var(--text);background:var(--bg);border-radius:var(--rads);padding:.6rem .75rem}
+.fd-storico{position:relative;padding-left:4px}
+.fd-st-item{display:flex;gap:10px;padding:.35rem 0;position:relative}
+.fd-st-item:not(:last-child)::before{content:'';position:absolute;left:4px;top:18px;bottom:-6px;width:2px;background:var(--border)}
+.fd-st-dot{width:10px;height:10px;border-radius:50%;background:#0891b2;margin-top:5px;flex-shrink:0;box-shadow:0 0 0 3px #ecfeff}
+.fd-st-head{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--text)}
+.fd-st-head span{font-size:11px;color:var(--muted);white-space:nowrap}
+.fd-st-nota{font-size:12.5px;color:var(--text);margin-top:2px;line-height:1.5}
+.fd-st-foto{width:64px;height:64px;object-fit:cover;border-radius:8px;margin-top:6px;cursor:pointer;transition:all .2s}
+.fd-st-foto.big{width:100%;height:auto}
 .update-banner{display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#155a2e,#1a7a3e);color:#fff;border-radius:var(--rad);padding:.7rem .9rem;margin-bottom:1rem;font-size:13px;font-weight:600;box-shadow:var(--shadow-md)}
 .update-banner-btn{background:#fff;color:#155a2e;border:none;border-radius:20px;padding:6px 14px;font-weight:700;font-size:12px;cursor:pointer;font-family:inherit}
 .update-banner-x{background:transparent;border:none;color:rgba(255,255,255,.8);font-size:16px;cursor:pointer;padding:2px}
@@ -1605,6 +1619,14 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
           <div class="card-title">🔎 Da tenere d'occhio</div>
           <div id="cantAttenzione"></div>
         </div>
+        <div class="card" id="cantCurvaCard" style="display:none">
+          <div class="section-header">
+            <div class="section-title">📈 Avanzamento reale vs previsto</div>
+            <span id="cantCurvaChip" class="scost-badge ok"></span>
+          </div>
+          <div class="chart-container" style="height:200px"><canvas id="chartCantiereCurva"></canvas></div>
+          <div id="cantCurvaTesto" class="cant-curva-testo"></div>
+        </div>
         <div class="card">
           <div class="card-title">🔨 In corso ora</div>
           <div id="cantInCorso"></div>
@@ -1621,6 +1643,16 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
           <div class="gantt-scroll">
             <div class="gantt-wrap" id="ganttWrap"></div>
           </div>
+        </div>
+        <div class="card">
+          <div class="card-title">🗒️ Report settimanale</div>
+          <div class="card-desc" style="margin-bottom:.75rem">Riassunto degli ultimi 7 giorni: avanzamenti, spese, non conformità, note del diario e prossime tappe. Da mandare all'impresa, ad Antonella o da archiviare.</div>
+          <div class="btn-row">
+            <button class="btn btn-sm btn-secondary" style="flex:1" onclick="anteprimaReportSettimanale()"><i class="ti ti-eye"></i> Anteprima</button>
+            <button class="btn btn-sm" style="flex:1;background:#25d366;color:#fff;border:none" onclick="condividiReportSettimanale()"><i class="ti ti-brand-whatsapp"></i> WhatsApp</button>
+            <button class="btn btn-sm btn-secondary" style="flex:1" onclick="pdfReportSettimanale()"><i class="ti ti-file-type-pdf"></i> PDF</button>
+          </div>
+          <pre id="cantReportAnteprima" class="wa-anteprima" style="display:none"></pre>
         </div>
         <div class="card">
           <div class="section-header">
@@ -2673,6 +2705,8 @@ let currentTab = 'Scadenze';
 let currentRole = 'admin'; // 'admin' o 'user'
 let piante = [], attivita = [], utenti = [], spese = [], note = [], rubrica = [], cantiereFasi = [], cantiereFoto = [], cantiereDocumenti = [], cantiereChecklist = [], cantiereDiario = [], cantiereNC = [], cantiereMateriali = [], pianteFoto = [], pianteInterventi = [];
 let currentFilter = 'tutte';
+let cantiereAvanzamenti = []; // storico aggiornamenti % delle fasi: {fase_id, da, a, data, nota, foto, autore}
+let _unsubCantiereAvanzamenti = null;
 // Data locale (Europe/Rome) in formato YYYY-MM-DD: toISOString() usa UTC e dopo mezzanotte restituirebbe "ieri"
 // Protegge il testo inserito dagli utenti quando finisce dentro innerHTML (apostrofi, <, & non rompono più la grafica)
 function escH(v) {
@@ -2908,7 +2942,7 @@ const helpContent = {
   Mappa: {icon:'🗺️', title:'Mappa', body:'Mappa interattiva del terreno. Seleziona una pianta dalla lista sotto, poi tocca il punto sulla mappa dove si trova per posizionarla.<br><br>Attiva il <strong>🌳 Gemello digitale</strong> per vedere lo stato di salute di ogni pianta direttamente sulla mappa (anello verde/giallo/rosso secondo le scadenze).'},
   Bacheca: {icon:'💬', title:'Bacheca', body:'Spazio di note condivise tra tutti gli utenti del giardino, in tempo reale. Scegli il tipo (nota, osservazione, promemoria, problema) e scrivi liberamente. Utile per comunicare con chi gestisce il giardino con te.'},
   Rubrica: {icon:'📇', title:'Rubrica', body:'Contatti utili legati al giardino: geometra, agronomo/vivaio, idraulico, elettricista, fornitori e altro. Ogni contatto ha telefono, email e note, con pulsanti rapidi per <strong>chiamare</strong>, scrivere su <strong>WhatsApp</strong> o mandare una <strong>email</strong> con un tocco.<br><br>Usa i filtri per categoria in alto, oppure cerca per nome. Tocca <strong>+</strong> per aggiungere un nuovo contatto.'},
-  Cantiere: {icon:'🏗️', title:'Cantiere', body:'La sezione è divisa in schede: <strong>Panoramica</strong> (cosa tenere d\'occhio, fasi in corso, prossime tappe, Gantt, ultime dal diario), <strong>Fasi</strong>, <strong>Costi</strong>, <strong>Qualità</strong> e <strong>Diario e foto</strong>. Tocca una fase per aprirne il <strong>dettaglio</strong>: lì aggiorni la percentuale e trovi documenti, checklist, materiali e contatti.<br><br>Monitora la costruzione della casa sul terreno: <strong>Fasi/SAL</strong> con percentuale di avanzamento (trascina lo slider per aggiornarla al volo; la % complessiva in alto è <strong>pesata sul budget</strong> di ogni fase), <strong>Budget</strong> calcolato automaticamente dalle spese contrassegnate come "Spesa di cantiere" nella sezione Spese, e una <strong>Galleria foto</strong> cronologica per documentare i progressi nel tempo.<br><br>Ogni fase ha anche un pulsante <strong>📎 Documenti allegati</strong>: da lì puoi caricare PDF, foto, contratti Word/Excel e altri file (fino a circa 650KB ciascuno) collegati a quella specifica fase, e scaricarli o eliminarli in qualsiasi momento.<br><br>Tocca "+ Fase" per aggiungere una fase personalizzata, o "Aggiungi foto" per la galleria. Ogni fase può essere collegata a un contatto della Rubrica (es. l\'impresa che la esegue).'},
+  Cantiere: {icon:'🏗️', title:'Cantiere', body:'La sezione è divisa in schede: <strong>Panoramica</strong> (cosa tenere d\'occhio, fasi in corso, prossime tappe, Gantt, ultime dal diario), <strong>Fasi</strong>, <strong>Costi</strong>, <strong>Qualità</strong> e <strong>Diario e foto</strong>. Tocca una fase per aprirne il <strong>dettaglio</strong>: lì <strong>registri gli avanzamenti</strong> (percentuale, nota e foto: restano nello storico) e trovi documenti, checklist, materiali e contatti.<br><br>Dagli avanzamenti registrati nascono la <strong>curva reale vs prevista</strong>, la <strong>data di fine stimata</strong> al ritmo attuale, l\'avviso sulle fasi ferme da oltre 14 giorni e il <strong>report settimanale</strong> (WhatsApp o PDF). Nella scheda Costi lo speso è confrontato con il <strong>valore dei lavori già fatti</strong>, con la stima del costo finale.<br><br>Monitora la costruzione della casa sul terreno: <strong>Fasi/SAL</strong> con percentuale di avanzamento (trascina lo slider per aggiornarla al volo; la % complessiva in alto è <strong>pesata sul budget</strong> di ogni fase), <strong>Budget</strong> calcolato automaticamente dalle spese contrassegnate come "Spesa di cantiere" nella sezione Spese, e una <strong>Galleria foto</strong> cronologica per documentare i progressi nel tempo.<br><br>Ogni fase ha anche un pulsante <strong>📎 Documenti allegati</strong>: da lì puoi caricare PDF, foto, contratti Word/Excel e altri file (fino a circa 650KB ciascuno) collegati a quella specifica fase, e scaricarli o eliminarli in qualsiasi momento.<br><br>Tocca "+ Fase" per aggiungere una fase personalizzata, o "Aggiungi foto" per la galleria. Ogni fase può essere collegata a un contatto della Rubrica (es. l\'impresa che la esegue).'},
   Ricerca: {icon:'🔍', title:'Ricerca', body:'Cerca in tutto il giardino: piante, attività e spese contemporaneamente. Scrivi almeno 2 caratteri e tocca un risultato per aprirlo direttamente.'},
   Log: {icon:'📝', title:'Log modifiche', body:'Cronologia di tutte le modifiche fatte nell\'app: aggiunte, modifiche ed eliminazioni, con utente e data. Utile per capire chi ha fatto cosa e quando.'},
   Kanban: {icon:'📋', title:'Attività', body:'Vista a tre colonne (Scadute / In arrivo / Completate) per gestire velocemente le attività. Usa i pulsanti rapidi <strong>✅ Fatta</strong> e <strong>📅 +7gg</strong> sulle singole card.<br><br>In alto trovi anche i <strong>suggerimenti stagionali</strong> e gli <strong>alert meteo</strong> automatici.'},
@@ -3126,6 +3160,7 @@ window.doLogout = function() {
   if (_unsubCantiereDiario) { _unsubCantiereDiario(); _unsubCantiereDiario = null; }
   if (_unsubCantiereNC) { _unsubCantiereNC(); _unsubCantiereNC = null; }
   if (_unsubCantiereMateriali) { _unsubCantiereMateriali(); _unsubCantiereMateriali = null; }
+  if (_unsubCantiereAvanzamenti) { _unsubCantiereAvanzamenti(); _unsubCantiereAvanzamenti = null; }
   if (_unsubPianteFoto) { _unsubPianteFoto(); _unsubPianteFoto = null; }
   if (_unsubPianteInterventi) { _unsubPianteInterventi(); _unsubPianteInterventi = null; }
   if (_unsubConfig) { _unsubConfig(); _unsubConfig = null; }
@@ -3824,6 +3859,7 @@ async function initCantiere() {
     carica('cantiere_diario','data','desc', v => cantiereDiario = v, cantiereDiario),
     carica('cantiere_nonconformita','data_apertura','desc', v => cantiereNC = v, cantiereNC),
     carica('cantiere_materiali','data','desc', v => cantiereMateriali = v, cantiereMateriali),
+    carica('cantiere_avanzamenti','data','asc', v => cantiereAvanzamenti = v, cantiereAvanzamenti),
   ]);
   if (!cantiereFasi.length && currentRole === 'admin') {
     if (confirm('Nessuna fase di cantiere trovata. Vuoi creare le fasi standard (progettazione, fondamenta, struttura, tetto, impianti, finiture...)? Potrai modificarle in seguito.')) {
@@ -3912,8 +3948,16 @@ function aggiornaHeroCantiere() {
     tile('Fasi completate', nFasi ? done + '/' + nFasi : '—', inCorso ? inCorso + ' in corso' : '', 'fasi') +
     tile('Speso', eur0(speso), budget ? 'su ' + eur0(budget) + ' (' + Math.round(speso/budget*100) + '%)' : '', 'costi', budget && speso > budget) +
     tile('Non conformità', ncAperte.length, ncAperte.length ? (ncAlte ? ncAlte + ' ad alta priorità' : 'aperte') : 'nessuna aperta', 'qualita', ncAlte > 0) +
-    tile('Fine lavori', fine ? new Date(fine + 'T12:00:00').toLocaleDateString('it-IT',{day:'numeric', month:'short', year:'2-digit'}) : '—',
-      ggFine === null ? 'imposta le date' : ggFine >= 0 ? 'tra ' + ggFine + ' giorni' : 'prevista ' + (-ggFine) + ' gg fa', 'panoramica', ggFine !== null && ggFine < 0 && done < nFasi);
+    (() => {
+      const prev = previsioneFineLavori();
+      let sub = ggFine === null ? 'imposta le date' : ggFine >= 0 ? 'tra ' + ggFine + ' giorni' : 'prevista ' + (-ggFine) + ' gg fa';
+      let warn = ggFine !== null && ggFine < 0 && done < nFasi;
+      if (prev && prev.stima && Math.abs(prev.delta) >= 3) {
+        sub = 'stima ' + prev.stima.toLocaleDateString('it-IT',{day:'numeric', month:'short', year:'2-digit'}) + ' (' + (prev.delta > 0 ? '+' : '') + prev.delta + ' gg)';
+        warn = warn || prev.delta > 7;
+      }
+      return tile('Fine lavori', fine ? new Date(fine + 'T12:00:00').toLocaleDateString('it-IT',{day:'numeric', month:'short', year:'2-digit'}) : '—', sub, 'panoramica', warn);
+    })();
 
   // badge sulle schede
   const nRitardo = cantiereFasi.filter(f => faseInRitardoGg(f) > 0).length;
@@ -3924,6 +3968,100 @@ function aggiornaHeroCantiere() {
   setBadge('cantBadgeCosti', fasiSforate, true);
 
   renderCantierePanoramica();
+}
+
+// ── ANALISI AVANZAMENTO ──
+const GIORNO_MS = 86400000;
+const FASE_FERMA_GG = 14;
+const dLoc = iso => new Date(iso && iso.length === 10 ? iso + 'T00:00:00' : iso);
+function pesiFasi(lista) {
+  const budgets = lista.map(f => parseFloat(f.budget_previsto||0)).filter(b => b > 0);
+  const medio = budgets.length ? budgets.reduce((a,b) => a+b, 0) / budgets.length : 1;
+  return lista.map(f => { const b = parseFloat(f.budget_previsto||0); return b > 0 ? b : medio; });
+}
+function previstoFaseAl(f, t) {
+  const a = dLoc(f.data_inizio).getTime(), b = dLoc(f.data_fine).getTime() + GIORNO_MS;
+  if (t <= a) return 0; if (t >= b) return 100;
+  return (t - a) / (b - a) * 100;
+}
+// Punti (tempo, %) noti per una fase: inizio a 0, ogni aggiornamento registrato, valore attuale
+function puntiRealiFase(f) {
+  const recs = cantiereAvanzamenti.filter(r => r.fase_id === f.id && r.data).sort((x,y) => x.data.localeCompare(y.data));
+  const pct = f.percentuale || 0, now = Date.now();
+  const pts = [];
+  let inizioT = f.data_inizio ? dLoc(f.data_inizio).getTime() : null;
+  if (recs.length) {
+    const t0 = new Date(recs[0].data).getTime();
+    if (inizioT === null || inizioT > t0) inizioT = (recs[0].da || 0) > 0 ? t0 - GIORNO_MS : null;
+    if (inizioT !== null) pts.push([inizioT, 0]);
+    recs.forEach(r => { const tt = new Date(r.data).getTime(); pts.push([tt, r.da||0]); pts.push([tt, r.a||0]); });
+    pts.push([Math.max(now, pts[pts.length-1][0]), pct]);
+  } else if (pct >= 100 && f.data_fine_reale) {
+    const fr = dLoc(f.data_fine_reale).getTime() + GIORNO_MS - 1;
+    if (inizioT !== null && inizioT < fr) pts.push([inizioT, 0]);
+    pts.push([fr, 100]);
+  } else if (pct > 0) {
+    if (inizioT !== null && inizioT < now) pts.push([inizioT, 0]);
+    pts.push([now, pct]);
+  }
+  return pts;
+}
+function valoreAl(pts, t) {
+  if (!pts.length || t < pts[0][0]) return 0;
+  for (let i = pts.length - 1; i >= 0; i--) {
+    if (pts[i][0] <= t) {
+      const p = pts[i], n = pts[i+1];
+      if (!n) return p[1];
+      if (n[0] === p[0]) return n[1];
+      return p[1] + (n[1] - p[1]) * (t - p[0]) / (n[0] - p[0]);
+    }
+  }
+  return 0;
+}
+function curvaAvanzamento() {
+  const fasi = cantiereFasi.filter(f => f.data_inizio && f.data_fine);
+  if (!fasi.length) return null;
+  const pesi = pesiFasi(fasi), W = pesi.reduce((a,b) => a+b, 0);
+  const start = Math.min(...fasi.map(f => dLoc(f.data_inizio).getTime()));
+  const end = Math.max(...fasi.map(f => dLoc(f.data_fine).getTime())) + GIORNO_MS;
+  const pts = fasi.map(puntiRealiFase);
+  return {
+    start, end, fasi,
+    pianoAl: t => fasi.reduce((acc,f,i) => acc + previstoFaseAl(f,t) * pesi[i], 0) / W,
+    realeAl: t => fasi.reduce((acc,f,i) => acc + valoreAl(pts[i], t) * pesi[i], 0) / W
+  };
+}
+// Previsione con il metodo "earned schedule": quando il piano prevedeva di arrivare alla % di oggi?
+function previsioneFineLavori() {
+  const c = curvaAvanzamento(); if (!c) return null;
+  const now = Date.now();
+  const reale = c.realeAl(now), piano = c.pianoAl(now);
+  const base = {reale, piano, fineP: new Date(c.end - GIORNO_MS)};
+  if (now <= c.start) return base;
+  if (reale >= 99.5) return {...base, completato: true};
+  if (reale < 1) return base;
+  let es = null;
+  for (let t = c.start; t <= c.end; t += GIORNO_MS) { if (c.pianoAl(t) >= reale) { es = t - c.start; break; } }
+  if (es === null) es = c.end - c.start;
+  const at = now - c.start;
+  const sv = Math.round((es - at) / GIORNO_MS); // negativo = indietro rispetto al programma
+  if (es <= 0) return {...base, sv};
+  let fineStimataT = c.start + (c.end - c.start) * at / es;
+  if (fineStimataT < now + GIORNO_MS) fineStimataT = now + GIORNO_MS;
+  const stima = new Date(fineStimataT - GIORNO_MS);
+  return {...base, sv, stima, delta: Math.round((fineStimataT - c.end) / GIORNO_MS)};
+}
+function ultimoAggiornamentoFase(f) {
+  let ult = null;
+  cantiereAvanzamenti.forEach(r => { if (r.fase_id === f.id && r.data && (!ult || r.data > ult)) ult = r.data; });
+  return ult;
+}
+function giorniFermaFase(f) {
+  const pct = f.percentuale || 0;
+  if (pct <= 0 || pct >= 100) return 0;
+  const ult = ultimoAggiornamentoFase(f);
+  if (!ult) return 0; // nessuno storico ancora: non possiamo dirlo
+  return Math.floor((Date.now() - new Date(ult).getTime()) / GIORNO_MS);
 }
 
 // Giorni di ritardo di una fase ancora aperta (0 se in tempo)
@@ -3945,7 +4083,7 @@ window.cantiereSezione = function(nome) {
   const tab = document.querySelector('#cantTabs .cant-tab.active');
   if (tab) tab.scrollIntoView({inline:'center', block:'nearest', behavior:'smooth'});
   // grafici e Gantt vanno ridisegnati quando diventano visibili (da nascosti hanno larghezza zero)
-  if (nome === 'panoramica') renderCantiereGantt();
+  if (nome === 'panoramica') { renderCantiereGantt(); renderCantierePanoramica(); }
   if (nome === 'costi') { renderCantiereScostamento(); renderCantiereBurndown(); }
   const content = document.querySelector('.content'), tabs = document.getElementById('cantTabs');
   if (content && tabs && content.scrollTop > tabs.offsetTop) content.scrollTop = tabs.offsetTop - 4;
@@ -3970,6 +4108,7 @@ function renderCantierePanoramica() {
 
   // In corso ora
   const inCorso = sorted.filter(f => (f.percentuale||0) > 0 && (f.percentuale||0) < 100);
+  const testoAggiornata = f => { const u = ultimoAggiornamentoFase(f); if (!u) return ''; const g = Math.floor((Date.now() - new Date(u).getTime()) / GIORNO_MS); return g >= FASE_FERMA_GG ? ` · <span class="late">⏸️ ferma da ${g} gg</span>` : ' · agg. ' + (g === 0 ? 'oggi' : g === 1 ? 'ieri' : g + ' gg fa'); };
   const elIC = document.getElementById('cantInCorso');
   if (elIC) {
     if (!sorted.length) elIC.innerHTML = '<div class="empty-state" style="padding:1rem"><i class="ti ti-building-cottage"></i><p>Nessuna fase creata. Vai su <strong>Fasi</strong> per iniziare.</p></div>';
@@ -3978,13 +4117,15 @@ function renderCantierePanoramica() {
       elIC.innerHTML = `<div style="font-size:13px;color:var(--muted)">Nessuna fase in corso.${prox ? ' Prossima: <strong style="color:var(--text)">' + escH(prox.nome) + '</strong>' + (prox.data_inizio ? ' (inizio previsto ' + dataBreveIt(prox.data_inizio) + ')' : '') : ''}</div>`;
     } else elIC.innerHTML = inCorso.map(f => {
       const pct = f.percentuale||0, rit = faseInRitardoGg(f);
-      const sub = rit ? `<span class="late">⏰ in ritardo di ${rit} gg</span>` : f.data_fine ? `fine prevista ${dataBreveIt(f.data_fine)} · tra ${traGg(f.data_fine)} gg` : 'nessuna data di fine';
+      const sub = (rit ? `<span class="late">⏰ in ritardo di ${rit} gg</span>` : f.data_fine ? `fine prevista ${dataBreveIt(f.data_fine)} · tra ${traGg(f.data_fine)} gg` : 'nessuna data di fine') + testoAggiornata(f);
       return `<div class="cant-mini" onclick="apriDettaglioFase('${f.id}')">
         <div class="cant-mini-body"><div class="cant-mini-nome">${escH(f.nome)}</div><div class="cant-mini-sub">${sub}</div>
         <div class="fase-bar"><div class="fase-bar-fill" style="width:${pct}%${rit?';background:linear-gradient(90deg,#dc2626,#f87171)':''}"></div></div></div>
         <div class="cant-mini-pct">${pct}%</div></div>`;
     }).join('');
   }
+
+  if (cantSezioneAttiva === 'panoramica' && document.getElementById('panelCantiere')?.classList.contains('active')) renderCantiereCurva();
 
   // Prossime tappe (inizi e fine previste future)
   const tappe = [];
@@ -4002,20 +4143,169 @@ function renderCantierePanoramica() {
       <div class="cant-tappa-txt">${t.txt}<small>${g === 0 ? 'oggi' : g === 1 ? 'domani' : 'tra ' + g + ' giorni'}</small></div></div>`;
   }).join('') : '<div style="font-size:13px;color:var(--muted)">Nessuna tappa futura: aggiungi date di inizio e fine alle fasi.</div>';
 
-  // Ultime dal cantiere
+  // Ultime dal cantiere: note del diario e aggiornamenti di avanzamento, in ordine di tempo
   const elU = document.getElementById('cantUltime');
   if (elU) {
-    const ult = cantiereDiario.slice(0,3);
+    const eventi = [
+      ...cantiereDiario.map(d => ({tipo:'d', data:d.data, x:d})),
+      ...cantiereAvanzamenti.filter(r => (r.a !== r.da || r.nota) && !cantiereDiario.some(d => d.fase_id === r.fase_id && Math.abs(new Date(d.data) - new Date(r.data)) < 120000)).map(r => ({tipo:'a', data:r.data, x:r}))
+    ].sort((a,b) => String(b.data).localeCompare(String(a.data))).slice(0,4);
     const foto = [...cantiereFoto].sort((a,b) => new Date(b.data)-new Date(a.data)).slice(0,8);
-    elU.innerHTML = (ult.length ? ult.map(d => {
-      const f = d.fase_id ? cantiereFasi.find(x => x.id === d.fase_id) : null;
+    elU.innerHTML = (eventi.length ? eventi.map(ev => {
+      const d = ev.x, f = d.fase_id ? cantiereFasi.find(x => x.id === d.fase_id) : null;
+      const quando = new Date(d.data).toLocaleDateString('it-IT',{day:'numeric', month:'short'});
+      if (ev.tipo === 'a') return `<div class="cant-ult" onclick="apriDettaglioFase('${d.fase_id}')" style="cursor:pointer">${d.foto ? `<img src="${d.foto}">` : '<span class="cant-ult-ic">📈</span>'}
+        <div style="flex:1;min-width:0"><div class="cant-ult-txt"><strong>${escH(f ? f.nome : 'Fase')}</strong>: ${d.da}% → ${d.a}%${d.nota ? ' · ' + escH(d.nota) : ''}</div>
+        <div class="cant-ult-meta">${quando}${d.autore ? ' · ' + escH(d.autore) : ''}</div></div></div>`;
       return `<div class="cant-ult">${d.foto ? `<img src="${d.foto}" onclick="apriDiarioFotoLightbox('${d.id}')">` : ''}
         <div style="flex:1;min-width:0"><div class="cant-ult-txt">${escH(d.testo || '📷 Foto')}</div>
-        <div class="cant-ult-meta">${new Date(d.data).toLocaleDateString('it-IT',{day:'numeric', month:'short'})}${f ? ' · 🏗️ ' + escH(f.nome) : ''}${d.autore ? ' · ' + escH(d.autore) : ''}</div></div></div>`;
-    }).join('') : '<div style="font-size:13px;color:var(--muted)">Ancora nessuna nota nel diario.</div>')
+        <div class="cant-ult-meta">${quando}${f ? ' · 🏗️ ' + escH(f.nome) : ''}${d.autore ? ' · ' + escH(d.autore) : ''}</div></div></div>`;
+    }).join('') : '<div style="font-size:13px;color:var(--muted)">Ancora nessuna nota o aggiornamento.</div>')
     + (foto.length ? `<div class="cant-strip">${foto.map(x => `<img src="${x.foto}" loading="lazy" onclick="openCantiereLightbox('${x.id}')">`).join('')}</div>` : '');
   }
 }
+
+let chartCantiereCurvaInst = null, _curvaAnimata = false;
+function renderCantiereCurva() {
+  const card = document.getElementById('cantCurvaCard');
+  if (!card) return;
+  const c = curvaAvanzamento();
+  if (!c) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  const now = Date.now(), fineAsse = Math.max(c.end, now);
+  const N = 28, punti = [];
+  for (let i = 0; i <= N; i++) punti.push(c.start + (fineAsse - c.start) * i / N);
+  const labels = punti.map(t => new Date(t).toLocaleDateString('it-IT',{day:'2-digit', month:'short'}));
+  const piano = punti.map(t => Math.round(c.pianoAl(t) * 10) / 10);
+  const reale = punti.map((t,i) => t <= now ? Math.round(c.realeAl(t) * 10) / 10 : (i > 0 && punti[i-1] < now ? Math.round(c.realeAl(now) * 10) / 10 : null));
+  const prev = previsioneFineLavori();
+  const chip = document.getElementById('cantCurvaChip');
+  const testo = document.getElementById('cantCurvaTesto');
+  if (prev) {
+    const diffPunti = Math.round(prev.reale - prev.piano);
+    if (prev.completato) { chip.className = 'scost-badge ok'; chip.textContent = 'Lavori completati'; }
+    else if (prev.sv === undefined) { chip.className = 'scost-badge neutro'; chip.textContent = 'Non ancora iniziato'; }
+    else if (prev.sv <= -3) { chip.className = 'scost-badge warn'; chip.textContent = (-prev.sv) + ' gg indietro sul programma'; }
+    else if (prev.sv >= 3) { chip.className = 'scost-badge ok'; chip.textContent = prev.sv + ' gg avanti sul programma'; }
+    else { chip.className = 'scost-badge ok'; chip.textContent = 'In linea con il programma'; }
+    const fmtD = d => d.toLocaleDateString('it-IT',{day:'numeric', month:'long', year:'numeric'});
+    let t = `Oggi: <strong>${Math.round(prev.reale)}%</strong> fatto contro <strong>${Math.round(prev.piano)}%</strong> previsto (${diffPunti >= 0 ? '+' : ''}${diffPunti} punti).`;
+    if (prev.stima) t += `<br>Al ritmo attuale la fine lavori è stimata al <strong>${fmtD(prev.stima)}</strong>` + (Math.abs(prev.delta) >= 3 ? ` — ${Math.abs(prev.delta)} giorni ${prev.delta > 0 ? 'dopo' : 'prima di'} quanto previsto (${fmtD(prev.fineP)}).` : `, in linea con il previsto.`);
+    if (!cantiereAvanzamenti.length) t += `<br><span style="color:var(--muted)">La curva reale è ancora una stima: diventa precisa man mano che registri gli avanzamenti dal dettaglio di ogni fase.</span>`;
+    testo.innerHTML = t;
+  }
+  const draw = () => {
+    const el = document.getElementById('chartCantiereCurva'); if (!el || !el.offsetWidth) return;
+    if (chartCantiereCurvaInst) chartCantiereCurvaInst.destroy();
+    chartCantiereCurvaInst = new window.Chart(el.getContext('2d'), {
+      type: 'line',
+      data: { labels, datasets: [
+        {label:'Previsto', data: piano, borderColor:'rgba(8,145,178,.9)', backgroundColor:'rgba(8,145,178,.08)', borderDash:[5,3], fill:true, tension:.25, pointRadius:0, borderWidth:2},
+        {label:'Reale', data: reale, borderColor:'#15803d', backgroundColor:'rgba(22,163,74,.18)', fill:true, tension:.2, pointRadius:0, borderWidth:2.5, spanGaps:false}
+      ]},
+      options: {
+        responsive:true, maintainAspectRatio:false, animation: _curvaAnimata ? false : {duration:700},
+        interaction:{mode:'index', intersect:false},
+        plugins:{legend:{position:'bottom', labels:{boxWidth:12, font:{size:11}}}, tooltip:{callbacks:{label: x => x.dataset.label + ': ' + String(x.raw).replace('.', ',') + '%'}}},
+        scales:{y:{min:0, max:100, ticks:{stepSize:25, callback: v => v + '%'}, grid:{color:'rgba(0,0,0,.04)'}}, x:{grid:{display:false}, ticks:{font:{size:9}, maxRotation:0, autoSkip:true, maxTicksLimit:7}}}
+      }
+    });
+    _curvaAnimata = true;
+  };
+  loadChartJs().then(draw).catch(e => console.warn(e));
+}
+
+// ── REPORT SETTIMANALE ──
+function testoReportSettimanale() {
+  const now = Date.now(), da = now - 7 * GIORNO_MS;
+  const fmtG = t => new Date(t).toLocaleDateString('it-IT',{day:'numeric', month:'short'});
+  const nomeFase = id => (cantiereFasi.find(f => f.id === id) || {}).nome || 'Fase';
+  const R = ['🏗️ *Report settimanale cantiere*', fmtG(da) + ' – ' + new Date(now).toLocaleDateString('it-IT',{day:'numeric', month:'short', year:'numeric'}), ''];
+  const pct = Math.round(avanzamentoPesatoCantiere());
+  const c = curvaAvanzamento();
+  const delta = c ? Math.round(c.realeAl(now) - c.realeAl(da)) : 0;
+  R.push('Avanzamento complessivo: *' + pct + '%*' + (c && delta ? ' (' + (delta > 0 ? '+' : '') + delta + ' punti in 7 giorni)' : ''));
+  const prev = previsioneFineLavori();
+  if (prev && prev.sv !== undefined && !prev.completato) {
+    R.push('Rispetto al programma: ' + (prev.sv <= -3 ? (-prev.sv) + ' giorni indietro' : prev.sv >= 3 ? prev.sv + ' giorni avanti' : 'in linea'));
+    if (prev.stima) R.push('Fine lavori stimata: ' + prev.stima.toLocaleDateString('it-IT',{day:'numeric', month:'long', year:'numeric'}) + ' (prevista ' + prev.fineP.toLocaleDateString('it-IT',{day:'numeric', month:'long', year:'numeric'}) + ')');
+  }
+  // avanzamenti della settimana, raggruppati per fase
+  const recs = cantiereAvanzamenti.filter(r => r.data && new Date(r.data).getTime() >= da).sort((a,b) => a.data.localeCompare(b.data));
+  const perFase = {};
+  recs.forEach(r => { if (!perFase[r.fase_id]) perFase[r.fase_id] = {da: r.da, a: r.a, note: []}; perFase[r.fase_id].a = r.a; if (r.nota) perFase[r.fase_id].note.push(r.nota); });
+  R.push('', '📈 *Avanzamenti della settimana*');
+  const voci = Object.entries(perFase).filter(([,v]) => v.a !== v.da || v.note.length);
+  if (voci.length) voci.forEach(([id,v]) => R.push('• ' + nomeFase(id) + ': ' + v.da + '% → ' + v.a + '%' + (v.note.length ? ' – ' + v.note.join('; ') : '')));
+  else R.push('• Nessun aggiornamento registrato');
+  // spese
+  const sp = spese.filter(x => x.cantiere && x.data && dLoc(x.data).getTime() >= da - GIORNO_MS + 1);
+  if (sp.length) {
+    R.push('', '💶 *Spese della settimana*: €' + fmtEur(sp.reduce((t,x) => t + parseFloat(x.importo||0), 0)));
+    sp.slice(0,6).forEach(x => R.push('• ' + (x.descrizione || x.oggetto || 'Spesa') + ': €' + fmtEur(x.importo)));
+  }
+  // non conformità
+  const ncNuove = cantiereNC.filter(n => n.data_apertura && new Date(n.data_apertura).getTime() >= da);
+  const ncRisolte = cantiereNC.filter(n => n.stato === 'risolto' && n.data_risoluzione && new Date(n.data_risoluzione).getTime() >= da);
+  const ncAperte = cantiereNC.filter(n => n.stato !== 'risolto');
+  if (ncNuove.length || ncRisolte.length || ncAperte.length) {
+    const pl = (n, uno, molti) => n + ' ' + (n === 1 ? uno : molti);
+    R.push('', '⚠️ *Non conformità*: ' + pl(ncNuove.length, 'nuova', 'nuove') + ', ' + pl(ncRisolte.length, 'risolta', 'risolte') + ', ' + pl(ncAperte.length, 'ancora aperta', 'ancora aperte'));
+    ncNuove.slice(0,3).forEach(n => R.push('• ' + (n.testo || '').slice(0,100)));
+  }
+  // diario
+  const note = cantiereDiario.filter(d => d.testo && new Date(d.data).getTime() >= da && !/\(avanzamento \d+% → \d+%\)$/.test(d.testo)).slice(0,5);
+  if (note.length) { R.push('', '📔 *Dal diario*'); note.forEach(d => R.push('• ' + fmtG(new Date(d.data).getTime()) + ': ' + d.testo.slice(0,140))); }
+  // prossime 2 settimane
+  const lim = now + 14 * GIORNO_MS, tappe = [];
+  cantiereFasi.forEach(f => {
+    const p = f.percentuale || 0;
+    if (p === 0 && f.data_inizio) { const t = dLoc(f.data_inizio).getTime(); if (t >= now - GIORNO_MS && t <= lim) tappe.push([t, 'inizio ' + f.nome]); }
+    if (p < 100 && f.data_fine) { const t = dLoc(f.data_fine).getTime(); if (t >= now - GIORNO_MS && t <= lim) tappe.push([t, 'fine prevista ' + f.nome]); }
+  });
+  if (tappe.length) { R.push('', '📌 *Prossime 2 settimane*'); tappe.sort((a,b) => a[0]-b[0]).forEach(([t,x]) => R.push('• ' + fmtG(t) + ': ' + x)); }
+  return R.join('\n');
+}
+window.anteprimaReportSettimanale = function() {
+  const el = document.getElementById('cantReportAnteprima');
+  el.style.display = el.style.display === 'block' ? 'none' : 'block';
+  el.textContent = testoReportSettimanale();
+};
+window.condividiReportSettimanale = function() { apriWhatsAppCon(testoReportSettimanale(), ''); };
+window.pdfReportSettimanale = async function() {
+  try {
+    showToast('⏳ Preparo il PDF…');
+    await loadScriptOnce('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({unit:'mm', format:'a4'});
+    // il font standard del PDF non ha le emoji: le togliamo e sostituiamo i simboli non supportati
+    const pulisci = t => t.replace(/[\u{1F000}-\u{1FAFF}\u{2600}-\u{27BF}\u{FE0F}\u{200D}]/gu, '').replace(/→/g, '->').replace(/−/g, '-').replace(/\*/g, '').trim();
+    const righe = testoReportSettimanale().split('\n');
+    let y = 18;
+    pdf.setFillColor(8,145,178); pdf.rect(0, 0, 210, 6, 'F');
+    righe.forEach((r, i) => {
+      const titolo = /^\S*\s*\*.+\*/.test(r);
+      const txt = pulisci(r);
+      if (!txt) { y += 3; return; }
+      if (i === 0) { pdf.setFont('helvetica','bold'); pdf.setFontSize(17); pdf.setTextColor(14,116,144); }
+      else if (i === 1) { pdf.setFont('helvetica','normal'); pdf.setFontSize(11); pdf.setTextColor(100,116,139); }
+      else if (titolo) { pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.setTextColor(15,42,19); y += 1; }
+      else { pdf.setFont('helvetica','normal'); pdf.setFontSize(10.5); pdf.setTextColor(30,41,59); }
+      pdf.splitTextToSize(txt, 180).forEach(l => { if (y > 280) { pdf.addPage(); y = 18; } pdf.text(l, 15, y); y += i === 0 ? 8 : 5.6; });
+    });
+    // grafico della curva, se visibile
+    const cv = document.getElementById('chartCantiereCurva');
+    if (cv && cv.offsetWidth && chartCantiereCurvaInst) {
+      const h = 180 * cv.height / cv.width;
+      if (y + h > 285) { pdf.addPage(); y = 18; }
+      pdf.setFont('helvetica','bold'); pdf.setFontSize(12); pdf.setTextColor(15,42,19); pdf.text('Avanzamento reale vs previsto', 15, y + 4); y += 8;
+      pdf.addImage(cv.toDataURL('image/png'), 'PNG', 15, y, 180, h); y += h;
+    }
+    pdf.setFontSize(8); pdf.setTextColor(148,163,184);
+    pdf.text('Giardino di Quintilina · v' + window.APP_VERSION + ' · generato il ' + new Date().toLocaleString('it-IT'), 15, 292);
+    pdf.save('report-cantiere-' + isoLocale() + '.pdf');
+  } catch(e) { showToast('❌ PDF non creato: ' + e.message); }
+};
 
 function renderCantiereFasi() {
   const el = document.getElementById('cantiereFasiList');
@@ -4041,6 +4331,8 @@ function renderCantiereFasi() {
     if (rit) meta.push(`<span class="late">⏰ +${rit} gg</span>`);
     else if (avvioRit) meta.push(`<span class="late">⏳ avvio in ritardo di ${avvioRit} gg</span>`);
     if (budget || speso) meta.push('💰 €' + fmtEur0(speso) + (budget ? ' / ' + fmtEur0(budget) : ''));
+    const ferma = giorniFermaFase(f);
+    if (ferma >= FASE_FERMA_GG) meta.push(`<span class="late">⏸️ ferma da ${ferma} gg</span>`);
     const ic = [];
     const nDoc = cantiereDocumenti.filter(d => d.fase_id === f.id).length;
     if (nDoc) ic.push(`<span class="fc-ic"><i class="ti ti-paperclip"></i>${nDoc}</span>`);
@@ -4065,6 +4357,7 @@ function renderCantiereFasi() {
 // ── DETTAGLIO FASE (bottom sheet, visibile anche in sola lettura) ──
 let faseDettaglioId = null;
 window.apriDettaglioFase = function(id) {
+  if (faseDettaglioId !== id) fdFotoPending = null;
   faseDettaglioId = id;
   renderDettaglioFase();
   document.getElementById('modalFaseDettaglio').style.display = 'flex';
@@ -4077,16 +4370,38 @@ window.dettaglioAzione = function(azione) {
     diario: () => { cantiereSezione('diario'); const sel = document.getElementById('diarioFase'); if (sel) sel.value = id; }};
   if (mappa[azione]) chiudiDettaglioEApri(mappa[azione]);
 };
+let fdFotoPending = null;
+window.fdFotoScelta = async function(input) {
+  const file = input.files && input.files[0]; if (!file) return;
+  try {
+    fdFotoPending = await comprimiFoto(file, 1000, 0.7);
+    const prev = document.getElementById('fdFotoPrev');
+    if (prev) { prev.src = fdFotoPending; prev.style.display = 'block'; }
+  } catch(e) { showToast('❌ Foto non leggibile'); }
+  input.value = '';
+};
 window.salvaAvanzamentoDettaglio = async function() {
   const v = document.getElementById('fdSlider');
-  if (!v || !faseDettaglioId) return;
-  await updateFasePercentualeRapida(faseDettaglioId, v.value);
+  const f = cantiereFasi.find(x => x.id === faseDettaglioId);
+  if (!v || !f) return;
+  const nota = (document.getElementById('fdNota')?.value || '').trim();
+  const a = parseInt(v.value), da = f.percentuale || 0;
+  if (a === da && !nota && !fdFotoPending) { showToast('Sposta la percentuale, scrivi una nota o aggiungi una foto'); return; }
+  const btn = document.getElementById('fdSalvaBtn'); if (btn) { btn.disabled = true; btn.textContent = 'Salvo…'; }
+  try {
+    await updateFasePercentualeRapida(f.id, a, {nota, foto: fdFotoPending, diario: document.getElementById('fdDiario')?.checked});
+    fdFotoPending = null;
+    const n = document.getElementById('fdNota'); if (n) n.value = '';
+    showToast(a !== da ? '✅ Avanzamento registrato: ' + da + '% → ' + a + '%' : '✅ Aggiornamento registrato');
+  } catch(e) { showToast('❌ Errore: ' + e.message); }
   renderDettaglioFase();
 };
 function renderDettaglioFase() {
   const f = cantiereFasi.find(x => x.id === faseDettaglioId);
   const body = document.getElementById('faseDettaglioBody');
   if (!f || !body) return;
+  // conserva ciò che si sta scrivendo se un aggiornamento in tempo reale ridisegna la scheda
+  const keep = {slider: document.getElementById('fdSlider')?.value, nota: document.getElementById('fdNota')?.value, diario: document.getElementById('fdDiario')?.checked, scroll: body.parentElement ? body.parentElement.scrollTop : 0};
   const isAdmin = currentRole === 'admin';
   const pct = f.percentuale || 0, stato = statoFase(pct), rit = faseInRitardoGg(f);
   const statoLabelMap = {non_iniziata:'Non iniziata', in_corso:'In corso', completata:'Completata'};
@@ -4112,13 +4427,21 @@ function renderDettaglioFase() {
       <div class="fd-pct">${pct}%</div>
       <div style="flex:1;padding-bottom:6px"><div class="fase-bar" style="margin:0;height:9px"><div class="fase-bar-fill ${pct>=100?'done':''}" style="width:${pct}%"></div></div></div>
     </div>
+    ${(() => { const u = ultimoAggiornamentoFase(f); if (!u) return ''; const g = Math.floor((Date.now() - new Date(u).getTime()) / GIORNO_MS); return `<div style="font-size:12px;color:${g >= FASE_FERMA_GG && pct > 0 && pct < 100 ? 'var(--r6)' : 'var(--muted)'};margin-top:6px">${g >= FASE_FERMA_GG && pct > 0 && pct < 100 ? '⏸️ Nessun aggiornamento da ' + g + ' giorni' : 'Ultimo aggiornamento: ' + (g === 0 ? 'oggi' : g === 1 ? 'ieri' : g + ' giorni fa')}</div>`; })()}
     ${isAdmin ? `<div class="fd-update">
-      <div style="font-size:12px;font-weight:700;color:#0e7490;margin-bottom:6px">Aggiorna avanzamento</div>
+      <div style="font-size:12px;font-weight:700;color:#0e7490;margin-bottom:6px">Registra un avanzamento</div>
       <div class="fd-update-row">
         <input type="range" id="fdSlider" min="0" max="100" step="5" value="${pct}" oninput="document.getElementById('fdSliderVal').textContent=this.value+'%'">
         <span class="fd-update-val" id="fdSliderVal">${pct}%</span>
-        <button class="btn btn-sm" style="background:#0891b2;color:#fff;border:none" onclick="salvaAvanzamentoDettaglio()">Salva</button>
-      </div></div>` : ''}
+      </div>
+      <textarea class="form-control" id="fdNota" rows="2" placeholder="Cosa è stato fatto? (facoltativo)" style="margin-top:8px;font-size:14px;min-height:56px"></textarea>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap">
+        <label class="cant-btn btn btn-sm" style="cursor:pointer"><i class="ti ti-camera-plus"></i> Foto<input type="file" accept="image/*" capture="environment" style="display:none" onchange="fdFotoScelta(this)"></label>
+        <img id="fdFotoPrev" src="${fdFotoPending || ''}" style="display:${fdFotoPending ? 'block' : 'none'};width:44px;height:44px;object-fit:cover;border-radius:8px">
+        <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);flex:1;min-width:150px"><input type="checkbox" id="fdDiario" checked style="accent-color:#0891b2"> Pubblica anche nel diario</label>
+      </div>
+      <button class="btn" id="fdSalvaBtn" style="width:100%;margin-top:8px;background:#0891b2;color:#fff;border:none" onclick="salvaAvanzamentoDettaglio()"><i class="ti ti-device-floppy"></i> Salva aggiornamento</button>
+    </div>` : ''}
     <div class="fd-grid">
       ${cell('Inizio previsto', f.data_inizio ? dataBreveIt(f.data_inizio, true) : '—')}
       ${cell('Fine prevista', f.data_fine ? dataBreveIt(f.data_fine, true) : '—')}
@@ -4141,22 +4464,78 @@ function renderDettaglioFase() {
     </div>
     ${f.note ? `<div class="fd-sec">Note</div><div style="font-size:13px;line-height:1.6;white-space:pre-wrap">${escH(f.note)}</div>` : ''}
     ${ncF.length ? `<div class="fd-sec">Non conformità aperte</div>${ncF.map(n => `<div class="cant-att-row${n.priorita==='alta'?' red':''}" onclick="closeModal('modalFaseDettaglio');cantiereSezione('qualita')">${escH((n.testo||'').slice(0,120))}</div>`).join('')}` : ''}
+    ${(() => {
+      const st = cantiereAvanzamenti.filter(r => r.fase_id === f.id).sort((a,b) => String(b.data).localeCompare(String(a.data))).slice(0,8);
+      if (!st.length) return '';
+      return `<div class="fd-sec">Storico avanzamenti</div><div class="fd-storico">${st.map(r => `<div class="fd-st-item">
+        <div class="fd-st-dot"></div>
+        <div style="flex:1;min-width:0"><div class="fd-st-head"><strong>${r.da === r.a ? r.a + '%' : r.da + '% → ' + r.a + '%'}</strong><span>${new Date(r.data).toLocaleDateString('it-IT',{day:'numeric', month:'short', year:'2-digit'})}${r.autore ? ' · ' + escH(r.autore) : ''}</span></div>
+        ${r.nota ? `<div class="fd-st-nota">${escH(r.nota)}</div>` : ''}
+        ${r.foto ? `<img src="${r.foto}" class="fd-st-foto" onclick="this.classList.toggle('big')">` : ''}</div></div>`).join('')}</div>`;
+    })()}
     ${diarioF.length ? `<div class="fd-sec">Dal diario</div>${diarioF.map(d => `<div class="cant-ult">${d.foto ? `<img src="${d.foto}">` : ''}<div style="flex:1;min-width:0"><div class="cant-ult-txt">${escH(d.testo||'📷 Foto')}</div><div class="cant-ult-meta">${new Date(d.data).toLocaleDateString('it-IT',{day:'numeric',month:'short'})}</div></div></div>`).join('')}` : ''}
     <button class="btn btn-secondary" style="width:100%;margin-top:1.25rem" onclick="closeModal('modalFaseDettaglio')">Chiudi</button>`;
+  if (keep.slider !== undefined) {
+    const sl = document.getElementById('fdSlider'); if (sl) { sl.value = keep.slider; const lv = document.getElementById('fdSliderVal'); if (lv) lv.textContent = keep.slider + '%'; }
+    const nt = document.getElementById('fdNota'); if (nt && keep.nota) nt.value = keep.nota;
+    const cb = document.getElementById('fdDiario'); if (cb && keep.diario === false) cb.checked = false;
+    if (body.parentElement) body.parentElement.scrollTop = keep.scroll;
+  }
 }
 
-window.updateFasePercentualeRapida = async function(id, val) {
+// Ogni cambio di % viene salvato nello storico: da qui nascono curva reale, fasi ferme, previsione e report
+async function registraAvanzamento(f, da, a, nota, foto) {
+  const rec = {fase_id: f.id, da: da||0, a: a||0, data: new Date().toISOString(), nota: nota||'', foto: foto||'', autore: currentUser};
+  try {
+    const ref = await addDoc(collection(db,'cantiere_avanzamenti'), rec);
+    if (!cantiereAvanzamenti.some(x => x.id === ref.id)) cantiereAvanzamenti.push({id:ref.id, ...rec});
+  } catch(e) { console.warn('Storico avanzamento non salvato:', e); }
+}
+
+window.updateFasePercentualeRapida = async function(id, val, extra) {
+  extra = extra || {};
   const f = cantiereFasi.find(x => x.id === id); if (!f) return;
   const pct = parseInt(val);
-  f.percentuale = pct;
-  const upd = {percentuale: pct};
-  if (pct >= 100 && !f.data_fine_reale) { upd.data_fine_reale = isoLocale(); f.data_fine_reale = upd.data_fine_reale; }
-  await updateDoc(doc(db,'cantiere_fasi',id), upd);
+  const da = f.percentuale || 0;
+  if (pct !== da) {
+    f.percentuale = pct;
+    const upd = {percentuale: pct};
+    if (pct >= 100 && !f.data_fine_reale) { upd.data_fine_reale = isoLocale(); f.data_fine_reale = upd.data_fine_reale; }
+    await updateDoc(doc(db,'cantiere_fasi',id), upd);
+    addLog('edit','🏗️',`Aggiornato avanzamento "${f.nome}" da ${da}% a ${pct}%`, currentUser);
+  }
+  await registraAvanzamento(f, da, pct, extra.nota, extra.foto);
+  if (extra.diario && (extra.nota || extra.foto)) {
+    const rec = {testo: (extra.nota || '') + (pct !== da ? (extra.nota ? ' ' : '') + `(avanzamento ${da}% → ${pct}%)` : ''),
+      fase_id: f.id, foto: extra.foto || '', data: new Date().toISOString(), autore: currentUser};
+    try { const ref = await addDoc(collection(db,'cantiere_diario'), rec); if (!cantiereDiario.some(x => x.id === ref.id)) cantiereDiario.unshift({id:ref.id, ...rec}); } catch(e) {}
+    renderCantiereDiario();
+  }
   renderCantiereFasi();
   renderCantiereGantt();
-  addLog('edit','🏗️',`Aggiornato avanzamento "${f.nome}" a ${pct}%`, currentUser);
-  if (pct >= 100) showToast('🎉 Fase completata: ' + f.nome);
+  if (pct >= 100 && da < 100) { showToast('🎉 Fase completata: ' + f.nome); try { launchConfetti(); } catch(e) {} }
 };
+
+// Riduce una foto (max 1000px, JPEG) per stare comodi sotto il limite di Firestore
+function comprimiFoto(file, maxSize, qualita) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        let w = img.width, h = img.height, m = maxSize || 1000;
+        if (w > h) { if (w > m) { h = Math.round(h*m/w); w = m; } } else { if (h > m) { w = Math.round(w*m/h); h = m; } }
+        const c = document.createElement('canvas'); c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL('image/jpeg', qualita || 0.7));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
 
 function faseContattiIds(f) {
   if (Array.isArray(f.contatti_ids)) return f.contatti_ids;
@@ -4279,6 +4658,7 @@ window.updateFase = async function() {
     note: document.getElementById('fNote').value.trim()
   };
   await updateDoc(doc(db,'cantiere_fasi',editingFaseId), upd);
+  if ((f.percentuale||0) !== percentuale) await registraAvanzamento(f, f.percentuale||0, percentuale, '', '');
   Object.assign(f, upd);
   addLog('edit','✏️',`Modificata fase: ${nome}`, currentUser);
   closeModal('modalFase');
@@ -4384,20 +4764,30 @@ function renderCantiereScostamento() {
   const totDelta = totSpeso - totPrevisto;
   const totDeltaPct = totPrevisto > 0 ? Math.round(totDelta/totPrevisto*100) : 0;
 
-  const clsTot = totDelta > totPrevisto*0.05 ? 'warn' : totDelta < 0 ? 'ok' : 'neutro';
+  // Confronto corretto: lo speso va paragonato al VALORE del lavoro già fatto (budget × avanzamento),
+  // non all'intero budget del progetto (che a metà lavori dava sempre un falso "sotto budget").
+  const valoreFatto = dati.reduce((t,d) => t + d.previsto * d.pct / 100, 0);
+  const dCosto = totSpeso - valoreFatto;
+  const dCostoPct = valoreFatto > 0 ? Math.round(dCosto / valoreFatto * 100) : 0;
+  const cpi = totSpeso > 0 && valoreFatto > 0 ? valoreFatto / totSpeso : null;
+  const stimaFinale = cpi ? totPrevisto / cpi : null;
+  const clsTot = !valoreFatto ? 'neutro' : dCostoPct > 5 ? 'warn' : dCostoPct < -5 ? 'ok' : 'neutro';
   heroEl.innerHTML = `
     <div class="scost-stat neutro">
-      <div class="scost-stat-val">€ ${fmtEur(totPrevisto)}</div>
-      <div class="scost-stat-label">Previsto</div>
+      <div class="scost-stat-val">€ ${fmtEur0(valoreFatto)}</div>
+      <div class="scost-stat-label">Valore lavori fatti</div>
     </div>
     <div class="scost-stat neutro">
-      <div class="scost-stat-val">€ ${fmtEur(totSpeso)}</div>
-      <div class="scost-stat-label">Effettivo</div>
+      <div class="scost-stat-val">€ ${fmtEur0(totSpeso)}</div>
+      <div class="scost-stat-label">Speso</div>
     </div>
     <div class="scost-stat ${clsTot}">
-      <div class="scost-stat-val">${totDelta>=0?'+':''}${totDeltaPct}%</div>
-      <div class="scost-stat-label">${totDelta>=0?'Sopra budget':'Sotto budget'}</div>
+      <div class="scost-stat-val">${valoreFatto ? (dCostoPct>0?'+':'') + dCostoPct + '%' : '—'}</div>
+      <div class="scost-stat-label">${!valoreFatto ? 'Nessun lavoro' : dCosto > 0 ? 'Costa più del previsto' : 'Costa meno del previsto'}</div>
     </div>
+    <div class="scost-spiega">Budget totale <strong>€ ${fmtEur0(totPrevisto)}</strong>, di cui speso il ${totPrevisto ? Math.round(totSpeso/totPrevisto*100) : 0}%.
+      ${stimaFinale ? `Al ritmo di spesa attuale il costo finale stimato è <strong>€ ${fmtEur0(stimaFinale)}</strong> (${stimaFinale > totPrevisto ? '+' : '−'}€ ${fmtEur0(Math.abs(stimaFinale - totPrevisto))} rispetto al budget).` : ''}
+      <span style="color:var(--muted)">"Valore lavori fatti" = budget di ogni fase × la sua percentuale di avanzamento.</span></div>
   `;
 
   // ── Grafico a barre raggruppate previsto/effettivo per fase ──
@@ -6495,7 +6885,7 @@ async function costruisciBackupObject() {
     versione: window.APP_VERSION,
     dataEsportazione: new Date().toISOString(),
     esportatoDa: currentUser,
-    dati: { piante, attivita, spese, bacheca: note, rubrica, cantiereFasi, cantiereFoto, cantiereDocumenti, cantiereChecklist, cantiereDiario, cantiereNC, cantiereMateriali, pianteFoto, pianteInterventi, mappa: mappaData, log: logData },
+    dati: { piante, attivita, spese, bacheca: note, rubrica, cantiereFasi, cantiereFoto, cantiereDocumenti, cantiereChecklist, cantiereDiario, cantiereNC, cantiereMateriali, cantiereAvanzamenti, pianteFoto, pianteInterventi, mappa: mappaData, log: logData },
     conteggi: { piante: piante.length, attivita: attivita.length, spese: spese.length, note: note.length, contatti: rubrica.length, fasiCantiere: cantiereFasi.length, fotoCantiere: cantiereFoto.length }
   };
 }
@@ -7581,6 +7971,14 @@ window.testWhatsApp = async function() {
 })();
 
 const APP_CHANGELOG = [
+  {v:'6.2', data:'2026-11-01', titolo:'Avanzamento del cantiere', novita:[
+    '📈 Storico avanzamenti: ogni aggiornamento di una fase salva data, percentuale, nota e foto',
+    '📊 Curva dell\'avanzamento reale contro quello previsto, con giorni avanti/indietro sul programma',
+    '🗓️ Data di fine lavori stimata in base al ritmo reale',
+    '⏸️ Avviso per le fasi in corso senza aggiornamenti da oltre 14 giorni',
+    '💶 Costi: lo speso ora è confrontato con il valore dei lavori già fatti, con la stima del costo finale',
+    '🗒️ Report settimanale del cantiere da mandare su WhatsApp o scaricare in PDF',
+  ]},
   {v:'6.1', data:'2026-11-01', titolo:'Nuovo Cantiere', novita:[
     '🏗️ Cantiere diviso in schede: Panoramica, Fasi, Costi, Qualità, Diario e foto',
     '⭕ In alto l\'anello di avanzamento con fasi completate, speso, non conformità e data di fine lavori',
@@ -7993,6 +8391,7 @@ function calcolaRigheCantiereAlert() {
   });
 
   const ncUrgenti = cantiereNC.filter(n => n.priorita === 'alta' && n.stato !== 'risolto');
+  const fasiFerme = cantiereFasi.map(f => ({nome: f.nome, gg: giorniFermaFase(f)})).filter(x => x.gg >= FASE_FERMA_GG);
 
   const oggi = new Date(); oggi.setHours(0,0,0,0);
   const pagamentiContestati = speseCantiere.filter(s => s.stato_pagamento === 'in_contestazione');
@@ -8006,6 +8405,9 @@ function calcolaRigheCantiereAlert() {
   if (fasiInRitardo.length) {
     const lista = fasiInRitardo.slice(0,3).map(f => f.nome+' ('+f.giorni+'gg'+(f.chiuso?' alla chiusura':'')+')').join(', ');
     righe.push(`⏰ <strong>In ritardo:</strong> ${lista}${fasiInRitardo.length>3?' e altre '+(fasiInRitardo.length-3):''}`);
+  }
+  if (fasiFerme.length) {
+    righe.push(`⏸️ <strong>Nessun aggiornamento da oltre ${FASE_FERMA_GG} giorni:</strong> ${fasiFerme.slice(0,3).map(x => x.nome + ' (' + x.gg + 'gg)').join(', ')}`);
   }
   if (ncUrgenti.length) {
     righe.push(`⚠️ <strong>${ncUrgenti.length} non conformità ad alta priorità</strong> ancora aperte`);
@@ -8378,6 +8780,11 @@ async function loadAll() {
   }, err => console.error('Cantiere non conformità listener:', err));
 
   // Listener real-time materiali/forniture per fase cantiere
+  _unsubCantiereAvanzamenti = onSnapshot(query(collection(db,'cantiere_avanzamenti'), orderBy('data','asc')), snap => {
+    cantiereAvanzamenti = snap.docs.map(d => ({id:d.id, ...d.data()}));
+    if (document.getElementById('panelCantiere')?.classList.contains('active')) renderCantiereFasi();
+  }, err => console.error('Cantiere avanzamenti listener:', err));
+
   _unsubCantiereMateriali = onSnapshot(query(collection(db,'cantiere_materiali'), orderBy('data','desc')), snap => {
     cantiereMateriali = snap.docs.map(d => ({id:d.id, ...d.data()}));
     const panelCantiere = document.getElementById('panelCantiere');
