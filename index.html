@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="app-version" content="6.2" data-date="2026-11-01">
+<meta name="app-version" content="6.2.1" data-date="2026-11-01">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Giardino di Quintilina</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
@@ -1189,9 +1189,16 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
         <button class="drawer-item drawer-subitem" id="dnavMeteo" onclick="drawerNav('Meteo')"><i class="ti ti-cloud"></i><span>Meteo e luna</span></button>
         </div>
       </div>
-      <button class="drawer-item" id="dnavKanban" onclick="drawerNav('Kanban')"><i class="ti ti-checklist"></i><span>Attività</span></button>
-      <button class="drawer-item" id="dnavScadenze" onclick="drawerNav('Scadenze')"><i class="ti ti-calendar-due"></i><span>Scadenze</span><span id="dnavBadge" class="drawer-badge" style="display:none">0</span></button>
-      <button class="drawer-item" id="dnavCalendario" onclick="drawerNav('Calendario')"><i class="ti ti-calendar-month"></i><span>Calendario</span></button>
+      <div class="drawer-item-group">
+        <div class="drawer-item-parent">
+          <button class="drawer-item" id="dnavKanban" onclick="drawerNav('Kanban')"><i class="ti ti-checklist"></i><span>Attività</span><span id="dnavBadgeKanban" class="drawer-badge" style="display:none">0</span></button>
+          <button class="drawer-toggle" id="dtogKanban" onclick="toggleDrawerGroup('Kanban', event)" aria-label="Mostra scadenze e calendario"><i class="ti ti-chevron-down"></i></button>
+        </div>
+        <div class="drawer-submenu" id="dsubKanban">
+          <button class="drawer-item drawer-subitem" id="dnavScadenze" onclick="drawerNav('Scadenze')"><i class="ti ti-calendar-due"></i><span>Scadenze</span><span id="dnavBadge" class="drawer-badge" style="display:none">0</span></button>
+          <button class="drawer-item drawer-subitem" id="dnavCalendario" onclick="drawerNav('Calendario')"><i class="ti ti-calendar-month"></i><span>Calendario</span></button>
+        </div>
+      </div>
       <!-- Enciclopedia nascosta per ora (pannello ancora presente): riattivare togliendo display:none -->
       <button class="drawer-item drawer-subitem" style="display:none" id="dnavEnciclopedia" onclick="drawerNav('Enciclopedia')"><i class="ti ti-books"></i><span>Enciclopedia</span></button>
       <button class="drawer-item" style="display:none" id="dnavRacconto" onclick="drawerNav('Racconto')"><i class="ti ti-feather"></i><span>Racconta il giardino</span></button>
@@ -1202,12 +1209,19 @@ var qrcode=function(){function r(t,e){if(void 0===t.length)throw new Error(t.len
       <button class="drawer-item" id="dnavRubrica" onclick="drawerNav('Rubrica')"><i class="ti ti-address-book"></i><span>Rubrica</span></button>
       <div class="drawer-section">Diario</div>
       <button class="drawer-item" id="dnavBacheca" onclick="drawerNav('Bacheca')"><i class="ti ti-message-circle"></i><span>Bacheca</span></button>
-      <button class="drawer-item" id="dnavStorico" onclick="drawerNav('Storico')"><i class="ti ti-clock-hour-4"></i><span>Storico</span></button>
-      <button class="drawer-item" id="dnavLog" onclick="drawerNav('Log')"><i class="ti ti-history"></i><span>Log modifiche</span></button>
       <button class="drawer-item" id="dnavRicerca" onclick="drawerNav('Ricerca')"><i class="ti ti-search"></i><span>Cerca</span></button>
       </div>
       <div class="drawer-footer">
-      <button class="drawer-item" id="dnavImpostazioni" onclick="drawerNav('Impostazioni')"><i class="ti ti-settings"></i><span>Impostazioni</span></button>
+      <div class="drawer-item-group">
+        <div class="drawer-item-parent">
+          <button class="drawer-item" id="dnavImpostazioni" onclick="drawerNav('Impostazioni')"><i class="ti ti-settings"></i><span>Impostazioni</span></button>
+          <button class="drawer-toggle" id="dtogImpostazioni" onclick="toggleDrawerGroup('Impostazioni', event)" aria-label="Mostra storico e log"><i class="ti ti-chevron-down"></i></button>
+        </div>
+        <div class="drawer-submenu" id="dsubImpostazioni">
+          <button class="drawer-item drawer-subitem" id="dnavStorico" onclick="drawerNav('Storico')"><i class="ti ti-clock-hour-4"></i><span>Storico</span></button>
+          <button class="drawer-item drawer-subitem" id="dnavLog" onclick="drawerNav('Log')"><i class="ti ti-history"></i><span>Log modifiche</span></button>
+        </div>
+      </div>
       <button class="drawer-item" id="darkBtnDrawer" onclick="toggleDark()"><i class="ti ti-moon"></i> Tema scuro</button>
       <button class="drawer-item" onclick="doLogout()"><i class="ti ti-logout"></i><span>Esci</span></button>
       </div>
@@ -2960,7 +2974,7 @@ window.showHelp = function() {
 };
 
 // Mappa figlio → genitore, per aprire automaticamente il sottomenu giusto
-const drawerSubmenuParent = { Mappa: 'Piante', AI: 'Piante', Diagnosi: 'Piante', Meteo: 'Piante', Enciclopedia: 'Piante' };
+const drawerSubmenuParent = { Mappa: 'Piante', AI: 'Piante', Diagnosi: 'Piante', Meteo: 'Piante', Enciclopedia: 'Piante', Scadenze: 'Kanban', Calendario: 'Kanban', Storico: 'Impostazioni', Log: 'Impostazioni' };
 
 window.toggleDrawerGroup = function(parentName, e) {
   if (e) e.stopPropagation();
@@ -7971,6 +7985,10 @@ window.testWhatsApp = async function() {
 })();
 
 const APP_CHANGELOG = [
+  {v:'6.2.1', data:'2026-11-01', titolo:'Menu più ordinato', novita:[
+    '📋 Scadenze e Calendario sono ora un sottomenu di Attività',
+    '⚙️ Storico e Log modifiche sono ora un sottomenu di Impostazioni',
+  ]},
   {v:'6.2', data:'2026-11-01', titolo:'Avanzamento del cantiere', novita:[
     '📈 Storico avanzamenti: ogni aggiornamento di una fase salva data, percentuale, nota e foto',
     '📊 Curva dell\'avanzamento reale contro quello previsto, con giorni avanti/indietro sul programma',
@@ -8832,11 +8850,13 @@ function renderAll() {
 // ── BADGE SCADENZE ─────────────────────────────────────
 function checkScadenzeBadge() {
   const urgenti = attivita.filter(a => { const d = daysLeft(a.data_prossima); return d !== null && d < 0; }).length;
-  const badge = document.getElementById('dnavBadge');
-  if (badge) {
-    badge.style.display = urgenti > 0 ? 'inline-flex' : 'none';
-    badge.textContent = urgenti > 0 ? String(urgenti) : '';
-  }
+  ['dnavBadge','dnavBadgeKanban'].forEach(idB => {
+    const badge = document.getElementById(idB);
+    if (badge) {
+      badge.style.display = urgenti > 0 ? 'inline-flex' : 'none';
+      badge.textContent = urgenti > 0 ? String(urgenti) : '';
+    }
+  });
   const bnavBadge = document.getElementById('bnavBadge');
   if (bnavBadge) {
     bnavBadge.style.display = urgenti > 0 ? 'flex' : 'none';
